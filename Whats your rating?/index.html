@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's Your Rating - Social Party Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .role-selection {
+            margin-bottom: 20px;
+        }
+
+        .role-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+        }
+
+        .role-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #ff6b6b;
+        }
+
+        .btn-secondary:hover {
+            background: #ff5252;
+        }
+
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .qr-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            color: #333;
+        }
+
+        .qr-code {
+            margin: 10px 0;
+        }
+
+        .token {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        .rules {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .rules h3 {
+            color: #FFD700;
+            margin-bottom: 15px;
+        }
+
+        .rules ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .rules li {
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+
+        .secret-number {
+            font-size: 4em;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 20px;
+            border: 3px solid #FFD700;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .qr-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn hidden" id="backBtn" onclick="goBack()">←</button>
+    
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen">
+            <h1>🎲 What's Your Rating</h1>
+            <p class="subtitle">The Ultimate Social Party Game</p>
+            
+            <div class="role-selection">
+                <button class="role-btn" onclick="selectRole('host')">
+                    🎯 I'm the Host
+                </button>
+                <button class="role-btn" onclick="selectRole('player')">
+                    🎮 I'm a Player
+                </button>
+            </div>
+        </div>
+
+        <!-- Host Setup Screen -->
+        <div id="hostScreen" class="hidden">
+            <h2>🎯 Host Setup</h2>
+            <div class="input-group">
+                <label for="playerCount">Number of Players (including you):</label>
+                <input type="number" id="playerCount" min="2" max="8" value="4">
+            </div>
+            <button class="btn" onclick="generateCodes()">Generate Player Codes</button>
+        </div>
+
+        <!-- Host Codes Display -->
+        <div id="codesScreen" class="hidden">
+            <h2>🎯 Player Codes</h2>
+            <p>Share these codes with your players:</p>
+            <div id="codesContainer"></div>
+            <button class="btn btn-secondary" onclick="goBack()">Back to Setup</button>
+        </div>
+
+        <!-- Player Entry Screen -->
+        <div id="playerScreen" class="hidden">
+            <h2>🎮 Player Entry</h2>
+            <div class="input-group">
+                <label for="playerToken">Enter your player code:</label>
+                <input type="text" id="playerToken" placeholder="e.g., P1-ABC" style="text-transform: uppercase;">
+            </div>
+            <button class="btn" onclick="validateToken()">Join Game</button>
+        </div>
+
+        <!-- Rules Screen -->
+        <div id="rulesScreen" class="hidden">
+            <h2>📋 How to Play</h2>
+            <div class="rules">
+                <h3>🎯 Objective</h3>
+                <p>Guess other players' secret numbers based on their responses!</p>
+                
+                <h3>🎮 How It Works</h3>
+                <ul>
+                    <li>Each player gets a secret number from 1-10</li>
+                    <li>The host announces a category (e.g., "Rate this movie")</li>
+                    <li>You respond with something that matches your number as a rating</li>
+                    <li>Other players try to guess your secret number</li>
+                    <li>Points are awarded for correct guesses!</li>
+                </ul>
+                
+                <h3>💡 Examples</h3>
+                <ul>
+                    <li>Category: "Pizza toppings" | Your number: 7 | You say: "Pepperoni" (pretty good!)</li>
+                    <li>Category: "Horror movies" | Your number: 3 | You say: "The Emoji Movie" (not scary!)</li>
+                </ul>
+            </div>
+            <button class="btn" onclick="showSecretNumber()">Got It! Show My Number</button>
+        </div>
+
+        <!-- Secret Number Display -->
+        <div id="numberScreen" class="hidden">
+            <h2>🤫 Your Secret Number</h2>
+            <div class="secret-number" id="secretNumber">?</div>
+            <p>Remember this number and keep it secret!</p>
+            <p>Wait for the host to announce categories, then respond with items that match your number as a rating (1=terrible, 10=amazing).</p>
+            <button class="btn" onclick="goBack()">Back to Rules</button>
+        </div>
+    </div>
+
+    <script>
+        let currentScreen = 'welcome';
+        let playerTokens = {};
+        let currentPlayerNumber = null;
+
+        function selectRole(role) {
+            currentScreen = role;
+            hideAllScreens();
+            
+            if (role === 'host') {
+                document.getElementById('hostScreen').classList.remove('hidden');
+            } else {
+                document.getElementById('playerScreen').classList.remove('hidden');
+            }
+            
+            showBackButton();
+        }
+
+        function generateCodes() {
+            const playerCount = parseInt(document.getElementById('playerCount').value);
+            
+            if (playerCount < 2 || playerCount > 8) {
+                alert('Please enter a number between 2 and 8 players.');
+                return;
+            }
+
+            const codesContainer = document.getElementById('codesContainer');
+            codesContainer.innerHTML = '';
+            playerTokens = {};
+
+            // Generate tokens for players (excluding host)
+            for (let i = 1; i < playerCount; i++) {
+                const token = generateToken(i);
+                playerTokens[token] = i;
+                
+                const codeItem = document.createElement('div');
+                codeItem.className = 'qr-item';
+                codeItem.innerHTML = `
+                    <h3>Player ${i}</h3>
+                    <div class="token">${token}</div>
+                    <small>Give this code to Player ${i}</small>
+                `;
+                codesContainer.appendChild(codeItem);
+            }
+
+            hideAllScreens();
+            document.getElementById('codesScreen').classList.remove('hidden');
+        }
+
+        function generateToken(playerNumber) {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const randomLetters = Array.from({length: 3}, () => 
+                letters[Math.floor(Math.random() * letters.length)]
+            ).join('');
+            return `P${playerNumber}-${randomLetters}`;
+        }
+
+        function validateToken() {
+            const token = document.getElementById('playerToken').value.toUpperCase().trim();
+            
+            if (!token) {
+                alert('Please enter a player code.');
+                return;
+            }
+
+            // For demo purposes, accept any token in format P#-XXX
+            const tokenPattern = /^P(\d)-[A-Z]{3}$/;
+            const match = token.match(tokenPattern);
+            
+            if (match) {
+                currentPlayerNumber = parseInt(match[1]);
+                showRules();
+            } else {
+                alert('Invalid code format. Please enter a code like P1-ABC');
+            }
+        }
+
+        function showRules() {
+            hideAllScreens();
+            document.getElementById('rulesScreen').classList.remove('hidden');
+        }
+
+        function showSecretNumber() {
+            const secretNum = Math.floor(Math.random() * 10) + 1;
+            document.getElementById('secretNumber').textContent = secretNum;
+            
+            hideAllScreens();
+            document.getElementById('numberScreen').classList.remove('hidden');
+        }
+
+        function hideAllScreens() {
+            const screens = ['welcomeScreen', 'hostScreen', 'codesScreen', 'playerScreen', 'rulesScreen', 'numberScreen'];
+            screens.forEach(screen => {
+                document.getElementById(screen).classList.add('hidden');
+            });
+        }
+
+        function showBackButton() {
+            document.getElementById('backBtn').classList.remove('hidden');
+        }
+
+        function hideBackButton() {
+            document.getElementById('backBtn').classList.add('hidden');
+        }
+
+        function goBack() {
+            if (currentScreen === 'host' || currentScreen === 'player') {
+                // Go back to welcome
+                hideAllScreens();
+                hideBackButton();
+                document.getElementById('welcomeScreen').classList.remove('hidden');
+                currentScreen = 'welcome';
+            } else {
+                // Go back one step
+                switch(currentScreen) {
+                    case 'codes':
+                        hideAllScreens();
+                        document.getElementById('hostScreen').classList.remove('hidden');
+                        break;
+                    case 'rules':
+                        hideAllScreens();
+                        document.getElementById('playerScreen').classList.remove('hidden');
+                        break;
+                    case 'number':
+                        hideAllScreens();
+                        document.getElementById('rulesScreen').classList.remove('hidden');
+                        break;
+                }
+            }
+        }
+
+        // Allow Enter key to submit forms
+        document.getElementById('playerCount').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') generateCodes();
+        });
+
+        document.getElementById('playerToken').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') validateToken();
+        });
+
+        // Auto-format player token input
+        document.getElementById('playerToken').addEventListener('input', function(e) {
+            let value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+            
+            // Format as P#-XXX
+            if (value.length > 0 && !value.startsWith('P')) {
+                value = 'P' + value;
+            }
+            if (value.length > 2 && value[2] !== '-') {
+                value = value.slice(0, 2) + '-' + value.slice(2);
+            }
+            if (value.length > 6) {
+                value = value.slice(0, 6);
+            }
+            
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>
