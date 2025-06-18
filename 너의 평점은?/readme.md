@@ -1,5 +1,7 @@
 # 🎲 나의 평점은? - 소셜 파티 게임
 
+# [플레이하기](https://rawcdn.githack.com/EmptyDeck/Sejiks-Social-Games/main/%EB%84%88%EC%9D%98%20%ED%8F%89%EC%A0%90%EC%9D%80%3F/%EB%84%88%EC%9D%98%20%ED%8F%89%EC%A0%90%EC%9D%80%3F2.0.html)
+
 ## 뭔가요?
 
 서로의 답변을 듣고 비밀 번호를 맞히는 재미있는 오프라인 파티 게임!
