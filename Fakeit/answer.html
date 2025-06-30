@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>페이커 게임 - 답변 공개</title>
+    <link rel="stylesheet" href="answer.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 게임 정보 헤더 -->
+        <div class="game-header">
+            <div class="game-info">
+                <div class="game-number">게임 <span id="gameNumber">1</span></div>
+                <div class="round-info">
+                    <span>라운드</span>
+                    <span class="round-number" id="roundNumber">1</span>
+                    <span class="round-total" id="roundTotal">/4</span>
+                </div>
+            </div>
+            <div class="player-info">
+                <span>플레이어</span>
+            </div>
+        </div>
+
+        <!-- 게임 코드 정보 (디버깅용 - 선택사항) -->
+        <div class="game-code-info" id="gameCodeInfo" style="display: none;">
+            <span class="code-label">게임 코드: </span>
+            <span class="code-value" id="gameCodeValue">로딩 중...</span>
+        </div>
+
+        <!-- 질문 표시 (라이어만 보임 - 하지만 숨김 처리) -->
+        <div class="question-section" id="questionSection" style="display: none;">
+            <h2 class="section-title">📝 메인 질문</h2>
+            <div class="main-question">
+                <p id="mainQuestionText">메인 질문이 여기에 표시됩니다</p>
+            </div>
+        </div>
+
+        <!-- 답변 카드 섹션 -->
+        <div class="answer-section">
+            <h2 class="section-title">💬 내 답변</h2>
+            <div class="answer-card-container">
+                <div class="answer-card" id="answerCard">
+                    <div class="card-front">
+                        <div class="card-cover">
+                            <div class="cover-icon">🎴</div>
+                            <p class="cover-text">터치하여 답변 공개</p>
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <div class="answer-content">
+                            <!-- 텍스트 답변 -->
+                            <p id="answerText">답변이 여기에 표시됩니다</p>
+                            <!-- 그림 답변 -->
+                            <canvas id="answerDrawing" width="280" height="180" style="display: none;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="answer-instruction" id="answerInstruction">
+                카드를 터치하여 답변을 공개하세요
+            </p>
+        </div>
+
+        <!-- 투표 섹션 -->
+        <div class="voting-section" id="votingSection" style="display: none;">
+            <h2 class="section-title">🗳️ 라이어 투표</h2>
+            <p class="voting-instruction">누가 라이어라고 생각하시나요? (버튼을 눌러 선택/해제하세요)</p>
+            <div class="voting-grid" id="votingGrid">
+                <!-- 투표 버튼들이 동적으로 생성됩니다 -->
+            </div>
+            <div class="vote-status">
+                <p class="vote-count">현재 선택된 투표: <span id="currentVotes">0</span></p>
+            </div>
+        </div>
+
+        <!-- 컨트롤 버튼 -->
+        <div class="control-section">
+            <button class="control-btn next-btn" id="nextBtn">
+                ➡️ 다음 라운드
+            </button>
+            <button class="control-btn back-btn" id="backBtn">
+                ← 게임으로 돌아가기
+            </button>
+            <!-- 다음 게임, 게임 종료 버튼은 JS에서 동적으로 추가됩니다 -->
+        </div>
+    </div>
+
+    <!-- 게임 데이터와 질문 시스템 로드 -->
+    <script src="gameData.js"></script>
+    <script src="questions.js"></script>
+    <script src="answer.js"></script>
+</body>
+</html>

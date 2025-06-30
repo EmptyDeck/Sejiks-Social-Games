@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>방 참여 - 페이커 헌트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --success-color: #4ade80;
+            --warning-color: #fbbf24;
+            --danger-color: #f87171;
+            --text-light: #ffffff;
+            --text-dark: #e2e8f0;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 배경 애니메이션 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(240, 147, 251, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            animation: pulse 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0.8rem;
+            color: var(--text-light);
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(-2px);
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .header {
+            margin-bottom: 3rem;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .input-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .code-input-container {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .code-input {
+            width: 60px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .code-input:focus {
+            border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(240, 147, 251, 0.3);
+            transform: scale(1.05);
+        }
+
+        .code-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .join-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-color), #ec4899);
+            border: none;
+            border-radius: 20px;
+            padding: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .join-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .join-btn:hover::before {
+            left: 100%;
+        }
+
+        .join-btn:hover {
+            background: linear-gradient(135deg, #f472b6, #db2777);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
+        }
+
+        .join-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .join-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.1);
+        }
+
+        .error-message {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            color: var(--danger-color);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .help-text {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .input-section {
+                padding: 2rem 1.5rem;
+            }
+            
+            .code-input {
+                width: 50px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            
+            .join-btn {
+                padding: 1.2rem;
+                font-size: 1.1rem;
+            }
+        }
+
+        /* 입력 애니메이션 */
+        .code-input.filled {
+            background: rgba(74, 222, 128, 0.1);
+            border-color: var(--success-color);
+        }
+
+        .code-input.error {
+            background: rgba(248, 113, 113, 0.1);
+            border-color: var(--danger-color);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* 로딩 상태 */
+        .loading {
+            pointer-events: none;
+        }
+
+        .loading .join-btn {
+            background: linear-gradient(135deg, #94a3b8, #64748b);
+            cursor: not-allowed;
+        }
+
+        .loading .join-btn::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">← 뒤로</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎪 방 참여</h1>
+            <p class="subtitle">호스트가 제공한 초대 코드를 입력하세요</p>
+        </div>
+
+        <div class="input-section">
+            <label class="input-label">🎫 초대 코드 입력</label>
+            
+            <div class="code-input-container">
+                <input type="text" class="code-input" id="code1" maxlength="1" placeholder="•">
+                <input type="text" class="code-input" id="code2" maxlength="1" placeholder="•">
+                <input type="text" class="code-input" id="code3" maxlength="1" placeholder="•">
+                <input type="text" class="code-input" id="code4" maxlength="1" placeholder="•">
+            </div>
+            
+            <button class="join-btn" id="joinBtn" onclick="joinGame()">
+                🎮 게임 참여하기
+            </button>
+            
+            <div class="error-message" id="errorMessage"></div>
+            
+            <p class="help-text">
+                * 4자리 영문 코드를 정확히 입력해주세요
+            </p>
+        </div>
+    </div>
+
+    <!-- 게임 데이터와 질문 시스템 로드 -->
+    <script src="gameData.js"></script>
+    <script src="questions.js"></script>
+    <script>
+        const codeInputs = document.querySelectorAll('.code-input');
+        const joinBtn = document.getElementById('joinBtn');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // 페이지 로드 시 게임 시스템 확인
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!window.isGameDataLoaded() || !window.isQuestionsLoaded()) {
+                showError('게임 시스템을 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+                joinBtn.disabled = true;
+                return;
+            }
+        });
+
+        // 입력 필드 간 자동 이동 및 검증
+        codeInputs.forEach((input, index) => {
+            input.addEventListener('input', function(e) {
+                const value = e.target.value.toUpperCase();
+                
+                // 영문자만 허용
+                const validChars = /^[A-Z]$/;
+                if (value && !validChars.test(value)) {
+                    e.target.value = '';
+                    showError('영문자만 입력 가능합니다.');
+                    return;
+                }
+                
+                e.target.value = value;
+                
+                // 입력 시 다음 필드로 이동
+                if (value && index < codeInputs.length - 1) {
+                    codeInputs[index + 1].focus();
+                }
+                
+                // 시각적 피드백
+                if (value) {
+                    e.target.classList.add('filled');
+                    e.target.classList.remove('error');
+                } else {
+                    e.target.classList.remove('filled');
+                }
+                
+                updateJoinButton();
+                hideError();
+            });
+
+            input.addEventListener('keydown', function(e) {
+                // 백스페이스 시 이전 필드로 이동
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    codeInputs[index - 1].focus();
+                }
+                
+                // 엔터키로 게임 참여
+                if (e.key === 'Enter' && isCodeComplete()) {
+                    joinGame();
+                }
+            });
+
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedText = e.clipboardData.getData('text').toUpperCase();
+                
+                if (pastedText.length === 4 && /^[A-Z]{4}$/.test(pastedText)) {
+                    pastedText.split('').forEach((char, i) => {
+                        if (i < codeInputs.length) {
+                            codeInputs[i].value = char;
+                            codeInputs[i].classList.add('filled');
+                        }
+                    });
+                    updateJoinButton();
+                    hideError();
+                }
+            });
+        });
+
+        function isCodeComplete() {
+            return Array.from(codeInputs).every(input => input.value.length === 1);
+        }
+
+        function updateJoinButton() {
+            joinBtn.disabled = !isCodeComplete() || !window.isGameDataLoaded() || !window.isQuestionsLoaded();
+        }
+
+        function getEnteredCode() {
+            return Array.from(codeInputs).map(input => input.value).join('');
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            
+            // 입력 필드에 에러 표시
+            codeInputs.forEach(input => {
+                input.classList.add('error');
+                setTimeout(() => {
+                    input.classList.remove('error');
+                }, 500);
+            });
+        }
+
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        function validateCode(code) {
+            // 게임 시스템 확인
+            if (!window.isGameDataLoaded() || !window.isQuestionsLoaded()) {
+                return { valid: false, message: '게임 시스템이 준비되지 않았습니다.' };
+            }
+
+            // 코드 길이 검증
+            if (code.length !== 4) {
+                return { valid: false, message: '4자리 코드를 모두 입력해주세요.' };
+            }
+            
+            // 영문자만 허용
+            const validFormat = /^[A-Z]{4}$/;
+            if (!validFormat.test(code)) {
+                return { valid: false, message: '올바른 형식의 코드를 입력해주세요.' };
+            }
+            
+            try {
+                // gameData.js를 사용하여 코드 검증
+                const validation = window.validateGameData(code);
+                
+                if (!validation.valid) {
+                    return { 
+                        valid: false, 
+                        message: '유효하지 않은 초대코드입니다: ' + validation.errors.join(', ')
+                    };
+                }
+                
+                // 기본 게임 설정으로 라이어 여부 확인 (게임1, 라운드1, 플레이어1 기준)
+                const isPlayerFaker = window.isPlayerFakerInRound(code, 1, 1, 1, 4, 1);
+                
+                return { 
+                    valid: true, 
+                    code: code,
+                    isFaker: isPlayerFaker,
+                    gameData: validation.data
+                };
+            } catch (error) {
+                console.error('코드 검증 중 오류:', error);
+                return { valid: false, message: '코드 검증 중 오류가 발생했습니다.' };
+            }
+        }
+
+        function joinGame() {
+            if (!isCodeComplete()) {
+                showError('4자리 코드를 모두 입력해주세요.');
+                return;
+            }
+            
+            const code = getEnteredCode();
+            const validation = validateCode(code);
+            
+            if (!validation.valid) {
+                showError(validation.message);
+                return;
+            }
+            
+            // 로딩 상태 표시
+            document.body.classList.add('loading');
+            joinBtn.textContent = '참여 중...';
+            
+            // 게임 참여 처리
+            setTimeout(() => {
+                try {
+                    const playerData = {
+                        playerCode: validation.code,      // player-game.js에서 기대하는 키
+                        totalPlayers: 4,                  // 기본값
+                        fakerCount: 1,                    // 기본값
+                        gameNumber: 1,                    // 기본값
+                        playerIndex: 1,                   // 기본값 (추후 동적 할당 필요)
+                        currentRound: 1
+                    };
+                    
+                    console.log('게임 참여 완료:', {
+                        code: validation.code,
+                        isFaker: validation.isFaker,
+                        gameData: validation.gameData
+                    });
+                    
+                    // 플레이어 데이터를 저장하고 게임 페이지로 이동
+                    const playerDataString = JSON.stringify(playerData);
+                    
+                    // 모든 플레이어를 player-game.html로 보냄 (라이어/일반 구분 없이)
+                    window.location.href = `player-game.html?data=${encodeURIComponent(playerDataString)}`;
+                    
+                } catch (error) {
+                    console.error('게임 참여 중 오류:', error);
+                    document.body.classList.remove('loading');
+                    joinBtn.textContent = '🎮 게임 참여하기';
+                    showError('게임 참여 중 오류가 발생했습니다.');
+                }
+            }, 1000);
+        }
+
+        // 터치 피드백
+        joinBtn.addEventListener('touchstart', function() {
+            if (!this.disabled) {
+                this.style.transform = 'translateY(-1px)';
+            }
+        });
+        
+        joinBtn.addEventListener('touchend', function() {
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+
+        // 페이지 로드 시 첫 번째 입력 필드에 포커스
+        window.addEventListener('load', function() {
+            if (codeInputs[0]) {
+                codeInputs[0].focus();
+            }
+        });
+    </script>
+</body>
+</html>
