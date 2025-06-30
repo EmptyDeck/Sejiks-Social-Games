@@ -326,19 +326,87 @@ window.getQuestionForRound = function(inviteCode, gameNumber, roundNumber) {
 };
 
 /**
- * 플레이어가 특정 라운드에서 라이어인지 확인
- * @param {string} inviteCode - 초대코드
- * @param {number} gameNumber - 게임 번호
- * @param {number} roundNumber - 라운드 번호
- * @param {number} playerIndex - 플레이어 인덱스 (0=호스트)
- * @param {number} totalPlayers - 총 플레이어 수
+ * 플레이어가 특정 라운드에서 라이어인지 확인 (올바른 로직)
+ * @param {string} inviteCode - 초대코드 (예: "ABCD")
+ * @param {number} gameNumber - 게임 번호 (1-4)
+ * @param {number} roundNumber - 라운드 번호 (1-4) 
+ * @param {number} playerIndex - 플레이어 인덱스 (0=호스트, 1,2,3...=플레이어)
+ * @param {number} totalPlayers - 총 플레이어 수 (호스트 포함)
  * @param {number} fakerCount - 라이어 수
  * @returns {boolean} 라이어 여부
  */
 window.isPlayerFakerInRound = function(inviteCode, gameNumber, roundNumber, playerIndex, totalPlayers, fakerCount) {
-    const fakers = window.getFakersForRound(inviteCode, gameNumber, roundNumber, totalPlayers, fakerCount);
-    return fakers.includes(playerIndex);
+    if (!inviteCode || gameNumber < 1 || gameNumber > 4) {
+        console.error('잘못된 매개변수:', { inviteCode, gameNumber, roundNumber, playerIndex, totalPlayers, fakerCount });
+        return false;
+    }
+    
+    try {
+        // 1단계: 초대코드의 첫 글자로 해당 게임의 행 찾기
+        const firstLetter = inviteCode[0].toLowerCase();
+        const gameIndex = gameNumber - 1; // 0-3
+        let rowIndex = -1;
+        
+        // 해당 게임의 각 행에서 첫 글자 찾기
+        for (let i = 0; i < window.gameCodeSets[gameIndex].length; i++) {
+            if (window.gameCodeSets[gameIndex][i].includes(firstLetter)) {
+                rowIndex = i;
+                break;
+            }
+        }
+        
+        if (rowIndex === -1) {
+            console.warn(`게임${gameNumber}에서 글자 '${firstLetter}'를 찾을 수 없습니다.`);
+            return false;
+        }
+        
+        console.log(`초대코드 ${inviteCode} → 첫글자 ${firstLetter.toUpperCase()} → 게임${gameNumber}의 ${rowIndex}번째 행`);
+        
+        // 2단계: 해당 행의 시드코드 가져오기
+        const seedCode = window.gameFakerSeeds[gameIndex][rowIndex];
+        console.log(`게임${gameNumber} ${rowIndex}번째 행의 시드:`, seedCode);
+        
+        // 3단계: 시드코드에서 라이어들 선정
+        const fakers = [];
+        let seedIndex = 0;
+        
+        console.log('=== 라이어 선정 과정 ===');
+        console.log(`총 인원: ${totalPlayers}명, 라이어 수: ${fakerCount}명`);
+        
+        while (fakers.length < fakerCount && seedIndex < seedCode.length) {
+            const char = seedCode[seedIndex];
+            const charValue = window.alphabetToNumber[char] || 0;
+            const selectedPlayer = charValue % totalPlayers;
+            
+            console.log(`시드[${seedIndex}]: ${char}(${charValue}) % ${totalPlayers} = ${selectedPlayer} ${selectedPlayer === 0 ? '(호스트)' : '(플레이어' + selectedPlayer + ')'}`);
+            
+            // 중복이 아닌 경우에만 추가
+            if (!fakers.includes(selectedPlayer)) {
+                fakers.push(selectedPlayer);
+                console.log(`✅ 라이어 추가: ${selectedPlayer === 0 ? '호스트' : '플레이어' + selectedPlayer}`);
+            } else {
+                console.log(`❌ 중복이므로 넘어감`);
+            }
+            
+            seedIndex++;
+        }
+        
+        console.log('최종 라이어 목록:', fakers.map(f => f === 0 ? '호스트' : '플레이어' + f));
+        console.log(`현재 확인 대상: ${playerIndex === 0 ? '호스트' : '플레이어' + playerIndex}`);
+        
+        // 4단계: 현재 플레이어가 라이어 목록에 있는지 확인
+        const isPlayerFaker = fakers.includes(playerIndex);
+        console.log(`라이어 여부: ${isPlayerFaker ? '🎭 라이어' : '👤 일반플레이어'}`);
+        console.log('=== 라이어 선정 완료 ===');
+        
+        return isPlayerFaker;
+        
+    } catch (error) {
+        console.error('라이어 선정 중 오류:', error);
+        return false;
+    }
 };
+
 
 /**
  * 문제 번호에서 문제 유형과 번호 분리
