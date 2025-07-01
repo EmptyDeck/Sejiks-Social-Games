@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="host-game.css">
 </head>
 <body>
+    <a href="host.html" class="back-btn">← 뒤로</a>
+    
     <div class="container">
         <!-- 게임 헤더 -->
         <div class="game-header">
@@ -18,67 +20,52 @@
                     <span class="round-total" id="roundTotal">/4</span>
                 </div>
             </div>
-            <div class="game-title">👑 호스트 컨트롤</div>
-            <div class="host-role-info">
-                <span>내 역할: </span>
-                <span class="host-role" id="hostRole">확인 중...</span>
+            <div class="host-info">
+                <div class="invite-code">
+                    <span>초대코드: </span>
+                    <span id="gameCode">로딩 중...</span>
+                </div>
+                <div class="host-role-info">
+                    <span>내 역할: </span>
+                    <span class="host-role" id="hostRole">확인 중...</span>
+                </div>
             </div>
         </div>
 
-        <!-- 게임 정보 표시 -->
-        <div class="game-info-section">
-            <div class="current-game-info">
-                <span class="game-code-label">게임 코드: </span>
-                <span class="game-code" id="gameCode">로딩 중...</span>
+        <!-- 역할 카드 -->
+        <div class="role-section">
+            <div class="role-card" id="roleCard">
+                <div class="role-icon" id="roleIcon">👑</div>
+                <div class="role-info">
+                    <div class="role-name" id="roleName">호스트</div>
+                    <div class="role-description">게임을 진행하고 관리합니다</div>
+                </div>
             </div>
         </div>
 
         <!-- 질문 섹션 -->
-        <div class="question-section">
+        <div class="question-section" id="questionSection">
             <div class="question-header">
+                <div class="question-mode" id="questionMode">입력형</div>
                 <h2 class="question-title">📝 현재 질문</h2>
-                <span class="question-mode" id="questionMode">입력형</span>
             </div>
             <div class="question-content">
-                <div class="host-question">
-                    <span class="question-label">내 질문:</span>
-                    <div class="question-text" id="hostQuestion">질문을 불러오는 중...</div>
-                </div>
-                <div class="main-question" id="mainQuestionDiv" style="display: none;">
-                    <span class="question-label">메인 질문:</span>
-                    <div class="main-question-text" id="mainQuestion"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 점수 관리 -->
-        <div class="score-section">
-            <h2 class="section-title">📊 점수 관리</h2>
-            <div class="score-grid" id="scoreGrid">
-                <!-- 플레이어들이 동적으로 추가됩니다 -->
-            </div>
-        </div>
-
-        <!-- 투표 현황 -->
-        <div class="voting-section">
-            <h2 class="section-title">🗳️ 투표 현황</h2>
-            <div class="voting-grid" id="votingGrid">
-                <p class="no-votes">투표 현황이 없습니다.</p>
+                <div class="question-text" id="hostQuestion">질문을 불러오는 중...</div>
             </div>
         </div>
 
         <!-- 답변 입력 섹션 -->
-        <div class="input-section">
-            <h2 class="section-title">✏️ 답변 입력</h2>
+        <div class="answer-input-section" id="answerInputSection">
+            <h3 class="section-title submit-title">📝 답변제출</h3>
             
-            <!-- 텍스트 입력 (입력형, 플레이어선택형, 이모티콘형) -->
+            <!-- 텍스트 입력 -->
             <div class="text-input-container" id="textInputContainer">
                 <input type="text" id="answerInput" placeholder="답변을 입력하세요..." class="answer-input">
             </div>
 
-            <!-- 그림 입력 (그림형) -->
+            <!-- 그림 입력 -->
             <div class="drawing-container" id="drawingContainer" style="display: none;">
-                <canvas id="drawingCanvas" width="400" height="300"></canvas>
+                <canvas id="drawingCanvas" width="350" height="250"></canvas>
                 <div class="drawing-controls">
                     <div class="color-palette">
                         <button class="color-btn active" data-color="#000000" style="background: #000000;"></button>
@@ -92,54 +79,92 @@
                     </div>
                     <div class="drawing-tools">
                         <button id="clearCanvas" class="tool-btn">🗑️ 지우기</button>
-                        <input type="range" id="brushSize" min="1" max="20" value="3" class="brush-slider">
-                        <span class="brush-size-label">굵기: <span id="brushSizeValue">3</span></span>
+                        <label class="brush-control">
+                            <span>굵기:</span>
+                            <input type="range" id="brushSize" min="1" max="20" value="3" class="brush-slider">
+                            <span id="brushSizeValue">3</span>
+                        </label>
                     </div>
                 </div>
             </div>
 
-            <!-- 제출 버튼 -->
-            <button id="submitBtn" class="submit-btn">제출</button>
+            <!-- 제출 버튼들 -->
+            <div class="submit-section">
+                <button id="submitBtn" class="submit-btn">📝 답변 제출</button>
+                <button id="editAnswerBtn" class="edit-btn" style="display: none;">✏️ 답변 수정</button>
+            </div>
             
             <!-- 답변 상태 -->
             <div class="answer-status" id="answerStatus" style="display: none;">
-                <p class="submitted-answer">제출된 답변: <span id="submittedText"></span></p>
-                <canvas id="submittedDrawing" style="display: none;" width="300" height="200"></canvas>
-                <p class="answer-locked">⚠️ 답변이 제출되어 수정할 수 없습니다.</p>
+                <div class="status-header">✅ 답변이 제출되었습니다</div>
+                <div class="submitted-content">
+                    <div id="submittedText" class="submitted-text"></div>
+                    <canvas id="submittedDrawing" class="submitted-drawing" style="display: none;" width="300" height="200"></canvas>
+                </div>
             </div>
         </div>
 
-        <!-- 컨트롤 섹션 -->
-        <div class="control-section">
+        <!-- 점수 관리 섹션 -->
+        <div class="score-section">
+            <h3 class="section-title">📊 점수 관리</h3>
+            <div class="score-grid" id="scoreGrid">
+                <!-- 플레이어 점수들이 동적으로 추가됩니다 -->
+            </div>
+        </div>
+
+        <!-- 게임 컨트롤 -->
+        <div class="game-controls">
+            <button id="goToAnswerBtn" class="control-btn answer-btn" style="display: none;">
+                📋 답변 공개하기
+            </button>
+            
             <div class="control-row">
-                <button id="faker-give-up-btn" class="control-btn faker-give-up-btn">
-                    🏳️ 페이커 포기
-                </button>
-                <button id="next-round-btn" class="control-btn next-round-btn">
+                <button id="nextRoundBtn" class="control-btn next-btn" style="display: none;">
                     ➡️ 다음 라운드
                 </button>
-            </div>
-            <div class="control-row">
-                <button id="next-game-btn" class="control-btn next-game-btn">
+                <button id="nextGameBtn" class="control-btn next-btn" style="display: none;">
                     🎲 다음 게임
                 </button>
-                <button id="reveal-faker-btn" class="control-btn reveal-faker-btn">
-                    🎭 페이커 공개 (비상용)
-                </button>
             </div>
-            <div class="control-row">
-                <button id="end-game-btn" class="control-btn end-game-btn">
+        </div>
+
+        <!-- 호스트 전용 컨트롤 -->
+        <div class="host-controls">
+            <h3 class="section-title">👑 호스트 전용</h3>
+            <div class="host-control-grid">
+                <button id="faker-give-up-btn" class="host-btn give-up-btn">
+                    🏳️ 라이어 포기
+                </button>
+                <button id="reveal-faker-btn" class="host-btn reveal-btn">
+                    🎭 라이어 공개
+                </button>
+                <button id="end-game-btn" class="host-btn end-btn">
                     🏆 게임 종료
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 페이커 포기 확인 모달 -->
+    <!-- 라이어용 메인 질문 표시 (5초 타이머) -->
+    <div id="mainQuestionReveal" class="main-question-reveal" style="display: none;">
+        <div class="reveal-overlay">
+            <div class="reveal-content">
+                <h3 class="reveal-title">📋 실제 질문</h3>
+                <div class="reveal-question" id="mainQuestionText">질문이 로드 중입니다...</div>
+                <div class="reveal-timer">
+                    <span id="revealTimer">5</span>초 후 이동
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달들 -->
+    
+    <!-- 라이어 포기 확인 모달 -->
     <div id="giveUpModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
-            <h3 class="modal-title">🏳️ 페이커 포기</h3>
-            <p class="modal-message">페이커가 포기했나요?</p>
+            <h3 class="modal-title">🏳️ 라이어 포기</h3>
+            <p class="modal-message">라이어가 포기했나요?</p>
             <div class="modal-buttons">
                 <button id="cancelGiveUp" class="modal-btn cancel-btn">취소</button>
                 <button id="confirmGiveUp" class="modal-btn confirm-btn">확인</button>
@@ -147,11 +172,11 @@
         </div>
     </div>
 
-    <!-- 페이커 공개 첫 번째 확인 모달 -->
+    <!-- 라이어 공개 첫 번째 확인 모달 -->
     <div id="revealModal1" class="modal-overlay" style="display: none;">
         <div class="modal-content">
-            <h3 class="modal-title">⚠️ 페이커 공개 (1차 확인)</h3>
-            <p class="modal-message">정말로 페이커를 공개하시겠습니까?<br><strong>이 작업은 비상용입니다!</strong></p>
+            <h3 class="modal-title">⚠️ 라이어 공개 (1차 확인)</h3>
+            <p class="modal-message">정말로 라이어를 공개하시겠습니까?<br><strong>이 작업은 비상용입니다!</strong></p>
             <div class="modal-buttons">
                 <button id="cancelReveal1" class="modal-btn cancel-btn">취소</button>
                 <button id="confirmReveal1" class="modal-btn confirm-btn">확인</button>
@@ -159,11 +184,11 @@
         </div>
     </div>
 
-    <!-- 페이커 공개 두 번째 확인 모달 -->
+    <!-- 라이어 공개 두 번째 확인 모달 -->
     <div id="revealModal2" class="modal-overlay" style="display: none;">
         <div class="modal-content">
-            <h3 class="modal-title">🚨 페이커 공개 (최종 확인)</h3>
-            <p class="modal-message">정말로 확실하시나요?<br><strong>페이커가 공개되면 게임이 망가질 수 있습니다!</strong></p>
+            <h3 class="modal-title">🚨 라이어 공개 (최종 확인)</h3>
+            <p class="modal-message">정말로 확실하시나요?<br><strong>라이어가 공개되면 게임이 망가질 수 있습니다!</strong></p>
             <div class="modal-buttons">
                 <button id="cancelReveal2" class="modal-btn cancel-btn">취소</button>
                 <button id="confirmReveal2" class="modal-btn danger-btn">공개하기</button>
@@ -173,7 +198,7 @@
 
     <!-- 플레이어 정보 공개 모달 -->
     <div id="playerInfoModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
+        <div class="modal-content large-modal">
             <h3 class="modal-title">👥 모든 플레이어 정보</h3>
             <div id="playerInfoList" class="player-info-list">
                 <!-- 플레이어 정보가 동적으로 추가됩니다 -->
@@ -194,6 +219,18 @@
             <div class="modal-buttons">
                 <button id="restartBtn" class="modal-btn restart-btn">🔄 다시 시작</button>
                 <button id="homeBtn" class="modal-btn home-btn">🏠 홈으로</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 게임 종료 확인 모달 -->
+    <div id="endGameConfirmModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3 class="modal-title">❓ 게임 종료</h3>
+            <p class="modal-message">정말로 게임을 종료하시겠습니까?</p>
+            <div class="modal-buttons">
+                <button id="cancelEndGame" class="modal-btn cancel-btn">취소</button>
+                <button id="confirmEndGame" class="modal-btn danger-btn">종료</button>
             </div>
         </div>
     </div>

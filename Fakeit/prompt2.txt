@@ -1,0 +1,173 @@
+내가 초대코드의 원리를 바꾸려고해.
+
+원래 초대코드 원리는 :
+function generateCodes() {
+    // 게임 데이터 시스템 확인
+    if (!window.isGameDataLoaded()) {
+        console.error('게임 데이터가 로드되지 않았습니다.');
+        alert('게임 데이터 시스템이 준비되지 않았습니다.');
+        return;
+    }
+
+    try {
+        generatedCodes = [];
+        const usedCodes = new Set();
+
+        // 1. 게임별로 사용할 공통 행 인덱스를 랜덤으로 선택 (0~5)
+        const selectedRowIndices = [
+            Math.floor(Math.random() * 6), // 게임 1용 행 인덱스
+            Math.floor(Math.random() * 6), // 게임 2용 행 인덱스
+            Math.floor(Math.random() * 6), // 게임 3용 행 인덱스
+            Math.floor(Math.random() * 6)  // 게임 4용 행 인덱스
+        ];
+
+        // ⭐ 중요: selectedRowIndices를 localStorage에 저장
+        localStorage.setItem('selectedRowIndices', JSON.stringify(selectedRowIndices));
+        console.log('선택된 행 인덱스 저장:', selectedRowIndices.map(i => i + 1)); // 1-based 표시
+
+        // 2. 선택된 행 인덱스를 기반으로 4개의 알파벳 풀 구성
+        const letterPools = [
+            window.gameCodeSets[0][selectedRowIndices[0]], // 게임 1 알파벳 풀
+            window.gameCodeSets[1][selectedRowIndices[1]], // 게임 2 알파벳 풀
+            window.gameCodeSets[2][selectedRowIndices[2]], // 게임 3 알파벳 풀
+            window.gameCodeSets[3][selectedRowIndices[3]]  // 게임 4 알파벳 풀
+        ];
+
+        console.log('구성된 알파벳 풀:', letterPools);
+
+        // 3. 각 플레이어의 코드 생성
+        for (let i = 0; i < totalPlayers; i++) {
+            let code;
+            let attempts = 0;
+
+            do {
+                code = (
+                    letterPools[0][Math.floor(Math.random() * 4)] +
+                    letterPools[1][Math.floor(Math.random() * 4)] +
+                    letterPools[2][Math.floor(Math.random() * 4)] +
+                    letterPools[3][Math.floor(Math.random() * 4)]
+                ).toUpperCase();
+
+                attempts++;
+                if (attempts > 1000) {
+                    throw new Error('고유한 코드를 생성하는 데 실패했습니다.');
+                }
+            } while (usedCodes.has(code));
+
+            usedCodes.add(code);
+
+            const codeData = {
+                code: code,
+                playerIndex: i,
+                isHost: i === totalPlayers - 1,
+                selectedRowIndices: selectedRowIndices // 디버깅용 추가
+            };
+            generatedCodes.push(codeData);
+        }
+
+        // 호스트 코드 설정
+        hostCode = generatedCodes[generatedCodes.length - 1];
+
+        console.log('코드 생성 완료:', {
+            selectedRowIndices: selectedRowIndices,
+            totalCodes: generatedCodes.length,
+            hostCode: hostCode.code,
+            allCodes: generatedCodes.map(c => c.code)
+        });
+
+        // UI 업데이트 및 데이터 저장
+        displayCodes();
+        document.getElementById('startBtn').classList.remove('disabled');
+        saveCodesData();
+
+    } catch (error) {
+        console.error('코드 생성 중 오류:', error);
+        alert('코드 생성 중 오류가 발생했습니다: ' + error.message);
+    }
+}
+
+이거였는데, 생각해보니깐 이것보다 더 효율적인 방법이 있더라고.
+그래서 내가 새로 만든 초대코드 생성기야. 이거는 모든 사람들이 같은 코드를 사용해.
+이 초대코드에는 라이어의 수, 전체플레이어의수, 그리고 각 게임의 행 인덱스가 들어가있어.
+
+내가 코드 -> 숫자/ 숫자->코드 알고리즘을 짰어
+코드는 총 4자리 . 각자리에 알파벳이 들어가 (i,l제외)
+그리고 숫자는 총 6자리 첫자리는 1~17, 둘째자리는 1~15, 3,4,5,6자리는 1~6
+그러면 코드는 24^4이니깐 331776가짓수
+숫자는 6^4*15*17이니깐 330480가짓수(대락적으로)
+그걸 파이썬 으로 표현하면 :
+# 사용할 알파벳: 총 24개
+ALPHABETS = [chr(c) for c in range(97, 123) if chr(c) not in ('i', 'l')]  # 'a' ~ 'z' 중 'i', 'l' 제외
+BASE = len(ALPHABETS)  # 24
+
+def number_to_index(num1, num2, num3, num4, num5, num6):
+    # num1: 1~17, num2: 1~15, num3~6: 1~6
+    idx = (((num1 - 1) * 15 + (num2 - 1)) * 1296 +
+           ((num3 - 1) * 216 + (num4 - 1) * 36 + (num5 - 1) * 6 + (num6 - 1)))
+    return idx
+
+def index_to_number(idx):
+    n1 = idx // (15 * 1296) + 1
+    rem = idx % (15 * 1296)
+    n2 = rem // 1296 + 1
+    rem = rem % 1296
+    n3 = rem // 216 + 1
+    rem %= 216
+    n4 = rem // 36 + 1
+    rem %= 36
+    n5 = rem // 6 + 1
+    n6 = rem % 6 + 1
+    return (n1, n2, n3, n4, n5, n6)
+
+def index_to_code(idx):
+    chars = []
+    for _ in range(4):
+        chars.append(ALPHABETS[idx % BASE])
+        idx //= BASE
+    return ''.join(reversed(chars))
+
+def code_to_index(code):
+    idx = 0
+    for c in code:
+        idx = idx * BASE + ALPHABETS.index(c)
+    return idx
+
+def code_to_number(code):
+    return index_to_number(code_to_index(code))
+
+def number_to_code(n1, n2, n3, n4, n5, n6):
+    idx = number_to_index(n1, n2, n3, n4, n5, n6)
+    return index_to_code(idx)
+
+
+
+하지만 주의할점은 너가 라이어 선정 알고리즘은 그대로 사용해야해.
+그건 window.gameSeeds 과 window.alphabetToNumber 를 사용해서 라이어를 선정하는거야.
+원리는 :
+
+코드를 생성할때
+1~6까지의 숫자를 4개 랜덤으로 만들어
+
+예를들어 2,5,3,6 이렇게 만들어졌다고 치자
+
+그럼
+
+게임 1-2
+
+게임 2-5
+
+게임 3-3
+
+게임 4-6인거야
+
+
+예를들어 플레이어 6명, 라이어 2명이라고 하자.
+맨 처음에 2,5,3,6라고 나왔잖아.
+그러면
+첫게임에서이 라이어는 window.gameSeeds에서 가져오는거야
+게임 1의 2번째행 mnbvcxzasdfghjklpoiu를 가져와서
+m - 117 % 6 = 3 즉 3번째플레이어가 게임 1에서 라이어
+이제 라이어가 총 2명이니깐 더 구해야지
+n - 357%6=3 중복이니깐 다음
+b - 135%6 =3. 중복이니깐 다음
+v - 764%6 = 2 2번째 플레이어가 라이어.
