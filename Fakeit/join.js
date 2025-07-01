@@ -8,7 +8,10 @@ const selectedPlayerNumber = document.getElementById('selectedPlayerNumber');
 // 휠 피커 관련 변수
 let wheelPicker = null;
 let wheelItems = null;
-let currentPlayerIndex = 0; // 0-based (실제 플레이어는 1-based)
+let currentPlayerIndex = 1; // 1-based (실제 플레이어는 1-based)
+let maxPlayers = 17; // 초기값
+let actualMaxPlayers = 17; // 실제 게임에서 사용할 최대값
+let currentGameInfo = null; // 현재 게임 정보 저장
 let isDragging = false;
 let startY = 0;
 let startTranslateY = 0;
@@ -16,7 +19,6 @@ let velocity = 0;
 let lastY = 0;
 let lastTime = 0;
 let animationId = null;
-let maxPlayers = 17;
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
@@ -38,36 +40,63 @@ function checkGameSystems() {
 function initializeWheelPicker() {
     wheelPicker = document.getElementById('playerWheelPicker');
     wheelItems = document.getElementById('wheelItems');
-    
-    // 플레이어 번호 아이템 생성 (1-17)
-    for (let i = 1; i <= maxPlayers; i++) {
+    updateWheelItems();
+    setupWheelEvents();
+    updateWheelPosition(1, false);
+}
+
+// 새로운 함수: 휠 아이템들 다시 생성
+function updateWheelItems() {
+    if (!wheelItems) return;
+    wheelItems.innerHTML = '';
+    for (let i = 1; i <= actualMaxPlayers; i++) {
         const item = document.createElement('div');
         item.className = 'wheel-item';
         item.textContent = i;
         item.dataset.value = i;
         wheelItems.appendChild(item);
     }
+}
+
+// 새로운 함수: 즉시 휠 아이템 업데이트
+function updateWheelItemsImmediate() {
+    const items = wheelItems.querySelectorAll('.wheel-item');
     
-    // 이벤트 리스너 설정
-    setupWheelEvents();
+    // 즉시 아이템 표시/숨김 처리
+    items.forEach((item, index) => {
+        const playerNumber = index + 1;
+        if (playerNumber <= actualMaxPlayers) {
+            item.style.display = 'flex';
+            item.style.opacity = '1';
+        } else {
+            item.style.display = 'none';
+            item.style.opacity = '0';
+        }
+    });
     
-    // 초기 위치 설정 (플레이어 1 선택)
-    updateWheelPosition(0, false);
+    // 현재 위치가 유효한지 확인
+    if (currentPlayerIndex > actualMaxPlayers) {
+        updateWheelPosition(1, true);
+    }
+    
+    hideMessages();
+}
+
+// 새로운 함수: 휠 기본값으로 복원
+function resetWheelToDefault() {
+    actualMaxPlayers = maxPlayers;
+    updateWheelItems();
+    updateWheelPosition(1, true);
 }
 
 // 휠 피커 이벤트 설정
 function setupWheelEvents() {
-    // 마우스 이벤트
     wheelPicker.addEventListener('mousedown', handleStart);
     document.addEventListener('mousemove', handleMove);
     document.addEventListener('mouseup', handleEnd);
-    
-    // 터치 이벤트
     wheelPicker.addEventListener('touchstart', handleStart, { passive: false });
     document.addEventListener('touchmove', handleMove, { passive: false });
     document.addEventListener('touchend', handleEnd);
-    
-    // 휠 이벤트
     wheelPicker.addEventListener('wheel', handleWheel, { passive: false });
 }
 
@@ -75,13 +104,10 @@ function setupWheelEvents() {
 function handleStart(e) {
     e.preventDefault();
     isDragging = true;
-    
     const clientY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
     startY = clientY;
     lastY = clientY;
     lastTime = Date.now();
-    
-    // 현재 transform 값 가져오기
     const transform = getComputedStyle(wheelItems).transform;
     if (transform !== 'none') {
         const matrix = new DOMMatrix(transform);
@@ -89,59 +115,44 @@ function handleStart(e) {
     } else {
         startTranslateY = 0;
     }
-    
     velocity = 0;
-    
-    // 진행 중인 애니메이션 중지
     if (animationId) {
         cancelAnimationFrame(animationId);
         animationId = null;
     }
-    
     wheelPicker.style.cursor = 'grabbing';
 }
 
 // 드래그/터치 이동
 function handleMove(e) {
     if (!isDragging) return;
-    
     e.preventDefault();
     const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
     const deltaY = clientY - startY;
     const currentTime = Date.now();
-    
-    // 속도 계산
     if (currentTime - lastTime > 10) {
         velocity = (clientY - lastY) / (currentTime - lastTime);
         lastY = clientY;
         lastTime = currentTime;
     }
-    
-    // 위치 업데이트
     const newTranslateY = startTranslateY + deltaY;
     wheelItems.style.transform = `translateY(${newTranslateY}px)`;
-    
     updateSelectedItem();
 }
 
 // 드래그/터치 종료
 function handleEnd(e) {
     if (!isDragging) return;
-    
     isDragging = false;
     wheelPicker.style.cursor = 'grab';
-    
-    // 관성 스크롤 시작
     startInertiaScroll();
 }
 
 // 휠 이벤트 처리
 function handleWheel(e) {
     e.preventDefault();
-    
     const delta = e.deltaY > 0 ? 1 : -1;
-    const newIndex = Math.max(0, Math.min(maxPlayers - 1, currentPlayerIndex + delta));
-    
+    const newIndex = Math.max(1, Math.min(actualMaxPlayers, currentPlayerIndex + delta));
     if (newIndex !== currentPlayerIndex) {
         updateWheelPosition(newIndex, true);
     }
@@ -153,30 +164,23 @@ function startInertiaScroll() {
         snapToNearest();
         return;
     }
-    
     function animate() {
         const currentTransform = getComputedStyle(wheelItems).transform;
         let currentY = 0;
-        
         if (currentTransform !== 'none') {
             const matrix = new DOMMatrix(currentTransform);
             currentY = matrix.m42;
         }
-        
-        // 관성 적용
-        const newY = currentY + velocity * 16; // 16ms 기준
-        velocity *= 0.95; // 감속
-        
+        const newY = currentY + velocity * 16;
+        velocity *= 0.95;
         wheelItems.style.transform = `translateY(${newY}px)`;
         updateSelectedItem();
-        
         if (Math.abs(velocity) > 0.1) {
             animationId = requestAnimationFrame(animate);
         } else {
             snapToNearest();
         }
     }
-    
     animationId = requestAnimationFrame(animate);
 }
 
@@ -184,39 +188,39 @@ function startInertiaScroll() {
 function snapToNearest() {
     const currentTransform = getComputedStyle(wheelItems).transform;
     let currentY = 0;
-    
     if (currentTransform !== 'none') {
         const matrix = new DOMMatrix(currentTransform);
         currentY = matrix.m42;
     }
-    
-    // 가장 가까운 인덱스 계산
-    const itemHeight = 50; // var(--wheel-item-height)
-    const nearestIndex = Math.round(-currentY / itemHeight);
-    const clampedIndex = Math.max(0, Math.min(maxPlayers - 1, nearestIndex));
-    
-    updateWheelPosition(clampedIndex, true);
+    const itemHeight = 50;
+    const arrayIndex = Math.round(-currentY / itemHeight);
+    const clampedArrayIndex = Math.max(0, Math.min(actualMaxPlayers - 1, arrayIndex));
+    const actualPlayerIndex = clampedArrayIndex + 1;
+    updateWheelPosition(actualPlayerIndex, true);
 }
 
 // 휠 위치 업데이트
-function updateWheelPosition(index, animate = false) {
-    currentPlayerIndex = index;
+function updateWheelPosition(playerIndex, animate = false) {
+    const clampedIndex = Math.max(1, Math.min(actualMaxPlayers, playerIndex));
+    currentPlayerIndex = clampedIndex;
+    
+    console.log(`휠 위치 업데이트: ${playerIndex} → ${clampedIndex} (범위: 1~${actualMaxPlayers})`);
+    
     const itemHeight = 50;
-    const translateY = -index * itemHeight;
+    const translateY = -(clampedIndex - 1) * itemHeight;
     
     if (animate) {
-        wheelItems.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        wheelItems.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
     } else {
         wheelItems.style.transition = 'none';
     }
     
     wheelItems.style.transform = `translateY(${translateY}px)`;
     
-    // 트랜지션 완료 후 제거
     if (animate) {
         setTimeout(() => {
             wheelItems.style.transition = '';
-        }, 300);
+        }, 500);
     }
     
     updateSelectedItem();
@@ -227,26 +231,20 @@ function updateSelectedItem() {
     const items = wheelItems.querySelectorAll('.wheel-item');
     const currentTransform = getComputedStyle(wheelItems).transform;
     let currentY = 0;
-    
     if (currentTransform !== 'none') {
         const matrix = new DOMMatrix(currentTransform);
         currentY = matrix.m42;
     }
-    
     const itemHeight = 50;
-    const centerIndex = Math.round(-currentY / itemHeight);
-    const clampedIndex = Math.max(0, Math.min(maxPlayers - 1, centerIndex));
-    
-    // 모든 아이템에서 selected 클래스 제거
+    const arrayIndex = Math.round(-currentY / itemHeight);
+    const clampedArrayIndex = Math.max(0, Math.min(actualMaxPlayers - 1, arrayIndex));
+    const actualPlayerIndex = clampedArrayIndex + 1;
     items.forEach(item => item.classList.remove('selected'));
-    
-    // 중앙 아이템에 selected 클래스 추가
-    if (items[clampedIndex]) {
-        items[clampedIndex].classList.add('selected');
-        selectedPlayerNumber.textContent = clampedIndex + 1; // 1-based 표시
+    if (items[clampedArrayIndex]) {
+        items[clampedArrayIndex].classList.add('selected');
+        selectedPlayerNumber.textContent = actualPlayerIndex;
     }
-    
-    currentPlayerIndex = clampedIndex;
+    currentPlayerIndex = actualPlayerIndex;
 }
 
 // 코드 입력 초기화
@@ -280,15 +278,22 @@ function initializeCodeInputs() {
             
             updateJoinButton();
             hideMessages();
+            
+            // 4자리 완성 즉시 휠 범위 조정 및 최대값으로 설정
+            if (isCodeComplete()) {
+                setTimeout(() => {
+                    updateWheelRangeFromCodeImmediate();
+                }, 100);
+            } else {
+                resetWheelToDefault();
+            }
         });
 
         input.addEventListener('keydown', function(e) {
-            // 백스페이스 시 이전 필드로 이동
             if (e.key === 'Backspace' && !e.target.value && index > 0) {
                 codeInputs[index - 1].focus();
             }
             
-            // 엔터키로 게임 참여
             if (e.key === 'Enter' && isCodeComplete()) {
                 joinGame();
             }
@@ -307,26 +312,107 @@ function initializeCodeInputs() {
                 });
                 updateJoinButton();
                 hideMessages();
+                
+                setTimeout(() => {
+                    updateWheelRangeFromCodeImmediate();
+                }, 100);
             }
         });
     });
-
-    // 조인 버튼 이벤트
-    joinBtn.addEventListener('click', joinGame);
-    
-    // 터치 피드백
-    joinBtn.addEventListener('touchstart', function() {
-        if (!this.disabled) {
-            this.style.transform = 'translateY(-1px)';
-        }
-    });
-    
-    joinBtn.addEventListener('touchend', function() {
-        setTimeout(() => {
-            this.style.transform = '';
-        }, 150);
-    });
 }
+
+// 즉시 휠 범위 조정 및 최대값 설정
+function updateWheelRangeFromCodeImmediate() {
+    const code = getEnteredCode();
+    if (code.length === 4) {
+        try {
+            const gameInfo = window.getGameInfoFromCode(code);
+            if (gameInfo) {
+                console.log(`✅ 4자리 코드 완성: ${code}`);
+                console.log(`게임 정보: 총 ${gameInfo.totalPlayers}명, 라이어 ${gameInfo.fakerCount}명`);
+                
+                // 게임 정보 저장
+                currentGameInfo = gameInfo;
+                
+                // actualMaxPlayers 업데이트 (호스트 제외)
+                const previousMax = actualMaxPlayers;
+                actualMaxPlayers = gameInfo.totalPlayers - 1;
+                
+                console.log(`플레이어 범위: ${previousMax} → ${actualMaxPlayers}로 변경`);
+                
+                // 휠 아이템들 즉시 업데이트
+                updateWheelItemsImmediate();
+                
+                // 자동으로 최대 플레이어 번호로 설정
+                updateWheelPosition(actualMaxPlayers, true);
+                
+                console.log(`✅ 자동으로 플레이어 ${actualMaxPlayers}번으로 설정됨`);
+                
+                // 게임 정보 표시
+                displayGameInfo(gameInfo);
+                
+                // 성공 메시지
+                showSuccess(`플레이어 ${actualMaxPlayers}번으로 자동 설정되었습니다!`);
+                
+            } else {
+                console.warn('❌ 유효하지 않은 코드:', code);
+                resetWheelToDefault();
+                showError('유효하지 않은 초대코드입니다.');
+            }
+        } catch (error) {
+            console.error('❌ 코드 검증 중 오류:', error);
+            resetWheelToDefault();
+            showError('코드 검증 중 오류가 발생했습니다.');
+        }
+    }
+}
+
+// 게임 정보 표시
+function displayGameInfo(gameInfo) {
+    let gameInfoDiv = document.getElementById('gameInfo');
+    
+    if (!gameInfoDiv) {
+        gameInfoDiv = document.createElement('div');
+        gameInfoDiv.id = 'gameInfo';
+        gameInfoDiv.className = 'game-info';
+        
+        const codeSection = document.querySelector('.code-section');
+        if (codeSection) {
+            codeSection.insertAdjacentElement('afterend', gameInfoDiv);
+        }
+    }
+    
+    gameInfoDiv.innerHTML = `
+        🎮 게임 정보
+        <div class="info-item">총 인원: ${gameInfo.totalPlayers}명</div>
+        <div class="info-item">라이어: ${gameInfo.fakerCount}명</div>
+        <div class="info-item">자동 선택: 플레이어 ${actualMaxPlayers}번</div>
+    `;
+    
+    // 애니메이션 효과
+    gameInfoDiv.style.display = 'block';
+    gameInfoDiv.style.opacity = '0';
+    gameInfoDiv.style.transform = 'translateY(-10px)';
+    
+    setTimeout(() => {
+        gameInfoDiv.style.transition = 'all 0.3s ease';
+        gameInfoDiv.style.opacity = '1';
+        gameInfoDiv.style.transform = 'translateY(0)';
+    }, 50);
+}
+
+// 조인 버튼 이벤트
+joinBtn.addEventListener('click', joinGame);
+joinBtn.addEventListener('touchstart', function() {
+    if (!this.disabled) {
+        this.style.transform = 'translateY(-1px)';
+    }
+});
+joinBtn.addEventListener('touchend', function() {
+    setTimeout(() => {
+        this.style.transform = '';
+    }, 150);
+});
 
 // 유틸리티 함수들
 function isCodeComplete() {
@@ -345,8 +431,6 @@ function showError(message) {
     errorMessage.textContent = message;
     errorMessage.style.display = 'block';
     successMessage.style.display = 'none';
-    
-    // 입력 필드에 에러 표시
     codeInputs.forEach(input => {
         input.classList.add('error');
         setTimeout(() => {
@@ -368,47 +452,27 @@ function hideMessages() {
 
 // 코드 검증
 function validateCode(code) {
-    // 게임 시스템 확인
     if (!window.isGameDataLoaded() || !window.isQuestionsLoaded()) {
         return { valid: false, message: '게임 시스템이 준비되지 않았습니다.' };
     }
-
-    // 코드 길이 검증
     if (code.length !== 4) {
         return { valid: false, message: '4자리 코드를 모두 입력해주세요.' };
     }
-    
-    // 영문자만 허용 (i, l 제외)
     const validFormat = /^[ABCDEFGHJKMNOPQRSTUVWXYZ]{4}$/;
     if (!validFormat.test(code)) {
         return { valid: false, message: '올바른 형식의 코드를 입력해주세요.' };
     }
-    
     try {
-        // gameData.js를 사용하여 코드 검증 및 게임 정보 추출
         const gameInfo = window.getGameInfoFromCode(code);
-        
         if (!gameInfo) {
-            return { 
-                valid: false, 
-                message: '유효하지 않은 초대코드입니다.'
-            };
+            return { valid: false, message: '유효하지 않은 초대코드입니다.' };
         }
-        
-        // 추가 검증
         const validation = window.validateGameData(code);
         if (!validation.valid) {
-            return { 
-                valid: false, 
-                message: '초대코드 검증 실패: ' + validation.errors.join(', ')
-            };
+            return { valid: false, message: '초대코드 검증 실패: ' + validation.errors.join(', ') };
         }
-        
-        return { 
-            valid: true, 
-            code: code,
-            gameInfo: gameInfo
-        };
+        currentGameInfo = gameInfo;
+        return { valid: true, code: code, gameInfo: gameInfo };
     } catch (error) {
         console.error('코드 검증 중 오류:', error);
         return { valid: false, message: '코드 검증 중 오류가 발생했습니다.' };
@@ -416,14 +480,11 @@ function validateCode(code) {
 }
 
 // 플레이어 번호 검증
-function validatePlayerNumber(playerNumber, totalPlayers) {
-    if (playerNumber < 1 || playerNumber > totalPlayers) {
-        return {
-            valid: false,
-            message: `플레이어 번호는 1~${totalPlayers} 범위여야 합니다.`
-        };
+function validatePlayerNumber(playerIndex, totalPlayers) {
+    const maxPlayerIndex = totalPlayers - 1;
+    if (playerIndex < 1 || playerIndex > maxPlayerIndex) {
+        return { valid: false, message: `플레이어 번호는 1~${maxPlayerIndex} 범위여야 합니다. (총 ${totalPlayers}명 게임)` };
     }
-    
     return { valid: true };
 }
 
@@ -433,58 +494,41 @@ function joinGame() {
         showError('4자리 코드를 모두 입력해주세요.');
         return;
     }
-    
     const code = getEnteredCode();
     const validation = validateCode(code);
-    
     if (!validation.valid) {
         showError(validation.message);
         return;
     }
-    
-    // 게임 정보 추출
     const gameInfo = validation.gameInfo;
-    const selectedPlayer = currentPlayerIndex + 1; // 1-based
-    
-    // 플레이어 번호 검증
+    const selectedPlayer = currentPlayerIndex;
     const playerValidation = validatePlayerNumber(selectedPlayer, gameInfo.totalPlayers);
     if (!playerValidation.valid) {
         showError(playerValidation.message);
         return;
     }
-    
-    // 성공 메시지 표시
-    showSuccess(`플레이어 ${selectedPlayer}번으로 참여 준비 완료! (총 ${gameInfo.totalPlayers}명 중 ${gameInfo.fakerCount}명이 라이어)`);
-    
-    // 로딩 상태 표시
+    console.log('게임 참여 검증 완료:', {
+        code: validation.code,
+        selectedPlayer: selectedPlayer,
+        gameInfo: gameInfo,
+        validRange: `1~${gameInfo.totalPlayers - 1}`
+    });
+    showSuccess(`플레이어 ${selectedPlayer}번으로 참여 준비 완료!`);
     document.body.classList.add('loading');
     joinBtn.textContent = '참여 중...';
-    
-    // 게임 참여 처리
     setTimeout(() => {
         try {
             const playerData = {
                 playerCode: validation.code,
                 totalPlayers: gameInfo.totalPlayers,
                 fakerCount: gameInfo.fakerCount,
-                gameNumber: 1,                    // 게임 1부터 시작
-                playerIndex: currentPlayerIndex,  // 0-based 인덱스
+                gameNumber: 1,
+                playerIndex: currentPlayerIndex,
                 currentRound: 1
             };
-            
-            console.log('게임 참여 완료:', {
-                code: validation.code,
-                playerNumber: selectedPlayer,
-                playerIndex: currentPlayerIndex,
-                gameInfo: gameInfo
-            });
-            
-            // 플레이어 데이터를 저장하고 게임 페이지로 이동
+            console.log('게임 참여 완료:', playerData);
             const playerDataString = JSON.stringify(playerData);
-            
-            // player-game.html로 이동
             window.location.href = `player-game.html?data=${encodeURIComponent(playerDataString)}`;
-            
         } catch (error) {
             console.error('게임 참여 중 오류:', error);
             document.body.classList.remove('loading');
@@ -493,47 +537,6 @@ function joinGame() {
         }
     }, 1000);
 }
-
-// 코드에서 최대 플레이어 수 동적 업데이트
-function updateMaxPlayersFromCode() {
-    const code = getEnteredCode();
-    if (code.length === 4) {
-        try {
-            const gameInfo = window.getGameInfoFromCode(code);
-            if (gameInfo && gameInfo.totalPlayers !== maxPlayers) {
-                maxPlayers = gameInfo.totalPlayers;
-                
-                // 현재 선택된 플레이어가 범위를 벗어나면 조정
-                if (currentPlayerIndex >= maxPlayers) {
-                    updateWheelPosition(maxPlayers - 1, true);
-                }
-                
-                // 휠 아이템 업데이트 (필요시)
-                updateWheelItems();
-            }
-        } catch (error) {
-            // 무시 (아직 유효하지 않은 코드일 수 있음)
-        }
-    }
-}
-
-// 휠 아이템 업데이트 (플레이어 수 변경 시)
-function updateWheelItems() {
-    const items = wheelItems.querySelectorAll('.wheel-item');
-    
-    items.forEach((item, index) => {
-        if (index < maxPlayers) {
-            item.style.display = 'flex';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-}
-
-// 코드 입력 시 플레이어 수 업데이트 이벤트 추가
-codeInputs.forEach(input => {
-    input.addEventListener('input', updateMaxPlayersFromCode);
-});
 
 // 페이지 로드 시 첫 번째 입력 필드에 포커스
 window.addEventListener('load', function() {
