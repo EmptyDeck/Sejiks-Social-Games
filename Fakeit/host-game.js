@@ -1,4 +1,3 @@
-//host-game.js (player-game.js 기반 통합 버전)
 // 게임 데이터 전역 변수
 let inviteCode = '';
 let currentRound = 1;
@@ -11,8 +10,8 @@ let submittedAnswer = '';
 let submittedDrawing = null;
 let maxRounds = 4;
 let maxGames = 4;
-let playerIndex = 0; // 호스트는 0번
-let playerScores = {}; // 호스트 전용 기능
+let playerIndex = 0; // ✅ 호스트는 항상 0번
+let playerScores = {};
 
 // 그림 그리기 변수
 let canvas, ctx;
@@ -22,6 +21,7 @@ let currentBrushSize = 3;
 
 // 호스트 전용 변수
 let fakerGaveUp = false;
+let playerCodes = {};
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
@@ -105,7 +105,9 @@ function loadHostData() {
     fakerCount = parseInt(localStorage.getItem('fakerCount')) || 1;
     currentGame = parseInt(localStorage.getItem('currentGame')) || 1;
     currentRound = parseInt(localStorage.getItem('currentRound')) || 1;
-    playerIndex = 0; // 호스트는 항상 0번
+    
+    // ✅ 호스트는 항상 0번 인덱스
+    playerIndex = 0;
     
     // 답변 상태 복원
     const savedAnswer = localStorage.getItem('hostAnswer');
@@ -118,13 +120,29 @@ function loadHostData() {
         submittedDrawing = savedDrawing || null;
     }
     
+    // 플레이어 코드 정보 로드
+    const savedCodes = localStorage.getItem('allPlayerCodes');
+    if (savedCodes) {
+        const playerCodeArray = JSON.parse(savedCodes);
+        playerCodes = {};
+        for (let i = 0; i < playerCodeArray.length; i++) {
+            playerCodes[`플레이어${i + 1}`] = playerCodeArray[i];
+        }
+        playerCodes['호스트'] = inviteCode;
+    }
+    
+    // ✅ 호스트 정보 명시적 저장
+    localStorage.setItem('playerIndex', '0');
+    localStorage.setItem('isHost', 'true');
+    
     console.log('호스트 데이터 로드 완료:', {
         inviteCode,
         currentGame,
         currentRound,
         totalPlayers,
         fakerCount,
-        playerIndex
+        playerIndex: 0, // ✅ 호스트는 0
+        role: '호스트'
     });
 }
 
@@ -135,6 +153,7 @@ function initializePlayerScores() {
         playerScores = JSON.parse(savedScores);
     } else {
         playerScores = {};
+        // ✅ 플레이어는 1번부터 시작
         for (let i = 1; i < totalPlayers; i++) {
             playerScores[`플레이어${i}`] = 0;
         }
@@ -267,14 +286,13 @@ function updatePlayerRole() {
             inviteCode,
             currentGame,
             currentRound,
-            playerIndex,
+            playerIndex: 0, // ✅ 호스트는 0
             totalPlayers,
             fakerCount
         });
         
-        // 현재 게임에서 라이어 여부 확인 (호스트는 인덱스 0)
-        const isHostFaker = window.isPlayerFaker(inviteCode, currentGame, playerIndex);
-        
+        // ✅ 현재 게임에서 라이어 여부 확인 (호스트는 인덱스 0)
+        const isHostFaker = window.isPlayerFaker(inviteCode, currentGame, 0);
         console.log('호스트 라이어 판별 결과:', isHostFaker);
         
         const roleCard = document.getElementById('roleCard');
@@ -306,7 +324,7 @@ function updatePlayerRole() {
             }
         }
         
-        console.log(`게임${currentGame} 라운드${currentRound} - 호스트 라이어 여부:`, isHostFaker);
+        console.log(`게임${currentGame} 라운드${currentRound} - 호스트(인덱스 0) 라이어 여부:`, isHostFaker);
         
     } catch (error) {
         console.error('호스트 역할 업데이트 오류:', error);
@@ -316,19 +334,30 @@ function updatePlayerRole() {
 // 질문 표시
 function showQuestion() {
     try {
-        // 현재 게임에서 라이어 여부 확인
-        const isHostFaker = window.isPlayerFaker(inviteCode, currentGame, playerIndex);
+        // 현재 게임에서 라이어 여부 확인 (호스트 인덱스 0)
+        const isHostFaker = window.isPlayerFaker(inviteCode, currentGame, 0);
         
-        // questions.js의 getCurrentQuestion 함수 사용 (라이어 여부 자동 처리)
-        const currentQuestion = window.getCurrentQuestion(inviteCode, currentGame, currentRound, isHostFaker);
+        // 현재 라운드의 질문 번호 가져오기
+        const questionNumber = window.getQuestionForRound(inviteCode, currentGame, currentRound);
         
-        if (!currentQuestion) {
-            console.error('질문을 찾을 수 없습니다.');
+        // ✅ 질문 내용 가져오기 (올바른 로직)
+        const questionData = window.getQuestionByNumber(questionNumber);
+        
+        if (!questionData) {
+            console.error('질문을 찾을 수 없습니다. 질문 번호:', questionNumber);
             alert('질문을 불러오는 중 오류가 발생했습니다.');
             return;
         }
         
-        // HTML 요소들 안전하게 가져오기 (실제 HTML 구조에 맞춤)
+        // ✅ 라이어 여부에 따라 올바른 질문 텍스트 선택
+        let questionText;
+        if (isHostFaker) {
+            questionText = questionData.fake; // 호스트가 라이어면 fake 질문
+        } else {
+            questionText = questionData.main; // 일반 플레이어면 main 질문
+        }
+        
+        // HTML 요소들 안전하게 가져오기
         const questionSection = document.querySelector('.question-section');
         const questionMode = document.getElementById('questionMode');
         const hostQuestion = document.getElementById('hostQuestion');
@@ -338,37 +367,31 @@ function showQuestion() {
         }
         
         if (questionMode) {
-            questionMode.textContent = currentQuestion.mode;
+            const questionInfo = window.parseQuestionNumber(questionNumber);
+            questionMode.textContent = questionInfo.typeName;
         }
         
         if (hostQuestion) {
-            hostQuestion.textContent = currentQuestion.text;
+            hostQuestion.textContent = questionText;
         }
         
-        // 문제 유형에 따라 입력 방식 변경
-        setupAnswerInput(currentQuestion.type);
+        // 문제 유형에 따라 입력 방식 변경 (원래 유형 기준)
+        const questionInfo = window.parseQuestionNumber(questionNumber);
+        setupAnswerInput(questionInfo.type);
         
         console.log('호스트 질문 표시 완료:', {
             game: currentGame,
             round: currentRound,
             isFaker: isHostFaker,
-            questionNumber: currentQuestion.questionNumber,
-            questionType: currentQuestion.type,
-            questionText: currentQuestion.text,
-            elementsFound: {
-                questionSection: !!questionSection,
-                questionMode: !!questionMode,
-                hostQuestion: !!hostQuestion
-            }
+            hostIndex: 0,
+            questionNumber: questionNumber,
+            questionType: questionInfo.type,
+            questionText: questionText, // ✅ 라이어는 fake, 일반은 main
+            isMainQuestion: !isHostFaker
         });
         
     } catch (error) {
         console.error('질문 표시 중 오류:', error);
-        console.log('HTML 요소 확인:', {
-            questionSection: !!document.querySelector('.question-section'),
-            questionMode: !!document.getElementById('questionMode'),
-            hostQuestion: !!document.getElementById('hostQuestion')
-        });
         alert('질문을 불러오는 중 오류가 발생했습니다.');
     }
 }
@@ -395,8 +418,6 @@ function showAnswerInput() {
     const inputSection = document.querySelector('.input-section');
     if (inputSection) {
         inputSection.style.display = 'block';
-    } else {
-        console.warn('input-section 요소를 찾을 수 없습니다.');
     }
 }
 
@@ -464,12 +485,17 @@ function submitAnswer() {
         goToAnswerBtn.style.display = 'block';
     }
     
-    // 데이터 저장
+    // ✅ 호스트 데이터 저장
     localStorage.setItem('hostAnswer', submittedAnswer);
     localStorage.setItem('hostDrawing', submittedDrawing || '');
     localStorage.setItem('answerSubmitted', 'true');
+    localStorage.setItem('isHost', 'true');
+    localStorage.setItem('playerIndex', '0');
     
-    console.log('호스트 답변 제출 완료:', submittedAnswer);
+    console.log('호스트 답변 제출 완료:', {
+        answer: submittedAnswer,
+        hostIndex: 0
+    });
 }
 
 // 답변 수정
@@ -551,15 +577,15 @@ function updateAnswerStatus() {
 // 현재 질문 유형 가져오기
 function getCurrentQuestionType() {
     try {
-        const isHostFaker = window.isPlayerFaker(inviteCode, currentGame, playerIndex);
-        const currentQuestion = window.getCurrentQuestion(inviteCode, currentGame, currentRound, isHostFaker);
-        
-        return currentQuestion ? currentQuestion.type : 1; // 기본값
+        const questionNumber = window.getQuestionForRound(playerCode, currentGame, currentRound);
+        // ✅ 원래 질문의 유형 사용 (라이어든 아니든 같은 유형)
+        return Math.floor(questionNumber / 10); // 11->1, 21->2, 31->3, 41->4
     } catch (error) {
         console.error('질문 유형 가져오기 오류:', error);
         return 1; // 기본값
     }
 }
+
 
 // 답변 공개 페이지로 이동
 function goToAnswer() {
@@ -568,8 +594,8 @@ function goToAnswer() {
         return;
     }
     
-    // 라이어인 경우 5초간 메인 질문 표시
-    const isHostFaker = window.isPlayerFaker(inviteCode, currentGame, playerIndex);
+    // ✅ 호스트가 라이어인 경우 5초간 메인 질문 표시
+    const isHostFaker = window.isPlayerFaker(inviteCode, currentGame, 0);
     
     if (isHostFaker) {
         showMainQuestionToFaker();
@@ -584,16 +610,17 @@ function goToAnswer() {
 function showMainQuestionToFaker() {
     try {
         // 메인 질문 가져오기 (라이어가 아닌 일반 플레이어용 질문)
-        const mainQuestion = window.getCurrentQuestion(inviteCode, currentGame, currentRound, false);
+        const questionNumber = window.getQuestionForRound(inviteCode, currentGame, currentRound);
+        const questionData = window.getQuestionByNumber(questionNumber);
         
-        if (mainQuestion) {
+        if (questionData) {
             const mainQuestionText = document.getElementById('mainQuestionText');
             const mainQuestionReveal = document.getElementById('mainQuestionReveal');
             const revealTimer = document.getElementById('revealTimer');
             
             if (mainQuestionText && mainQuestionReveal && revealTimer) {
-                mainQuestionText.textContent = mainQuestion.text;
-                mainQuestionReveal.style.display = 'flex';
+                mainQuestionText.textContent = questionData.main;
+                mainQuestionReveal.style.display = 'block';
                 
                 // 5초 타이머
                 let timeLeft = 5;
@@ -610,9 +637,9 @@ function showMainQuestionToFaker() {
                     }
                 }, 1000);
                 
-                console.log('호스트 라이어에게 메인 질문 5초간 표시:', mainQuestion.text);
+                console.log('호스트 라이어에게 메인 질문 5초간 표시:', questionData.main);
             } else {
-                console.warn('메인 질문 표시 요소를 찾을 수 없습니다. HTML에 추가 요소가 필요합니다.');
+                console.warn('메인 질문 표시 요소를 찾을 수 없습니다.');
                 moveToAnswerPage(); // 요소가 없으면 바로 이동
             }
         }
@@ -622,39 +649,20 @@ function showMainQuestionToFaker() {
     }
 }
 
-// 답변 공개 페이지로 이동
-function goToAnswer() {
-    if (!answerSubmitted) {
-        alert('먼저 답변을 제출해주세요.');
-        return;
-    }
-    
-    // 라이어인 경우 5초간 메인 질문 표시
-    const isHostFaker = window.isPlayerFaker(inviteCode, currentGame, playerIndex);
-    
-    if (isHostFaker) {
-        showMainQuestionToFaker();
-        return;
-    }
-    
-    // 일반 플레이어는 바로 이동
-    moveToAnswerPage();
-}
-
 // answer.html로 이동
 function moveToAnswerPage() {
-    const isHostFaker = window.isPlayerFaker(inviteCode, currentGame, playerIndex);
+    const isHostFaker = window.isPlayerFaker(inviteCode, currentGame, 0);
     
-    // answer.html로 이동하면서 데이터 전달
+    // ✅ answer.html로 이동하면서 호스트 데이터 전달
     localStorage.setItem('hostAnswer', submittedAnswer);
     localStorage.setItem('hostIsFaker', isHostFaker.toString());
     localStorage.setItem('hostCode', inviteCode);
     localStorage.setItem('currentRound', currentRound.toString());
     localStorage.setItem('currentGame', currentGame.toString());
     localStorage.setItem('totalPlayers', totalPlayers.toString());
-    localStorage.setItem('isHost', 'true');
-    localStorage.setItem('playerIndex', '0');
-
+    localStorage.setItem('isHost', 'true'); // ✅ 호스트 플래그
+    localStorage.setItem('playerIndex', '0'); // ✅ 호스트 인덱스
+    
     console.log('답변 공개 페이지로 이동 (호스트)');
     window.location.href = 'answer.html?from=host';
 }
@@ -726,12 +734,22 @@ function resetRoundState() {
 
 // 다음 게임 버튼 강조
 function highlightNextGameButton() {
-    const nextGameBtn = document.getElementById('nextGameBtn');
-    if (nextGameBtn) {
-        nextGameBtn.classList.add('pulse-highlight');
+    const nextGameBtn = document.getElementById('next-game-btn');
+    
+    if (nextGameBtn && nextGameBtn.style.display !== 'none') {
+        nextGameBtn.classList.add('pulse-highlight-strong');
         setTimeout(() => {
-            nextGameBtn.classList.remove('pulse-highlight');
+            nextGameBtn.classList.remove('pulse-highlight-strong');
         }, 3000);
+        console.log('마지막 라운드 - 다음 게임 버튼 강조');
+    } else {
+        const endGameBtn = document.getElementById('end-game-btn');
+        if (endGameBtn) {
+            endGameBtn.classList.add('pulse-highlight');
+            setTimeout(() => {
+                endGameBtn.classList.remove('pulse-highlight');
+            }, 3000);
+        }
     }
 }
 
@@ -774,7 +792,7 @@ function changeScore(playerName, delta) {
     localStorage.setItem('playerScores', JSON.stringify(playerScores));
 }
 
-// 라이어 포기 처리
+// 페이커 포기 처리
 function handleFakerGiveUp() {
     if (!fakerGaveUp) {
         showModal('giveUpModal');
@@ -785,14 +803,14 @@ function confirmFakerGiveUp() {
     fakerGaveUp = true;
     const giveUpBtn = document.getElementById('faker-give-up-btn');
     if (giveUpBtn) {
-        giveUpBtn.textContent = '🏳️ 라이어가 포기했습니다';
+        giveUpBtn.textContent = '🏳️ 페이커가 포기했습니다';
         giveUpBtn.style.background = 'linear-gradient(135deg, #22c55e, #15803d)';
         giveUpBtn.disabled = true;
     }
     closeModal('giveUpModal');
 }
 
-// 라이어 공개 처리
+// 페이커 공개 처리
 function handleRevealFaker() {
     showModal('revealModal1');
 }
@@ -807,31 +825,52 @@ function confirmRevealFaker() {
     closeModal('revealModal2');
 }
 
-// 플레이어 정보 표시
+// 플레이어 정보 표시 (수정된 버전)
 function showPlayerInfo() {
     const playerInfoList = document.getElementById('playerInfoList');
     if (!playerInfoList) return;
     
     playerInfoList.innerHTML = '';
     
-    // 현재 게임에서의 라이어 목록 가져오기
-    const fakers = window.getFakersForGame(inviteCode, currentGame);
+    // ✅ 호스트 정보 먼저 표시 (인덱스 0)
+    const hostIsFakerInCurrentGame = window.isPlayerFaker(inviteCode, currentGame, 0);
+    const hostDiv = document.createElement('div');
+    hostDiv.className = 'player-info-item';
+    hostDiv.innerHTML = `
+        <div class="player-info-left">
+            <span class="player-info-name">호스트</span>
+            <span class="player-info-code">(${inviteCode})</span>
+        </div>
+        <span class="player-info-role ${hostIsFakerInCurrentGame ? 'faker' : 'normal'}">
+            ${hostIsFakerInCurrentGame ? '라이어' : '일반 플레이어'}
+        </span>
+    `;
+    playerInfoList.appendChild(hostDiv);
     
-    // 모든 플레이어 표시 (0부터 totalPlayers-1까지)
-    for (let i = 0; i < totalPlayers; i++) {
-        const playerName = i === 0 ? '호스트' : `플레이어${i}`;
-        const isFaker = fakers.includes(i);
-        
-        const playerDiv = document.createElement('div');
-        playerDiv.className = 'player-info-item';
-        playerDiv.innerHTML = `
-            <div class="player-info-left">
-                <span class="player-info-name">${playerName}</span>
-                <span class="player-info-code">(${inviteCode})</span>
-            </div>
-            <span class="player-info-role ${isFaker ? 'faker' : 'normal'}">${isFaker ? '라이어' : '일반 플레이어'}</span>
-        `;
-        playerInfoList.appendChild(playerDiv);
+    // ✅ 플레이어들 정보 표시 (인덱스 1부터)
+    if (playerCodes) {
+        Object.keys(playerCodes).forEach((playerName) => {
+            if (playerName !== '호스트') {
+                const code = playerCodes[playerName];
+                const playerNumber = parseInt(playerName.replace('플레이어', ''));
+                const playerIndex = playerNumber; // ✅ 플레이어1 = 인덱스1
+                
+                const isFaker = window.isPlayerFaker(code, currentGame, playerIndex);
+                
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player-info-item';
+                playerDiv.innerHTML = `
+                    <div class="player-info-left">
+                        <span class="player-info-name">${playerName}</span>
+                        <span class="player-info-code">(${code})</span>
+                    </div>
+                    <span class="player-info-role ${isFaker ? 'faker' : 'normal'}">
+                        ${isFaker ? '라이어' : '일반 플레이어'}
+                    </span>
+                `;
+                playerInfoList.appendChild(playerDiv);
+            }
+        });
     }
     
     showModal('playerInfoModal');
@@ -865,24 +904,43 @@ function showFinalScores() {
 
 // 게임 종료
 function endGame() {
-    const isHostFaker = window.isPlayerFaker(inviteCode, currentGame, playerIndex);
+    // ✅ 호스트 최종 데이터 저장
+    const isHostFaker = window.isPlayerFaker(inviteCode, currentGame, 0);
     
-    // gameover.html로 데이터 전달
     localStorage.setItem('hostAnswer', submittedAnswer || '');
     localStorage.setItem('hostIsFaker', isHostFaker.toString());
     localStorage.setItem('hostCode', inviteCode);
     localStorage.setItem('gameEndRound', currentRound.toString());
+    localStorage.setItem('gameEndGame', currentGame.toString());
+    localStorage.setItem('playerIndex', '0'); // ✅ 호스트 인덱스
+    localStorage.setItem('isHost', 'true');
     localStorage.setItem('finalVotes', JSON.stringify({}));
     
-    console.log('게임 종료 - gameover.html로 이동 (호스트)');
+    console.log('호스트 게임 종료 - gameover.html로 이동:', {
+        hostAnswer: submittedAnswer,
+        isHostFaker: isHostFaker,
+        hostIndex: 0
+    });
+    
+    // gameover.html로 이동
     window.location.href = 'gameover.html';
+}
+
+// 게임 재시작
+function restartGame() {
+    localStorage.clear();
+    window.location.href = 'host.html';
+}
+
+// 홈으로 이동
+function goHome() {
+    localStorage.clear();
+    window.location.href = 'index.html';
 }
 
 // === 그림 그리기 관련 함수들 ===
 
 function startDrawing(e) {
-    if (!canvas || !ctx) return;
-    
     isDrawing = true;
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -893,7 +951,7 @@ function startDrawing(e) {
 }
 
 function draw(e) {
-    if (!isDrawing || !canvas || !ctx) return;
+    if (!isDrawing) return;
     
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -904,7 +962,7 @@ function draw(e) {
 }
 
 function stopDrawing() {
-    if (isDrawing && ctx) {
+    if (isDrawing) {
         isDrawing = false;
         ctx.beginPath();
     }
@@ -923,32 +981,20 @@ function handleTouch(e) {
 
 function changeColor(color) {
     currentColor = color;
-    if (ctx) {
-        ctx.strokeStyle = color;
-    }
+    ctx.strokeStyle = color;
     
     // 활성 색상 표시
     document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
-    const selectedBtn = document.querySelector(`[data-color="${color}"]`);
-    if (selectedBtn) {
-        selectedBtn.classList.add('active');
-    }
+    document.querySelector(`[data-color="${color}"]`).classList.add('active');
 }
 
 function changeBrushSize(e) {
     currentBrushSize = e.target.value;
-    if (ctx) {
-        ctx.lineWidth = currentBrushSize;
-    }
-    const brushSizeValue = document.getElementById('brushSizeValue');
-    if (brushSizeValue) {
-        brushSizeValue.textContent = currentBrushSize;
-    }
+    ctx.lineWidth = currentBrushSize;
+    document.getElementById('brushSizeValue').textContent = currentBrushSize;
 }
 
 function clearCanvas() {
-    if (!canvas || !ctx) return;
-    
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = currentColor;
@@ -956,28 +1002,15 @@ function clearCanvas() {
 
 // === 공통 함수들 ===
 
+function showError(message) {
+    document.getElementById('errorMessage').textContent = message;
+    showModal('errorModal');
+}
+
 function showModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'flex';
-    }
+    document.getElementById(modalId).style.display = 'flex';
 }
 
 function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// 게임 재시작
-function restartGame() {
-    localStorage.clear();
-    window.location.href = 'host.html';
-}
-
-// 홈으로 이동
-function goHome() {
-    localStorage.clear();
-    window.location.href = 'index.html';
+    document.getElementById(modalId).style.display = 'none';
 }
