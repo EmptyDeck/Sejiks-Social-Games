@@ -1,3 +1,4 @@
+//player-game.js
 // 게임 데이터 전역 변수
 let playerCode = '';
 let currentRound = 1;
@@ -10,7 +11,7 @@ let submittedAnswer = '';
 let submittedDrawing = null;
 let maxRounds = 4;
 let maxGames = 4;
-let playerIndex = 1;
+let playerIndex = 0; // 플레이어 인덱스 (0-based)
 
 // 그림 그리기 변수
 let canvas, ctx;
@@ -64,7 +65,7 @@ function setupCanvasEvents() {
     canvas.addEventListener('touchend', stopDrawing);
 }
 
-// URL 파라미터 처리
+// URL 파라미터 처리 (레거시 지원)
 function checkURLParams() {
     const urlParams = new URLSearchParams(window.location.search);
     const dataParam = urlParams.get('data');
@@ -74,24 +75,11 @@ function checkURLParams() {
             const playerData = JSON.parse(decodeURIComponent(dataParam));
             console.log('URL에서 받은 플레이어 데이터:', playerData);
             
-            if (playerData.playerCode) {
-                totalPlayers = playerData.totalPlayers || 4;
-                fakerCount = playerData.fakerCount || 1;
+            if (playerData.playerCode || playerData.code) {
+                const code = playerData.playerCode || playerData.code;
                 currentGame = playerData.gameNumber || 1;
-                playerIndex = playerData.playerIndex || 1;
                 
-                joinGame(playerData.playerCode, false);
-                return true;
-            }
-            
-            // 이전 구조 지원
-            if (playerData.code) {
-                totalPlayers = 4;
-                fakerCount = 1;
-                currentGame = 1;
-                playerIndex = 1;
-                
-                joinGame(playerData.code, false);
+                joinGame(code, false);
                 return true;
             }
         } catch (error) {
@@ -107,14 +95,14 @@ function checkExistingGame() {
         return;
     }
     
-    const savedCode = localStorage.getItem('playerCode');
+    const savedCode = localStorage.getItem('inviteCode') || localStorage.getItem('playerCode');
     if (savedCode) {
         playerCode = savedCode;
         totalPlayers = parseInt(localStorage.getItem('totalPlayers')) || 4;
         fakerCount = parseInt(localStorage.getItem('fakerCount')) || 1;
         currentGame = parseInt(localStorage.getItem('currentGame')) || 1;
         currentRound = parseInt(localStorage.getItem('currentRound')) || 1;
-        playerIndex = parseInt(localStorage.getItem('playerIndex')) || 1;
+        playerIndex = parseInt(localStorage.getItem('playerIndex')) || 0;
         
         joinGame(savedCode, false);
     }
@@ -185,13 +173,26 @@ function joinGame(code, isNewJoin = true) {
     try {
         playerCode = code;
         
-        // gameData.js로 데이터 검증
-        const validation = window.validateGameData(code);
-        if (!validation.valid) {
+        // 새로운 gameData.js로 데이터 검증 및 추출
+        const gameInfo = window.getGameInfoFromCode(code);
+        if (!gameInfo) {
             if (isNewJoin) {
-                showError('초대코드 검증 실패: ' + validation.errors.join(', '));
+                showError('초대코드를 해석할 수 없습니다.');
             }
             return;
+        }
+        
+        // 게임 정보 설정
+        totalPlayers = gameInfo.totalPlayers;
+        fakerCount = gameInfo.fakerCount;
+        
+        // 플레이어 인덱스 설정 (기존 저장값이 있으면 사용, 없으면 랜덤)
+        const savedPlayerIndex = localStorage.getItem('playerIndex');
+        if (savedPlayerIndex !== null && !isNewJoin) {
+            playerIndex = parseInt(savedPlayerIndex);
+        } else {
+            // 새로 참여하는 경우 랜덤 인덱스 생성 (0 ~ totalPlayers-1)
+            playerIndex = Math.floor(Math.random() * totalPlayers);
         }
         
         console.log('플레이어 게임 참여:', {
@@ -204,12 +205,14 @@ function joinGame(code, isNewJoin = true) {
         });
         
         // 데이터 저장
-        localStorage.setItem('playerCode', code);
+        localStorage.setItem('inviteCode', code);
+        localStorage.setItem('playerCode', code); // 하위 호환성
         localStorage.setItem('playerIndex', playerIndex.toString());
         localStorage.setItem('totalPlayers', totalPlayers.toString());
         localStorage.setItem('fakerCount', fakerCount.toString());
         localStorage.setItem('currentGame', currentGame.toString());
         localStorage.setItem('currentRound', currentRound.toString());
+        localStorage.setItem('isHost', 'false');
         
         // UI 전환
         document.getElementById('codeInputSection').style.display = 'none';
@@ -241,7 +244,7 @@ function joinGame(code, isNewJoin = true) {
     }
 }
 
-// 자동 진행 체크 함수 추가:
+// 자동 진행 체크 함수
 function checkAutoProgression() {
     // 자동 다음 라운드 체크
     const autoNextRound = localStorage.getItem('autoNextRound');
@@ -255,20 +258,15 @@ function checkAutoProgression() {
             resetRoundState();
             updateGameInfo();
             updatePlayerRole(); // 역할 재확인
+            showQuestion();
             
-            console.log('자동으로 다음 라운드 진행:', currentRound);
+            console.log('플레이어: 자동으로 다음 라운드 진행:', currentRound);
             
             // 플래그 제거
             localStorage.removeItem('autoNextRound');
             localStorage.removeItem('nextRoundNumber');
             localStorage.setItem('currentRound', currentRound.toString());
-            
-            // 약간의 지연 후 질문 표시 (UI 업데이트 완료 후)
-            setTimeout(() => {
-                if (gameStarted || !answerSubmitted) {
-                    showQuestion();
-                }
-            }, 100);
+            return true; // 자동 진행 발생했음을 알림
         }
     }
     
@@ -285,23 +283,20 @@ function checkAutoProgression() {
             resetRoundState();
             updateGameInfo();
             updatePlayerRole(); // 새 게임에서 역할 재확인
+            showQuestion();
             
-            console.log('자동으로 다음 게임 진행:', currentGame);
+            console.log('플레이어: 자동으로 다음 게임 진행:', currentGame);
             
             // 플래그 제거
             localStorage.removeItem('autoNextGame');
             localStorage.removeItem('nextGameNumber');
             localStorage.setItem('currentGame', currentGame.toString());
             localStorage.setItem('currentRound', currentRound.toString());
-            
-            // 약간의 지연 후 질문 표시
-            setTimeout(() => {
-                if (gameStarted || !answerSubmitted) {
-                    showQuestion();
-                }
-            }, 100);
+            return true; // 자동 진행 발생했음을 알림
         }
     }
+    
+    return false; // 자동 진행 없음
 }
 
 // 게임 정보 업데이트
@@ -314,15 +309,20 @@ function updateGameInfo() {
 // 현재 게임에서의 역할 업데이트
 function updatePlayerRole() {
     try {
-        // 현재 게임에서 라이어 여부 확인 (라이어는 게임별로 고정)
-        const isPlayerFaker = window.isPlayerFakerInRound(
-            playerCode, 
-            currentGame, 
-            1, // 라이어는 게임별로 고정이므로 라운드는 상관없음
-            playerIndex, 
-            totalPlayers, 
+        console.log('=== 플레이어 역할 업데이트 ===');
+        console.log('현재 데이터:', {
+            playerCode,
+            currentGame,
+            currentRound,
+            playerIndex,
+            totalPlayers,
             fakerCount
-        );
+        });
+        
+        // 새로운 gameData.js 함수 사용: 현재 게임에서 라이어 여부 확인
+        const isPlayerFaker = window.isPlayerFaker(playerCode, currentGame, playerIndex);
+        
+        console.log('라이어 판별 결과:', isPlayerFaker);
         
         const roleCard = document.getElementById('roleCard');
         const roleIcon = document.getElementById('roleIcon');
@@ -343,10 +343,15 @@ function updatePlayerRole() {
             fakerInfoSection.style.display = 'none';
         }
         
-        console.log(`게임${currentGame} - 플레이어${playerIndex} 라이어 여부:`, isPlayerFaker);
+        console.log(`게임${currentGame} 라운드${currentRound} - 플레이어${playerIndex} 라이어 여부:`, isPlayerFaker);
         
     } catch (error) {
         console.error('플레이어 역할 업데이트 오류:', error);
+        // 오류 시 기본값으로 설정
+        const roleName = document.getElementById('roleName');
+        if (roleName) {
+            roleName.textContent = '역할 확인 중...';
+        }
     }
 }
 
@@ -355,14 +360,11 @@ function validateCode(code) {
     return /^[A-Z]{4}$/.test(code);
 }
 
-
-
-
-// startGame 함수도 수정:
+// 게임 시작
 function startGame() {
     gameStarted = true;
     
-    // 대기 관련 UI 숨기기 (혹시 표시되어 있다면)
+    // 대기 관련 UI 숨기기
     document.getElementById('waitingSection').style.display = 'none';
     document.getElementById('startGameBtn').style.display = 'none';
     
@@ -373,42 +375,57 @@ function startGame() {
     console.log('게임 바로 시작됨 - 게임:', currentGame, '라운드:', currentRound);
 }
 
-
 // 질문 표시
 function showQuestion() {
     try {
         // 현재 게임에서 라이어 여부 확인
-        const isPlayerFaker = window.isPlayerFakerInRound(
-            playerCode, 
-            currentGame, 
-            1, // 라이어는 게임별로 고정
-            playerIndex, 
-            totalPlayers, 
-            fakerCount
-        );
+        const isPlayerFaker = window.isPlayerFaker(playerCode, currentGame, playerIndex);
         
-        // 현재 라운드의 질문 가져오기
-        const currentQuestion = window.getCurrentQuestion(playerCode, currentGame, currentRound, isPlayerFaker);
+        // 현재 라운드의 질문 번호 가져오기
+        const questionNumber = window.getQuestionForRound(playerCode, currentGame, currentRound);
         
-        if (!currentQuestion) {
-            console.error('질문을 찾을 수 없습니다.');
+        let actualQuestionNumber = questionNumber;
+        
+        // 라이어인 경우 다른 유형의 질문 선택
+        if (isPlayerFaker) {
+            const questionInfo = window.parseQuestionNumber(questionNumber);
+            // 라이어는 다른 유형의 질문을 받음 (유형을 바꿔서)
+            let fakerType = questionInfo.type;
+            switch (questionInfo.type) {
+                case 1: fakerType = 2; break; // 입력형 → 그림형
+                case 2: fakerType = 3; break; // 그림형 → 선택형
+                case 3: fakerType = 4; break; // 선택형 → 이모티콘형
+                case 4: fakerType = 1; break; // 이모티콘형 → 입력형
+            }
+            actualQuestionNumber = fakerType * 10 + questionInfo.number;
+        }
+        
+        // 질문 내용 가져오기
+        const questionData = window.getQuestionByNumber(actualQuestionNumber);
+        
+        if (!questionData) {
+            console.error('질문을 찾을 수 없습니다. 질문 번호:', actualQuestionNumber);
             return;
         }
         
         document.getElementById('questionSection').style.display = 'block';
-        document.getElementById('questionMode').textContent = currentQuestion.mode;
-        document.getElementById('questionText').textContent = currentQuestion.text;
+        
+        // 문제 유형 정보 파싱
+        const questionInfo = window.parseQuestionNumber(actualQuestionNumber);
+        document.getElementById('questionMode').textContent = questionInfo.typeName;
+        document.getElementById('questionText').textContent = questionData.main;
         
         // 문제 유형에 따라 입력 방식 변경
-        setupAnswerInput(currentQuestion.type);
+        setupAnswerInput(questionInfo.type);
         
         console.log('질문 표시 완료:', {
             game: currentGame,
             round: currentRound,
             isFaker: isPlayerFaker,
-            questionNumber: currentQuestion.questionNumber,
-            questionType: currentQuestion.type,
-            questionText: currentQuestion.text
+            originalQuestion: questionNumber,
+            actualQuestion: actualQuestionNumber,
+            questionType: questionInfo.type,
+            questionText: questionData.main
         });
         
     } catch (error) {
@@ -543,7 +560,24 @@ function updateAnswerStatus() {
 function getCurrentQuestionType() {
     try {
         const questionNumber = window.getQuestionForRound(playerCode, currentGame, currentRound);
-        return Math.floor(questionNumber / 10); // 11->1, 21->2, 31->3, 41->4
+        const isPlayerFaker = window.isPlayerFaker(playerCode, currentGame, playerIndex);
+        
+        let actualQuestionNumber = questionNumber;
+        
+        // 라이어인 경우 다른 유형의 질문
+        if (isPlayerFaker) {
+            const questionInfo = window.parseQuestionNumber(questionNumber);
+            let fakerType = questionInfo.type;
+            switch (questionInfo.type) {
+                case 1: fakerType = 2; break;
+                case 2: fakerType = 3; break;
+                case 3: fakerType = 4; break;
+                case 4: fakerType = 1; break;
+            }
+            actualQuestionNumber = fakerType * 10 + questionInfo.number;
+        }
+        
+        return Math.floor(actualQuestionNumber / 10); // 11->1, 21->2, 31->3, 41->4
     } catch (error) {
         console.error('질문 유형 가져오기 오류:', error);
         return 1; // 기본값
@@ -558,14 +592,7 @@ function goToAnswer() {
     }
     
     // 라이어인 경우 5초간 메인 질문 표시
-    const isPlayerFaker = window.isPlayerFakerInRound(
-        playerCode, 
-        currentGame, 
-        1, 
-        playerIndex, 
-        totalPlayers, 
-        fakerCount
-    );
+    const isPlayerFaker = window.isPlayerFaker(playerCode, currentGame, playerIndex);
     
     if (isPlayerFaker) {
         showMainQuestionToFaker();
@@ -580,10 +607,11 @@ function goToAnswer() {
 function showMainQuestionToFaker() {
     try {
         // 메인 질문 가져오기 (라이어가 아닌 일반 플레이어용 질문)
-        const mainQuestion = window.getCurrentQuestion(playerCode, currentGame, currentRound, false);
+        const questionNumber = window.getQuestionForRound(playerCode, currentGame, currentRound);
+        const questionData = window.getQuestionByNumber(questionNumber);
         
-        if (mainQuestion) {
-            document.getElementById('mainQuestionText').textContent = mainQuestion.text;
+        if (questionData) {
+            document.getElementById('mainQuestionText').textContent = questionData.main;
             document.getElementById('mainQuestionReveal').style.display = 'block';
             
             // 5초 타이머
@@ -601,7 +629,7 @@ function showMainQuestionToFaker() {
                 }
             }, 1000);
             
-            console.log('라이어에게 메인 질문 5초간 표시:', mainQuestion.text);
+            console.log('라이어에게 메인 질문 5초간 표시:', questionData.main);
         }
     } catch (error) {
         console.error('메인 질문 표시 중 오류:', error);
@@ -611,14 +639,7 @@ function showMainQuestionToFaker() {
 
 // answer.html로 이동
 function moveToAnswerPage() {
-    const isPlayerFaker = window.isPlayerFakerInRound(
-        playerCode, 
-        currentGame, 
-        1, 
-        playerIndex, 
-        totalPlayers, 
-        fakerCount
-    );
+    const isPlayerFaker = window.isPlayerFaker(playerCode, currentGame, playerIndex);
     
     // answer.html로 이동하면서 데이터 전달
     localStorage.setItem('hostAnswer', submittedAnswer);
@@ -639,6 +660,7 @@ function nextRound() {
         currentRound++;
         resetRoundState();
         updateGameInfo();
+        updatePlayerRole(); // 새로운 라운드에서 역할 재확인
         showQuestion();
         
         localStorage.setItem('currentRound', currentRound.toString());
@@ -674,6 +696,7 @@ function nextGame() {
         console.log('마지막 게임 - 게임 종료 버튼 강조');
     }
 }
+
 // 라운드 상태 초기화
 function resetRoundState() {
     answerSubmitted = false;
@@ -703,14 +726,7 @@ function showEndGameModal() {
 
 // 게임 종료
 function endGame() {
-    const isPlayerFaker = window.isPlayerFakerInRound(
-        playerCode, 
-        currentGame, 
-        1, 
-        playerIndex, 
-        totalPlayers, 
-        fakerCount
-    );
+    const isPlayerFaker = window.isPlayerFaker(playerCode, currentGame, playerIndex);
     
     // gameover.html로 데이터 전달
     localStorage.setItem('hostAnswer', submittedAnswer || '');
@@ -747,20 +763,6 @@ function updateGameUI() {
         
         // 답변 상태 UI 업데이트
         updateAnswerStatus();
-        
-        // 라이어인 경우 메인 질문 표시 (기존 답변이 있는 경우에만)
-        const isPlayerFaker = window.isPlayerFakerInRound(
-            playerCode, 
-            currentGame, 
-            1, 
-            playerIndex, 
-            totalPlayers, 
-            fakerCount
-        );
-        
-        if (isPlayerFaker) {
-            // 이미 답변을 제출한 상태라면 메인 질문 표시하지 않음
-        }
     } else {
         // 답변이 없는 경우에만 자동 진행 체크
         checkAutoProgression();
@@ -843,7 +845,8 @@ function showModal(modalId) {
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
-// 다음 게임 버튼 강조 함수 추가:
+
+// 다음 게임 버튼 강조 함수
 function highlightNextGameButton() {
     const nextGameBtn = document.getElementById('nextGameBtn');
     
