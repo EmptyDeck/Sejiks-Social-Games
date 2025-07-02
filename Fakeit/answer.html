@@ -5,85 +5,244 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>답변 공개 - Fakeit</title>
     <link rel="stylesheet" href="answer.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- 배경 애니메이션 요소들 -->
+    <div class="bg-animation">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+        <div class="floating-shape shape-5"></div>
+    </div>
+
     <div class="container">
-        <!-- 헤더 -->
-        <div class="header">
-            <div class="game-info" id="gameInfo">게임 1 - 라운드 1</div>
-            <div class="player-role" id="playerRole">호스트</div>
+        <!-- 게임 헤더 -->
+        <div class="game-header">
+            <div class="header-glow"></div>
+            <div class="game-logo">
+                <span class="logo-text">🎭</span>
+                <span class="logo-title">FAKEIT</span>
+            </div>
+            <div class="game-status">
+                <div class="status-badge">
+                    <span class="status-icon">🎮</span>
+                    <span class="status-text" id="gameInfo">게임 1 - 라운드 1</span>
+                </div>
+                <div class="player-badge">
+                    <span class="player-icon">👑</span>
+                    <span class="player-text" id="playerRole">호스트</span>
+                </div>
+            </div>
         </div>
 
-        <!-- 답변 카드 섹션 -->
+        <!-- 메인 답변 카드 -->
         <div class="answer-section">
-            <div class="answer-card" id="answerCard">
-                <div class="card-title" id="cardTitle">터치하여 답변 공개</div>
-                <div class="answer-content" id="answerContent">
-                    여기에 답변이 표시됩니다
+            <div class="card-container">
+                <div class="card-glow"></div>
+                <div class="answer-card" id="answerCard">
+                    <div class="card-decoration">
+                        <div class="deco-circle deco-1"></div>
+                        <div class="deco-circle deco-2"></div>
+                        <div class="deco-circle deco-3"></div>
+                    </div>
+                    <div class="card-icon">🎯</div>
+                    <div class="card-title" id="cardTitle">터치하여 답변 공개</div>
+                    <div class="tap-indicator">
+                        <div class="tap-animation"></div>
+                        <span class="tap-text">TAP!</span>
+                    </div>
+                    <div class="answer-content" id="answerContent">
+                        <div class="answer-text">여기에 답변이 표시됩니다</div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- 투표 섹션 -->
-        <div class="vote-section">
-            <div class="section-title">라이어로 의심되는 사람에게 투표하세요</div>
-            <div class="vote-count" id="voteCount">투표: 0명</div>
-            <div class="vote-buttons" id="voteSection">
-                <!-- 투표 버튼들이 여기에 동적 생성됩니다 -->
+        <div class="voting-section">
+            <div class="section-header">
+                <div class="section-icon">🕵️</div>
+                <div class="section-title">라이어를 찾아라!</div>
+                <div class="section-subtitle">의심스러운 플레이어에게 투표하세요</div>
+            </div>
+
+            <div class="vote-counter">
+                <div class="counter-icon">🗳️</div>
+                <div class="counter-text" id="voteCount">투표: 0명</div>
+                <div class="counter-progress">
+                    <div class="progress-bar" id="voteProgress"></div>
+                </div>
+            </div>
+
+            <div class="vote-grid" id="voteSection">
+                <!-- 투표 버튼들이 동적으로 생성됩니다 -->
+                <div class="vote-player">
+                    <div class="player-avatar">👤</div>
+                    <div class="player-name">플레이어 1</div>
+                    <div class="vote-btn" data-player="1">
+                        <span class="vote-icon">👆</span>
+                        <span class="vote-text">투표</span>
+                    </div>
+                </div>
+                <div class="vote-player">
+                    <div class="player-avatar">👤</div>
+                    <div class="player-name">플레이어 2</div>
+                    <div class="vote-btn" data-player="2">
+                        <span class="vote-icon">👆</span>
+                        <span class="vote-text">투표</span>
+                    </div>
+                </div>
+                <div class="vote-player">
+                    <div class="player-avatar">👤</div>
+                    <div class="player-name">플레이어 3</div>
+                    <div class="vote-btn" data-player="3">
+                        <span class="vote-icon">👆</span>
+                        <span class="vote-text">투표</span>
+                    </div>
+                </div>
+                <div class="vote-player">
+                    <div class="player-avatar">👤</div>
+                    <div class="player-name">플레이어 4</div>
+                    <div class="vote-btn" data-player="4">
+                        <span class="vote-icon">👆</span>
+                        <span class="vote-text">투표</span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- 액션 버튼들 -->
-        <div class="action-buttons">
-            <button class="btn btn-danger" id="giveUpBtn">라이어 포기</button>
-            <button class="btn btn-success" id="endGameBtn">게임 종료</button>
-            <button class="btn btn-warning" id="nextRoundBtn">다음 라운드</button>
-            <button class="btn btn-info" id="nextGameBtn">다음 게임</button>
-            <button class="btn btn-primary" id="backBtn">돌아가기</button>
+        <!-- 게임 액션 버튼들 -->
+        <div class="action-panel">
+            <div class="action-row">
+                <button class="action-btn btn-surrender" id="giveUpBtn">
+                    <div class="btn-icon">🏳️</div>
+                    <div class="btn-text">라이어 포기</div>
+                </button>
+                <button class="action-btn btn-end" id="endGameBtn">
+                    <div class="btn-icon">🏁</div>
+                    <div class="btn-text">게임 종료</div>
+                </button>
+            </div>
+            <div class="action-row">
+                <button class="action-btn btn-next" id="nextRoundBtn">
+                    <div class="btn-icon">⏭️</div>
+                    <div class="btn-text">다음 라운드</div>
+                </button>
+                <button class="action-btn btn-continue" id="nextGameBtn">
+                    <div class="btn-icon">🎮</div>
+                    <div class="btn-text">다음 게임</div>
+                </button>
+            </div>
+            <button class="action-btn btn-back full-width" id="backBtn">
+                <div class="btn-icon">🔙</div>
+                <div class="btn-text">돌아가기</div>
+            </button>
         </div>
     </div>
 
     <!-- 모달들 -->
-    <div class="modal" id="giveUpModal">
-        <div class="modal-content">
-            <h3>라이어 포기</h3>
-            <p>라이어로서 포기하시겠습니까?</p>
-            <div class="modal-buttons">
-                <button class="btn btn-danger" onclick="confirmGiveUp()">포기</button>
-                <button class="btn btn-secondary" onclick="closeModal('giveUpModal')">취소</button>
+    <div class="modal-overlay" id="giveUpModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-icon">🏳️</div>
+                <h3 class="modal-title">라이어 포기</h3>
+            </div>
+            <div class="modal-content">
+                <p class="modal-text">라이어로서 포기하시겠습니까?</p>
+                <div class="modal-warning">
+                    <span class="warning-icon">⚠️</span>
+                    <span class="warning-text">이 선택은 되돌릴 수 없습니다</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn btn-confirm" onclick="confirmGiveUp()">
+                    <span class="btn-icon">✅</span>
+                    <span class="btn-text">포기</span>
+                </button>
+                <button class="modal-btn btn-cancel" onclick="closeModal('giveUpModal')">
+                    <span class="btn-icon">❌</span>
+                    <span class="btn-text">취소</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="modal" id="endGameModal">
-        <div class="modal-content">
-            <h3>게임 종료</h3>
-            <p>게임을 종료하시겠습니까?</p>
-            <div class="modal-buttons">
-                <button class="btn btn-success" onclick="confirmEndGame()">종료</button>
-                <button class="btn btn-secondary" onclick="closeModal('endGameModal')">취소</button>
+    <div class="modal-overlay" id="endGameModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-icon">🏁</div>
+                <h3 class="modal-title">게임 종료</h3>
+            </div>
+            <div class="modal-content">
+                <p class="modal-text">게임을 종료하시겠습니까?</p>
+                <div class="modal-info">
+                    <span class="info-icon">💡</span>
+                    <span class="info-text">진행 상황이 저장되지 않습니다</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn btn-confirm" onclick="confirmEndGame()">
+                    <span class="btn-icon">✅</span>
+                    <span class="btn-text">종료</span>
+                </button>
+                <button class="modal-btn btn-cancel" onclick="closeModal('endGameModal')">
+                    <span class="btn-icon">❌</span>
+                    <span class="btn-text">취소</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="modal" id="nextRoundModal">
-        <div class="modal-content">
-            <h3>다음 라운드</h3>
-            <p>다음 라운드로 진행하시겠습니까?</p>
-            <div class="modal-buttons">
-                <button class="btn btn-warning" onclick="confirmNextRound()">진행</button>
-                <button class="btn btn-secondary" onclick="closeModal('nextRoundModal')">취소</button>
+    <div class="modal-overlay" id="nextRoundModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-icon">⏭️</div>
+                <h3 class="modal-title">다음 라운드</h3>
+            </div>
+            <div class="modal-content">
+                <p class="modal-text">다음 라운드로 진행하시겠습니까?</p>
+                <div class="modal-info">
+                    <span class="info-icon">🎯</span>
+                    <span class="info-text">새로운 라운드가 시작됩니다</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn btn-confirm" onclick="confirmNextRound()">
+                    <span class="btn-icon">✅</span>
+                    <span class="btn-text">진행</span>
+                </button>
+                <button class="modal-btn btn-cancel" onclick="closeModal('nextRoundModal')">
+                    <span class="btn-icon">❌</span>
+                    <span class="btn-text">취소</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="modal" id="nextGameModal">
-        <div class="modal-content">
-            <h3>다음 게임</h3>
-            <p>다음 게임으로 진행하시겠습니까?</p>
-            <div class="modal-buttons">
-                <button class="btn btn-info" onclick="confirmNextGame()">진행</button>
-                <button class="btn btn-secondary" onclick="closeModal('nextGameModal')">취소</button>
+    <div class="modal-overlay" id="nextGameModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-icon">🎮</div>
+                <h3 class="modal-title">다음 게임</h3>
+            </div>
+            <div class="modal-content">
+                <p class="modal-text">다음 게임으로 진행하시겠습니까?</p>
+                <div class="modal-info">
+                    <span class="info-icon">🚀</span>
+                    <span class="info-text">새로운 게임이 시작됩니다</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn btn-confirm" onclick="confirmNextGame()">
+                    <span class="btn-icon">✅</span>
+                    <span class="btn-text">진행</span>
+                </button>
+                <button class="modal-btn btn-cancel" onclick="closeModal('nextGameModal')">
+                    <span class="btn-icon">❌</span>
+                    <span class="btn-text">취소</span>
+                </button>
             </div>
         </div>
     </div>

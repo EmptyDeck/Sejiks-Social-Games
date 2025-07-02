@@ -69,28 +69,41 @@ function initializePage() {
 // 답변 카드 설정
 function setupAnswerCard() {
     console.log(`답변 카드 설정: ${answerType}`);
-    const answerCard = document.getElementById('answerCard');
     const answerContent = document.getElementById('answerContent');
-    
+    const tapIndicator = document.querySelector('.tap-indicator');
+
+    // 초기 상태: 답변 숨김, TAP 인디케이터 표시
+    answerContent.classList.remove('show');
+    tapIndicator.style.display = 'block';
+
     if (answerType === 'drawing') {
         answerContent.innerHTML = '<canvas id="answerCanvas" width="300" height="200"></canvas>';
         const canvas = document.getElementById('answerCanvas');
         const ctx = canvas.getContext('2d');
-        
+
         if (submittedDrawing) {
             const img = new Image();
-            img.onload = function() {
+            img.onload = function () {
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 console.log('그림 로드 완료');
             };
             img.src = submittedDrawing;
+        } else {
+            answerContent.innerHTML = '<div class="answer-text">그림이 없습니다</div>';
         }
     } else {
-        answerContent.textContent = submittedAnswer;
-        console.log('텍스트 답변 설정');
+        const answerTextElement = document.querySelector('#answerContent .answer-text');
+        if (answerTextElement) {
+            if (submittedAnswer) {
+                answerTextElement.textContent = submittedAnswer;
+                console.log('텍스트 답변 설정:', submittedAnswer);
+            } else {
+                answerTextElement.textContent = '답변이 없습니다';
+                console.log('텍스트 답변 없음');
+            }
+        }
     }
 }
-
 // 투표 버튼 생성
 function createVoteButtons() {
     console.log(`투표 버튼 생성: 총 ${totalPlayers}명`);
@@ -133,6 +146,7 @@ function toggleVote(targetId) {
         console.log(`투표 추가: ${targetId}`);
     }
     updateVoteDisplay();
+    saveVotes(); // 추가된 함수 호출
 }
 
 // 투표 표시 업데이트
@@ -146,30 +160,28 @@ function updateVoteDisplay() {
 function toggleAnswerCard() {
     const answerContent = document.getElementById('answerContent');
     const cardTitle = document.getElementById('cardTitle');
+    const tapIndicator = document.querySelector('.tap-indicator');
     
-    if (answerContent.style.display === 'none') {
-        answerContent.style.display = 'flex';
+    answerContent.classList.toggle('show'); // ✅ .show 클래스로 제어
+    if (answerContent.classList.contains('show')) {
         cardTitle.textContent = '답변 숨기기';
-        console.log('답변 공개');
+        tapIndicator.style.display = 'none';
     } else {
-        answerContent.style.display = 'none';
         cardTitle.textContent = '터치하여 답변 공개';
-        console.log('답변 숨김');
+        tapIndicator.style.display = 'block';
     }
 }
 
 // 모달 열기
 function openModal(modalId) {
     console.log(`모달 열기: ${modalId}`);
-    document.getElementById(modalId).style.display = 'block';
+    document.getElementById(modalId).classList.add('show');
 }
-
 // 모달 닫기
 function closeModal(modalId) {
     console.log(`모달 닫기: ${modalId}`);
-    document.getElementById(modalId).style.display = 'none';
+    document.getElementById(modalId).classList.remove('show');
 }
-
 // 라이어 포기
 function giveUpAsLiar() {
     console.log('라이어 포기 요청');
@@ -191,8 +203,8 @@ function endGame() {
 }
 
 function confirmEndGame() {
-    console.log('게임 종료 확정');
     closeModal('endGameModal');
+    saveVotes(); // 👉 투표 저장
     localStorage.setItem('finalVotes', JSON.stringify(votes));
     localStorage.setItem('gameResult', 'normal_end');
     window.location.href = 'gameover.html';
@@ -207,13 +219,9 @@ function nextRound() {
 function confirmNextRound() {
     console.log('다음 라운드 확정');
     closeModal('nextRoundModal');
-    
-    // 라운드 업데이트
+    saveVotes();
     currentRound++;
     localStorage.setItem('currentRound', currentRound.toString());
-    localStorage.setItem('votes', JSON.stringify(votes));
-    
-    // 원래 페이지로 돌아가기
     goBack();
 }
 
@@ -226,7 +234,8 @@ function nextGame() {
 function confirmNextGame() {
     console.log('다음 게임 확정');
     closeModal('nextGameModal');
-    
+    saveVotes();
+
     // 게임 업데이트
     currentGame++;
     currentRound = 1;
@@ -277,4 +286,15 @@ function setupEventListeners() {
     });
     
     console.log('이벤트 리스너 설정 완료');
+}
+
+function saveVotes() {
+    if (!inviteCode || !currentGame || !currentRound) {
+        console.warn('필수 정보 누락: 투표 저장 실패');
+        return;
+    }
+
+    const voteKey = `vote_${inviteCode}_game_${currentGame}_round_${currentRound}`;
+    localStorage.setItem(voteKey, JSON.stringify(votes));
+    console.log(`✅ 투표 저장됨: ${voteKey}`, votes);
 }
