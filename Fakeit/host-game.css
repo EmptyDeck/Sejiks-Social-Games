@@ -576,13 +576,23 @@ body::before {
 .answer-btn {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     margin-bottom: 1rem;
+    border: none;
+    border-radius: 15px;
+    padding: 1rem 3rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 150px;
 }
-
 .answer-btn:hover {
     background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
+
 
 .next-btn {
     background: linear-gradient(135deg, var(--accent-color), #ec4899);
@@ -994,3 +1004,4 @@ body::before {
         --card-bg: rgba(255, 255, 255, 0.1);
     }
 }
+

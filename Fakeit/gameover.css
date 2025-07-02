@@ -398,6 +398,9 @@ body::before {
 .new-game-btn {
     background: linear-gradient(135deg, var(--success-color), #16a34a);
 }
+.next-game-btn {
+    background: linear-gradient(135deg, var(--primary-color), #f6513b);
+}
 
 .home-btn {
     background: linear-gradient(135deg, var(--info-color), #3b82f6);

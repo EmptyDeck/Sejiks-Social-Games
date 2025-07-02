@@ -145,7 +145,7 @@ function generateCodes() {
 
         // UI 업데이트 및 데이터 저장
         displayInviteCode();
-        updateGamePreview();
+        //updateGamePreview();
         document.getElementById('startBtn').classList.remove('disabled');
         saveGameData();
 
@@ -160,26 +160,12 @@ function generateCodes() {
  */
 function displayInviteCode() {
     const codesGrid = document.getElementById('codesGrid');
-    codesGrid.innerHTML = '';
-
-    // 단일 초대코드 카드 생성
-    const codeCard = document.createElement('div');
-    codeCard.className = 'code-card invite-code-card';
-    codeCard.innerHTML = `
-        <div class="code-header">
-            <div class="code-number">🎫 초대코드</div>
-            <button class="copy-btn" onclick="copyInviteCode()">📋 복사</button>
-        </div>
-        <div class="code-value invite-code">${inviteCode}</div>
-        <div class="code-description">모든 플레이어가 이 코드를 사용합니다</div>
+    codesGrid.innerHTML = `
+        <div class="big-invite-code">${inviteCode}</div>
     `;
-    codesGrid.appendChild(codeCard);
-
-    // 경고 메시지 표시
-    const warningText = document.getElementById('warningText');
-    warningText.textContent = "* 모든 플레이어는 위의 초대코드를 입력해주세요";
-    warningText.style.display = 'block';
 }
+
+
 
 /**
  * 초대코드 클립보드 복사
@@ -204,87 +190,6 @@ function copyInviteCode() {
     });
 }
 
-/**
- * 게임 미리보기 업데이트
- */
-function updateGamePreview() {
-    if (!inviteCode) return;
-
-    // 게임 미리보기 요소가 있는지 확인
-    let gamePreview = document.getElementById('gamePreview');
-    if (!gamePreview) {
-        // 게임 미리보기 요소 동적 생성
-        gamePreview = document.createElement('div');
-        gamePreview.id = 'gamePreview';
-        gamePreview.className = 'game-preview-section';
-        gamePreview.innerHTML = `
-            <h3 class="preview-title">🎮 게임 미리보기</h3>
-            <div class="preview-content">
-                <div class="questions-preview">
-                    <h4>첫 번째 게임 질문들:</h4>
-                    <div id="questionsPreview" class="questions-list"></div>
-                </div>
-                <div class="faker-preview">
-                    <h4>라이어 배치 (게임 1 기준):</h4>
-                    <div id="fakerPreview" class="faker-info"></div>
-                </div>
-            </div>
-        `;
-        
-        // 코드 섹션 다음에 삽입
-        const codesSection = document.querySelector('.codes-section');
-        codesSection.parentNode.insertBefore(gamePreview, document.getElementById('startBtn'));
-    }
-
-    const questionsPreview = document.getElementById('questionsPreview');
-    const fakerPreview = document.getElementById('fakerPreview');
-
-    try {
-        // 게임 1의 질문들 가져오기 (미리보기용)
-        const gameQuestions = window.getCurrentGameQuestions(inviteCode, 1);
-        
-        // 질문 미리보기 표시
-        questionsPreview.innerHTML = '';
-        gameQuestions.forEach((questionId, round) => {
-            const question = window.getQuestionByNumber(questionId);
-            if (question) {
-                const questionItem = document.createElement('div');
-                questionItem.className = 'question-preview-item';
-                const parsedQuestion = window.parseQuestionNumber(questionId);
-                questionItem.innerHTML = `
-                    <span class="round-label">R${round + 1}:</span>
-                    <span class="question-text">${question.main}</span>
-                    <span class="question-mode">(${parsedQuestion.typeName})</span>
-                `;
-                questionsPreview.appendChild(questionItem);
-            }
-        });
-
-        // 라이어 현황 표시 (게임 1 기준)
-        const fakers = window.getFakersForGame(inviteCode, 1);
-        const normalPlayers = totalPlayers - fakers.length;
-        
-        fakerPreview.innerHTML = `
-            <div class="faker-stat">
-                <span class="stat-label">라이어:</span>
-                <span class="stat-value faker">${fakers.length}명</span>
-                <span class="faker-list">(${fakers.map(i => `P${i + 1}`).join(', ')})</span>
-            </div>
-            <div class="faker-stat">
-                <span class="stat-label">일반 플레이어:</span>
-                <span class="stat-value normal">${normalPlayers}명</span>
-            </div>
-            <div class="preview-note">
-                <small>* 라이어는 게임별로 다르게 선정됩니다</small>
-            </div>
-        `;
-
-        gamePreview.style.display = 'block';
-        
-    } catch (error) {
-        console.error('게임 미리보기 업데이트 중 오류:', error);
-    }
-}
 
 /**
  * 게임 데이터를 localStorage에 저장하는 함수

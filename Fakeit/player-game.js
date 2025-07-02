@@ -687,20 +687,37 @@ function showMainQuestionToFaker() {
 
 // answer.html로 이동
 function moveToAnswerPage() {
-    const isPlayerFaker = window.isPlayerFaker(playerCode, currentGame, playerIndex);
+    console.log('답변 페이지로 이동 시도 중...');
     
-    // answer.html로 이동하면서 데이터 전달
-    localStorage.setItem('hostAnswer', submittedAnswer);
-    localStorage.setItem('hostIsFaker', isPlayerFaker.toString());
-    localStorage.setItem('hostCode', playerCode);
+    // 저장할 데이터 준비
+    const answerType = submittedDrawing ? 'drawing' : 'text';
+    
+    // localStorage에 데이터 저장
+    localStorage.setItem('submittedAnswer', submittedAnswer);
+    localStorage.setItem('answerType', answerType);
+    if (submittedDrawing) {
+        localStorage.setItem('submittedDrawing', submittedDrawing);
+    } else {
+        localStorage.removeItem('submittedDrawing');
+    }
+    localStorage.setItem('inviteCode', playerCode);
+    localStorage.setItem('playerIndex', playerIndex.toString());
     localStorage.setItem('currentRound', currentRound.toString());
     localStorage.setItem('currentGame', currentGame.toString());
-    localStorage.setItem('totalPlayers', totalPlayers.toString());
-    localStorage.setItem('isHost', 'false'); // ✅ 플레이어는 호스트가 아님
-
-    console.log('답변 공개 페이지로 이동');
-    window.location.href = 'answer.html?from=player';
+    
+    console.log('플레이어 데이터 저장 완료:', {
+        submittedAnswer,
+        answerType,
+        inviteCode: playerCode,
+        playerIndex,
+        currentRound,
+        currentGame
+    });
+    
+    // answer.html로 이동 (쿼리 파라미터 통일)
+    window.location.href = `answer.html?from=player${playerIndex}`;
 }
+
 
 // 다음라운드
 function nextRound() {
