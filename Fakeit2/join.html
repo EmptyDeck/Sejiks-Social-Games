@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>방 참여 - 페이커 헌트</title>
+    <link rel="stylesheet" href="join.css">
+</head>
+<body>
+    <a href="index.html" class="back-btn">← 뒤로</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎪 방 참여</h1>
+            <p class="subtitle">호스트가 제공한 초대 코드를 입력하세요</p>
+        </div>
+
+        <div class="input-section">
+            <!-- 플레이어 번호 선택 -->
+            <div class="player-selector-section">
+                <label class="input-label">👤 플레이어 번호 선택</label>
+                <div class="wheel-picker-container">
+                    <div class="wheel-picker" id="playerWheelPicker">
+                        <div class="wheel-highlight"></div>
+                        <div class="wheel-items" id="wheelItems">
+                            <!-- JavaScript로 동적 생성 -->
+                        </div>
+                        <div class="wheel-fade-top"></div>
+                        <div class="wheel-fade-bottom"></div>
+                    </div>
+                    <div class="selected-player">
+                        <span class="selected-text">플레이어 </span>
+                        <span class="selected-number" id="selectedPlayerNumber">1</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 초대 코드 입력 -->
+            <div class="code-input-section">
+                <label class="input-label">🎫 초대 코드 입력</label>
+                
+                <div class="code-input-container">
+                    <input type="text" class="code-input" id="code1" maxlength="1" placeholder="•">
+                    <input type="text" class="code-input" id="code2" maxlength="1" placeholder="•">
+                    <input type="text" class="code-input" id="code3" maxlength="1" placeholder="•">
+                    <input type="text" class="code-input" id="code4" maxlength="1" placeholder="•">
+                </div>
+            </div>
+            
+            <!-- 게임 정보 표시 영역 -->
+            <div class="game-info" id="gameInfo" style="display: none;">
+                <!-- 게임 정보가 여기에 동적으로 표시됩니다 -->
+            </div>
+            
+            <button class="join-btn" id="joinBtn">
+                🎮 게임 참여하기
+            </button>
+            
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <p class="help-text">
+                * 플레이어 번호는 겹치지 않게 선택해주세요<br>
+                * 4자리 영문 코드를 정확히 입력해주세요
+            </p>
+        </div>
+    </div>
+
+    <!-- 게임 데이터와 질문 시스템 로드 -->
+    <script src="gameData.js"></script>
+    <script src="questions.js"></script>
+    <script src="join.js"></script>
+</body>
+</html>
