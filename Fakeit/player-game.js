@@ -1,4 +1,3 @@
-//player-game.js
 // 게임 데이터 전역 변수
 let playerCode = '';
 let currentRound = 1;
@@ -12,7 +11,6 @@ let submittedDrawing = null;
 let maxRounds = 4;
 let maxGames = 4;
 let playerIndex = 1; // ✅ 플레이어는 1부터 시작 (0은 호스트 전용)
-let roundStateReset = false;
 
 // 그림 그리기 변수
 let canvas, ctx;
@@ -274,17 +272,12 @@ function joinGame(code, isNewJoin = true) {
         
         // 현재 게임에서 역할 확인 및 표시
         updatePlayerRole();
-
-        // 라운드 상태 초기화
-        resetRoundState()
-
-        // 자동 진행 체크
-        checkAutoProgression();
-
+        
         // 게임 상태에 따라 UI 업데이트
         updateGameUI();
         
-
+        // 자동 진행 체크
+        checkAutoProgression();
         
         // 기존 게임 상태가 없으면 바로 게임 시작
         if (!answerSubmitted) {
@@ -539,7 +532,6 @@ function submitAnswer() {
             alert('답변을 입력해주세요.');
             return;
         }
-        drawing = null; // 텍스트 답변 시 drawing을 명시적으로 null로 설정
     }
     
     submittedAnswer = answer;
@@ -551,16 +543,11 @@ function submitAnswer() {
     
     // 데이터 저장
     localStorage.setItem('playerAnswer', submittedAnswer);
-    if (drawing) {
-        localStorage.setItem('playerDrawing', drawing);
-    } else {
-        localStorage.removeItem('playerDrawing'); // 그림 데이터가 없으면 제거
-    }
+    localStorage.setItem('playerDrawing', submittedDrawing || '');
     localStorage.setItem('answerSubmitted', 'true');
     
     console.log('답변 제출 완료:', submittedAnswer);
 }
-
 
 // 답변 수정
 function editAnswer() {
@@ -596,7 +583,7 @@ function updateAnswerStatus() {
     document.getElementById('submitAnswerBtn').style.display = 'none';
     document.getElementById('editAnswerBtn').style.display = 'block';
     
-    if (questionType === 2 && submittedDrawing) { // 그림형이고 유효한 그림 데이터가 있는 경우
+    if (questionType === 2) { // 그림형
         document.getElementById('submittedText').style.display = 'none';
         const submittedCanvas = document.getElementById('submittedDrawing');
         submittedCanvas.style.display = 'block';
@@ -609,44 +596,23 @@ function updateAnswerStatus() {
             submittedCtx.drawImage(img, 0, 0, submittedCanvas.width, submittedCanvas.height);
         };
         img.src = submittedDrawing;
-    } else { // 텍스트 또는 그림 데이터가 없는 경우
+    } else { // 텍스트
         document.getElementById('submittedDrawing').style.display = 'none';
-        const submittedCanvas = document.getElementById('submittedDrawing');
-        const submittedCtx = submittedCanvas.getContext('2d');
-        submittedCtx.clearRect(0, 0, submittedCanvas.width, submittedCanvas.height);
         document.getElementById('submittedText').style.display = 'block';
         document.getElementById('submittedText').textContent = submittedAnswer;
         document.getElementById('answerInput').disabled = true;
     }
 }
 
-
-
 // 현재 질문 유형 가져오기
 function getCurrentQuestionType() {
     try {
-        const questionNumber = window.getQuestionForRound(playerCode, currentGame, currentRound);
-        const isPlayerFaker = window.isPlayerFaker(playerCode, currentGame, playerIndex);
-        
+        const questionNumber = window.getQuestionForRound(playerCode, currentGame, currentRound);        
         let actualQuestionNumber = questionNumber;
-        
-        // 라이어인 경우 다른 유형의 질문
-        if (isPlayerFaker) {
-            const questionInfo = window.parseQuestionNumber(questionNumber);
-            let fakerType = questionInfo.type;
-            switch (questionInfo.type) {
-                case 1: fakerType = 2; break;
-                case 2: fakerType = 3; break;
-                case 3: fakerType = 4; break;
-                case 4: fakerType = 1; break;
-            }
-            actualQuestionNumber = fakerType * 10 + questionInfo.number;
-        }
-        
         return Math.floor(actualQuestionNumber / 10); // 11->1, 21->2, 31->3, 41->4
     } catch (error) {
         console.error('질문 유형 가져오기 오류:', error);
-        return 1; // 기본값
+        return 1; // 기본값 (입력형)
     }
 }
 
@@ -716,7 +682,7 @@ function moveToAnswerPage() {
     if (submittedDrawing) {
         localStorage.setItem('submittedDrawing', submittedDrawing);
     } else {
-        localStorage.removeItem('submittedDrawing'); // 그림 데이터가 없으면 제거
+        localStorage.removeItem('submittedDrawing');
     }
     localStorage.setItem('inviteCode', playerCode);
     localStorage.setItem('playerIndex', playerIndex.toString());
@@ -732,10 +698,9 @@ function moveToAnswerPage() {
         currentGame
     });
     
-    // answer.html로 이동
+    // answer.html로 이동 (쿼리 파라미터 통일)
     window.location.href = `answer.html?from=player${playerIndex}`;
 }
-
 
 
 // 다음라운드
@@ -750,10 +715,12 @@ function nextRound() {
         localStorage.setItem('currentRound', currentRound.toString());
         console.log('다음 라운드로 진행:', currentRound);
     } else {
+        // alert 대신 "다음 게임" 버튼 강조
         highlightNextGameButton();
     }
 }
 
+// 다음게임
 function nextGame() {
     if (currentGame < maxGames) {
         currentGame++;
@@ -767,6 +734,7 @@ function nextGame() {
         localStorage.setItem('currentRound', currentRound.toString());
         console.log('다음 게임으로 진행:', currentGame);
     } else {
+        // alert 대신 게임 종료 버튼 강조
         const endGameBtn = document.getElementById('endGameBtn');
         if (endGameBtn) {
             endGameBtn.classList.add('pulse-highlight');
@@ -778,30 +746,27 @@ function nextGame() {
     }
 }
 
-
 // 라운드 상태 초기화
 function resetRoundState() {
     answerSubmitted = false;
     submittedAnswer = '';
     submittedDrawing = null;
-    roundStateReset = true; // 플래그 설정
-
+    
     // UI 초기화
     document.getElementById('answerInput').value = '';
     document.getElementById('answerInput').disabled = false;
     document.getElementById('answerStatus').style.display = 'none';
     document.getElementById('submitAnswerBtn').style.display = 'block';
     document.getElementById('editAnswerBtn').style.display = 'none';
-
+    
     // 캔버스 초기화
     clearCanvas();
-
+    
     // localStorage 정리
     localStorage.removeItem('playerAnswer');
     localStorage.removeItem('playerDrawing');
     localStorage.removeItem('answerSubmitted');
 }
-
 
 // 게임 종료 모달 표시
 function showEndGameModal() {
@@ -825,33 +790,32 @@ function endGame() {
 
 // 게임 UI 업데이트 (저장된 상태 복원)
 function updateGameUI() {
-    if (roundStateReset) {
-        roundStateReset = false; // 플래그 초기화
-        return; // 복원하지 않음
-    }
-
+    // 답변 상태 복원
     const savedAnswer = localStorage.getItem('playerAnswer');
     const savedDrawing = localStorage.getItem('playerDrawing');
     const savedSubmitted = localStorage.getItem('answerSubmitted') === 'true';
-
+    
     if (savedSubmitted && (savedAnswer || savedDrawing)) {
         answerSubmitted = true;
         submittedAnswer = savedAnswer || '';
         submittedDrawing = savedDrawing || null;
-
+        
+        // 게임이 진행 중인 상태로 복원
         gameStarted = true;
         document.getElementById('waitingSection').style.display = 'none';
         document.getElementById('startGameBtn').style.display = 'none';
-
+        
         showQuestion();
         showAnswerInput();
         showGameControls();
-
+        
+        // 답변 상태 UI 업데이트
         updateAnswerStatus();
     } else {
+        // 답변이 없는 경우에만 자동 진행 체크
+        checkAutoProgression();
     }
 }
-
 
 // === 그림 그리기 관련 함수들 ===
 
