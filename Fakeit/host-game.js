@@ -1,3 +1,4 @@
+//host-game.js
 // 게임 데이터 전역 변수
 let inviteCode = '';
 let currentRound = 1;
