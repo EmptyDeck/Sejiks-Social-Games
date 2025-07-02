@@ -448,3 +448,24 @@ body {
 .danger-btn:hover {
     background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
 }
+.big-invite-code {
+    font-size: 3rem;           /* Makes the code large */
+    font-weight: bold;         /* Makes it stand out */
+    color: #3a8efd;            /* A nice blue color; change as you like */
+    background: #f4f8ff;       /* Light background for contrast */
+    padding: 32px 0;
+    text-align: center;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(58,142,253,0.08);
+    margin: 40px auto;
+    letter-spacing: 0.15em;
+    width: 80%;
+    max-width: 500px;
+    user-select: all;          /* Makes it easy to copy */
+    transition: box-shadow 0.2s;
+}
+
+.big-invite-code:hover {
+    box-shadow: 0 4px 24px rgba(58,142,253,0.16);
+    background: #e6f0ff;
+}

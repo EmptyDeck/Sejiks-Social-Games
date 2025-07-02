@@ -28,6 +28,7 @@
                 <div class="host-role-info">
                     <span>내 역할: </span>
                     <span class="host-role" id="hostRole">확인 중...</span>
+                    <span id="playerNumber" style="display: none;"></span>
                 </div>
             </div>
         </div>
@@ -55,7 +56,7 @@
         </div>
 
         <!-- 답변 입력 섹션 -->
-        <div class="answer-input-section" id="answerInputSection">
+        <div class="input-section" id="answerInputSection">
             <h3 class="section-title submit-title">📝 답변제출</h3>
             
             <!-- 텍스트 입력 -->
@@ -92,6 +93,10 @@
             <div class="submit-section">
                 <button id="submitBtn" class="submit-btn">📝 답변 제출</button>
                 <button id="editAnswerBtn" class="edit-btn" style="display: none;">✏️ 답변 수정</button>
+
+                <button id="goToAnswerBtn" class="answer-btn" style="display: none;">
+                📋 답변 공개하기
+            </button>
             </div>
             
             <!-- 답변 상태 -->
@@ -114,22 +119,20 @@
 
         <!-- 게임 컨트롤 -->
         <div class="game-controls">
-            <button id="goToAnswerBtn" class="control-btn answer-btn" style="display: none;">
-                📋 답변 공개하기
-            </button>
+
             
             <div class="control-row">
-                <button id="nextRoundBtn" class="control-btn next-btn" style="display: none;">
+                <button id="next-round-btn" class="control-btn next-btn" style="display: none;">
                     ➡️ 다음 라운드
                 </button>
-                <button id="nextGameBtn" class="control-btn next-btn" style="display: none;">
+                <button id="next-game-btn" class="control-btn next-btn" style="display: none;">
                     🎲 다음 게임
                 </button>
             </div>
         </div>
 
         <!-- 호스트 전용 컨트롤 -->
-        <div class="host-controls">
+        <div class="control-section">
             <h3 class="section-title">👑 호스트 전용</h3>
             <div class="host-control-grid">
                 <button id="faker-give-up-btn" class="host-btn give-up-btn">
