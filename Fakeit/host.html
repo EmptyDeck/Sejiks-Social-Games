@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>페이커 게임 - 호스트</title>
+    <title>라이어 게임 - 호스트</title>
     <link rel="stylesheet" href="host.css">
+    <script>
+    // 이전 게임 데이터 초기화
+    localStorage.clear();
+</script>
+
+
+
 </head>
 <body>
     <a href="index.html" class="back-btn">← 뒤로</a>
@@ -12,7 +19,7 @@
     <div class="container">
         <div class="header">
             <h1 class="title">👑 호스트 설정</h1>
-            <p class="subtitle">게임 인원과 페이커 수를 설정해주세요</p>
+            <p class="subtitle">게임 인원과 라이어 수를 설정해주세요</p>
         </div>
 
         <div class="settings-section">
@@ -26,7 +33,7 @@
             </div>
 
             <div class="setting-item">
-                <label class="setting-label">페이커 인원수</label>
+                <label class="setting-label">라이어 인원수</label>
                 <div class="counter-container">
                     <button class="counter-btn minus-btn" onclick="changeCount('faker', -1)">−</button>
                     <span class="counter-value" id="fakerCount">1</span>

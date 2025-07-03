@@ -877,3 +877,15 @@ body {
     0%, 100% { transform: translate(-50%, -50%) scale(1); }
     50% { transform: translate(-50%, -50%) scale(0.8); }
 }
+/* 강조 애니메이션 */
+.highlight-button {
+    animation: pulseHighlight 1.2s ease-in-out infinite;
+    box-shadow: 0 0 10px 3px #14dade;
+    border: 2px solid #14dade;
+}
+
+@keyframes pulseHighlight {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}

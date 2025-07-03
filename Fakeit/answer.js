@@ -213,7 +213,17 @@ function confirmEndGame() {
 // 다음 라운드
 function nextRound() {
     console.log('다음 라운드 요청');
+    
+    if (currentRound === 4) {
+    // 다음 게임 버튼 강조 효과 추가
+    const nextGameBtn = document.getElementById('nextGameBtn');
+    nextGameBtn.classList.add('highlight-button');
+    return; // 라운드 증가만 하고 리턴
+    }
+    else{
     openModal('nextRoundModal');
+    }
+
 }
 
 function confirmNextRound() {
@@ -224,6 +234,8 @@ function confirmNextRound() {
     localStorage.setItem('currentRound', currentRound.toString());
     goBack();
 }
+
+
 
 // 다음 게임
 function nextGame() {

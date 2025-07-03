@@ -342,17 +342,8 @@ function updateWheelRangeFromCodeImmediate() {
                 
                 // 휠 아이템들 즉시 업데이트
                 updateWheelItemsImmediate();
-                
-                // 자동으로 최대 플레이어 번호로 설정
-                updateWheelPosition(actualMaxPlayers, true);
-                
-                console.log(`✅ 자동으로 플레이어 ${actualMaxPlayers}번으로 설정됨`);
-                
-                // 게임 정보 표시
                 displayGameInfo(gameInfo);
-                
-                // 성공 메시지
-                showSuccess(`플레이어 ${actualMaxPlayers}번으로 자동 설정되었습니다!`);
+
                 
             } else {
                 console.warn('❌ 유효하지 않은 코드:', code);
@@ -386,7 +377,6 @@ function displayGameInfo(gameInfo) {
         🎮 게임 정보
         <div class="info-item">총 인원: ${gameInfo.totalPlayers}명</div>
         <div class="info-item">라이어: ${gameInfo.fakerCount}명</div>
-        <div class="info-item">자동 선택: 플레이어 ${actualMaxPlayers}번</div>
     `;
     
     // 애니메이션 효과

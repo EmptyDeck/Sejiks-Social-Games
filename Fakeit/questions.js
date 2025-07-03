@@ -11,33 +11,54 @@
 
 // 전역 질문 데이터베이스
 window.questionDatabase = {
-    // === 입력형 문제 (11-15) ===
-    11: { main: "가장 좋아하는 음식은?", fake: "가장 싫어하는 음식은?", mode: "입력형", type: 1 },
-    12: { main: "어릴 때 장래희망은?", fake: "현재 직업에 대한 불만은?", mode: "입력형", type: 1 },
-    13: { main: "가장 기억에 남는 여행지는?", fake: "가장 가고 싶지 않은 여행지는?", mode: "입력형", type: 1 },
-    14: { main: "첫 번째 애완동물 이름은?", fake: "키우고 싶은 이상한 동물은?", mode: "입력형", type: 1 },
-    15: { main: "가장 자주 듣는 노래 제목은?", fake: "가장 지겨운 노래 제목은?", mode: "입력형", type: 1 },
+    // === 입력형 문제 (10-19) ===
+    10: { main: "가장 좋아하는 음식은?", fake: "음식 하나 입력", mode: "입력형", type: 1 },
+    11: { main: "가장 특이한 이모티콘 입력(이모티콘만)", fake: "아주 가끔 쓰는 이모티콘 입력", mode: "입력형", type: 1 },
+    12: { main: "가장 기억에 남는 여행지는?", fake: "유명한 장소 입력", mode: "입력형", type: 1 },
+    13: { main: "키우고 싶은 애완동물은?", fake: "동물 입력", mode: "입력형", type: 1 },
+    14: { main: "가장 자주 듣는 노래 제목은?", fake: "노래 제목 입력", mode: "입력형", type: 1 },
+    15: { main: "아직 못봤지만 보고싶은 영화는?", fake: "영화제목 입력", mode: "입력형", type: 1 },
+    16: { main: "사람을 죽일 수 있는 물건은?", fake: "요리할때 자주쓰는 도구는?", mode: "입력형", type: 1 },
+    17: { main: "가장 기억에 남는 선생님 이름은?", fake: "이름 입력", mode: "입력형", type: 1 },
+    18: { main: "좋아하는 프랜차이즈는?", fake: "가장 최근에 간 음식점 이름", mode: "입력형", type: 1 },
+    19: { main: "읽어본 책 이름", fake: "영화화된 책 이름", mode: "입력형", type: 1 },
 
-    // === 그림형 문제 (21-25) ===
-    21: { main: "자신의 얼굴을 그려보세요", fake: "가장 무서운 괴물을 그려보세요", mode: "그림형", type: 2 },
-    22: { main: "집 앞 풍경을 그려보세요", fake: "화성 표면을 그려보세요", mode: "그림형", type: 2 },
-    23: { main: "가장 좋아하는 동물을 그려보세요", fake: "멸종된 공룡을 그려보세요", mode: "그림형", type: 2 },
-    24: { main: "어제 저녁 메뉴를 그려보세요", fake: "외계인의 음식을 그려보세요", mode: "그림형", type: 2 },
-    25: { main: "자신의 방을 그려보세요", fake: "감옥 안을 그려보세요", mode: "그림형", type: 2 },
+    // === 그림형 문제 (20-29) ===
+    20: { main: "파인애플을 그려보세요", fake: "과일을 그려보세요", mode: "그림형", type: 2 },
+    21: { main: "집을 그려보세요", fake: "예쁜 상자를 그려보세요", mode: "그림형", type: 2 },
+    22: { main: "공룡을 그려보세요", fake: "동물을 그려보세요", mode: "그림형", type: 2 },
+    23: { main: "모나리자를 그려보세요", fake: "자신의 초상화를 그려보세요", mode: "그림형", type: 2 },
+    24: { main: "자신의 방을 그려보세요", fake: "감옥 안을 그려보세요", mode: "그림형", type: 2 },
+    25: { main: "가장 좋아하는 꽃을 그려보세요", fake: "독이 있는 식물을 그려보세요", mode: "그림형", type: 2 },
+    26: { main: "자신의 자동차를 그려보세요", fake: "우주선을 그려보세요", mode: "그림형", type: 2 },
+    27: { main: "가족 구성원을 그려보세요", fake: "로봇 가족을 그려보세요", mode: "그림형", type: 2 },
+    28: { main: "자주 입는 옷을 그려보세요", fake: "중세시대 의상을 그려보세요", mode: "그림형", type: 2 },
+    29: { main: "좋아하는 스포츠를 그려보세요", fake: "위험한 극한스포츠를 그려보세요", mode: "그림형", type: 2 },
 
-    // === 플레이어선택형 문제 (31-35) ===
-    31: { main: "이 중에서 가장 웃긴 사람은?", fake: "이 중에서 가장 무서운 사람은?", mode: "플레이어선택형", type: 3, placeholder: "플레이어1 또는 이름" },
-    32: { main: "게임을 가장 잘할 것 같은 사람은?", fake: "게임을 가장 못할 것 같은 사람은?", mode: "플레이어선택형", type: 3, placeholder: "플레이어2 또는 이름" },
-    33: { main: "요리를 가장 잘할 것 같은 사람은?", fake: "요리를 가장 못할 것 같은 사람은?", mode: "플레이어선택형", type: 3, placeholder: "플레이어3 또는 이름" },
-    34: { main: "가장 착한 사람은?", fake: "가장 나쁜 사람은?", mode: "플레이어선택형", type: 3, placeholder: "호스트 또는 이름" },
-    35: { main: "노래를 가장 잘 부를 것 같은 사람은?", fake: "노래를 가장 못할 것 같은 사람은?", mode: "플레이어선택형", type: 3, placeholder: "플레이어1 또는 이름" },
+    // === 플레이어선택형 문제 (30-39) ===
+    30: { main: "이 중에서 가장 웃긴 사람은?", fake: "이 중에서 가장 무서운 사람은?", mode: "플레이어선택형", type: 3, placeholder: "플레이어1 또는 이름" },
+    31: { main: "게임을 가장 잘할 것 같은 사람은?", fake: "게임을 가장 못할 것 같은 사람은?", mode: "플레이어선택형", type: 3, placeholder: "플레이어2 또는 이름" },
+    32: { main: "요리를 가장 잘할 것 같은 사람은?", fake: "요리를 가장 못할 것 같은 사람은?", mode: "플레이어선택형", type: 3, placeholder: "플레이어3 또는 이름" },
+    33: { main: "가장 착한 사람은?", fake: "가장 나쁜 사람은?", mode: "플레이어선택형", type: 3, placeholder: "호스트 또는 이름" },
+    34: { main: "노래를 가장 잘 부를 것 같은 사람은?", fake: "노래를 가장 못할 것 같은 사람은?", mode: "플레이어선택형", type: 3, placeholder: "플레이어1 또는 이름" },
+    35: { main: "가장 인기가 많을 것 같은 사람은?", fake: "가장 외로울 것 같은 사람은?", mode: "플레이어선택형", type: 3, placeholder: "플레이어4 또는 이름" },
+    36: { main: "가장 운동을 잘할 것 같은 사람은?", fake: "가장 게으를 것 같은 사람은?", mode: "플레이어선택형", type: 3, placeholder: "플레이어2 또는 이름" },
+    37: { main: "가장 리더십이 있는 사람은?", fake: "가장 소극적인 사람은?", mode: "플레이어선택형", type: 3, placeholder: "플레이어5 또는 이름" },
+    38: { main: "가장 패션센스가 좋은 사람은?", fake: "가장 패션센스가 없는 사람은?", mode: "플레이어선택형", type: 3, placeholder: "플레이어3 또는 이름" },
+    39: { main: "가장 똑똑한 사람은?", fake: "가장 멍청한 사람은?", mode: "플레이어선택형", type: 3, placeholder: "플레이어1 또는 이름" },
 
-    // === 이모티콘형 문제 (41-45) ===
-    41: { main: "지금 기분을 이모티콘으로 표현하세요", fake: "가장 싫어하는 상황을 이모티콘으로 표현하세요", mode: "이모티콘형", type: 4, placeholder: "😊" },
-    42: { main: "좋아하는 음식을 이모티콘으로 표현하세요", fake: "체했을 때를 이모티콘으로 표현하세요", mode: "이모티콘형", type: 4, placeholder: "🍕" },
-    43: { main: "현재 날씨를 이모티콘으로 표현하세요", fake: "최악의 날씨를 이모티콘으로 표현하세요", mode: "이모티콘형", type: 4, placeholder: "☀️" },
-    44: { main: "취미활동을 이모티콘으로 표현하세요", fake: "가장 지루한 일을 이모티콘으로 표현하세요", mode: "이모티콘형", type: 4, placeholder: "🎮" },
-    45: { main: "가고 싶은 여행지를 이모티콘으로 표현하세요", fake: "절대 가기 싫은 곳을 이모티콘으로 표현하세요", mode: "이모티콘형", type: 4, placeholder: "🏝️" }
+    // === 이모티콘형 문제 (40-49) ===
+    40: { main: "자신이 갖고 싶어하는 가장 큰 능력", fake: "벌거벗고 하면 안 되는 것", mode: "이모티콘형", type: 4, placeholder: "😊" },
+    41: { main: "가장 좋아하는 야외 활동", fake: "죽었을 때 하고 있으면 부끄러운 행동", mode: "이모티콘형", type: 4, placeholder: "🍕" },
+    42: { main: "사랑을 나눌 때 외칠 법한 말", fake: "교회에서 할 법한 말", mode: "이모티콘형", type: 4, placeholder: "☀️" },
+    43: { main: "어릴 때 꿈꿨던 직업", fake: "가장 AI에 대체될것 같은 직업", mode: "이모티콘형", type: 4, placeholder: "🎮" },
+    44: { main: "데이트를 마무리하기 가장 좋은 방법", fake: "첫 데이트에 하면 안된는것", mode: "이모티콘형", type: 4, placeholder: "🏝️" },
+    45: { main: "사랑 노래 가사 한구절", fake: "가장 끔찍한 플러팅 멘트", mode: "이모티콘형", type: 4, placeholder: "⚽" },
+    46: { main: "가장 좋아하는 나라 음식(나라를 적으시오)(본인국가 제외!)", fake: "가장 가기 싫은 나라", mode: "이모티콘형", type: 4, placeholder: "🐕" },
+    47: { main: "특이한 피자토핑", fake: "냉장고에 안먹고 항상 있는것", mode: "이모티콘형", type: 4, placeholder: "💼" },
+    48: { main: "오늘 저녁에 하기로 한것", fake: "로또에 당첨된다면 하고 싶은 일", mode: "이모티콘형", type: 4, placeholder: "❤️" },
+    49: { main: "만난 적 있는 유명인중 가장 유명한 사람", fake: "유명인또는 연애인 이름", mode: "이모티콘형", type: 4, placeholder: "😄" },
+
 };
 
 /**
@@ -135,7 +156,7 @@ window.getCurrentQuestion = function(inviteCode, gameNumber, round, isFaker = fa
  */
 window.isQuestionsLoaded = function() {
     return window.questionDatabase && 
-           Object.keys(window.questionDatabase).length === 20 &&
+           Object.keys(window.questionDatabase).length === 40 &&
            window.getQuestionTypes &&
            window.getQuestionByNumber;
 };
