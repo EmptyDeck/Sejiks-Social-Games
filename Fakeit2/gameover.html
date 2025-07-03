@@ -1,93 +1,98 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>페이커 게임 - 게임 종료</title>
-    <link rel="stylesheet" href="gameover.css">
-</head>
-<body>
-    <div class="container">
-        <!-- 게임 종료 헤더 -->
-        <div class="game-end-header">
-            <div class="end-icon">🏆</div>
-            <h1 class="end-title">게임 종료</h1>
-            <div class="game-info" id="gameInfo">게임 1 종료</div>
-            <div class="player-role-info">
-                <span class="role-label">당신의 역할:</span>
-                <span class="role-value" id="playerRole">확인 중...</span>
-                <span id="playerNumber" style="display: none;"></span>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>페이커 게임 - 게임 종료</title>
+        <link rel="stylesheet" href="gameover.css" />
+    </head>
+    <body>
+        <div class="container">
+            <!-- 게임 종료 헤더 -->
+            <div class="game-end-header">
+                <div class="end-icon">🏆</div>
+                <h1 class="end-title">게임 종료</h1>
+                <div class="game-info" id="gameInfo">게임 1 종료</div>
+                <div class="player-role-info">
+                    <span class="role-label">당신의 역할:</span>
+                    <span class="role-value" id="playerRole">확인 중...</span>
+                    <span id="playerNumber" style="display: none"></span>
+                </div>
             </div>
-        </div>
 
-        <div class="final-scores" id="finalScores">
-            <!-- 최종 점수가 동적으로 추가됩니다 -->
-        </div>
 
-        <!-- 일반 플레이어용 메시지 -->
-        <div class="normal-player-section" id="normalPlayerSection">
-            
-            <div class="game-summary">
-                <h3 class="summary-title">📊 게임 요약</h3>
-                <div class="summary-content">
-                    <div class="summary-item">
-                        <span class="summary-label">참여 라운드:</span>
-                        <span class="summary-value" id="totalRounds">1</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">총 투표 수:</span>
-                        <span class="summary-value" id="totalVotes">0</span>
+
+            <!-- 일반 플레이어용 메시지 -->
+            <div class="normal-player-section" id="normalPlayerSection">
+                <div class="game-summary">
+                    <h3 class="summary-title">📊 게임 요약</h3>
+                    <div class="summary-content">
+                        <div class="summary-item">
+                            <span class="summary-label">참여 라운드:</span>
+                            <span class="summary-value" id="totalRounds"
+                                >1</span
+                            >
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">총 투표 수:</span>
+                            <span class="summary-value" id="totalVotes">0</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- 라이어용 점수 섹션 -->
-        <div class="faker-section" id="fakerSection" style="display: none;">
-            <div class="end-message faker-message">
-                <h2 class="message-title">🎭 라이어 게임 완료!</h2>
-                <p class="message-text">당신은 라이어였습니다.<br>얼마나 잘 속였는지 확인해보세요!</p>
+            <!-- 라이어용 점수 섹션 -->
+            <div class="faker-section" id="fakerSection" style="display: none">
+                <div class="end-message faker-message">
+                    <h2 class="message-title">🎭 라이어 게임 완료!</h2>
+                    <p class="message-text">
+                        당신은 라이어였습니다.<br />얼마나 잘 속였는지
+                        확인해보세요!
+                    </p>
+                </div>
+                <div class="score-calculation">
+                    <h3 class="score-title">💯 최종 점수 계산</h3>
+                    <div class="score-rules">
+                        <div class="rule-item">
+                            <span class="rule-icon">✅</span>
+                            <span class="rule-text"
+                                >투표한 플레이어에게 1점씩 추가</span
+                            >
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-icon">🎯</span>
+                            <span class="rule-text"
+                                >투표하지 않은 플레이어 수만큼 라이어에게 점수
+                                추가</span
+                            >
+                        </div>
+                    </div>
+                    <div class="final-scores" id="finalScores">
+                        <!-- 점수가 동적으로 추가됩니다 -->
+                    </div>
+                        <div class="final-scores" id="finalScores">
+                            <!-- 최종 점수가 동적으로 추가됩니다 -->
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="score-calculation">
-                <h3 class="score-title">💯 최종 점수 계산</h3>
-                <div class="score-rules">
-                    <div class="rule-item">
-                        <span class="rule-icon">✅</span>
-                        <span class="rule-text">투표한 플레이어에게 1점씩 추가</span>
-                    </div>
-                    <div class="rule-item">
-                        <span class="rule-icon">🎯</span>
-                        <span class="rule-text">투표하지 않은 플레이어 수만큼 라이어에게 점수 추가</span>
-                    </div>
-                </div>
-                <div class="final-scores" id="finalScores">
-                    <!-- 점수가 동적으로 추가됩니다 -->
-                </div>
-                <div class="faker-performance">
-                    <h4 class="performance-title">🏅 라이어 성과</h4>
-                    <div class="performance-stats" id="performanceStats">
-                        <!-- 성과 통계가 표시됩니다 -->
-                    </div>
-                </div>
+
+            <!-- 액션 버튼 -->
+            <div class="action-section">
+                <button class="action-btn next-game-btn" id="nextGameBtn">
+                    🚀 다음 게임
+                </button>
+                <button class="action-btn new-game-btn" id="newGameBtn">
+                    🎮 새 게임 시작
+                </button>
+                <button class="action-btn home-btn" id="homeBtn">
+                    🏠 홈으로 돌아가기
+                </button>
             </div>
         </div>
 
-        <!-- 액션 버튼 -->
-        <div class="action-section">
-            <button class="action-btn next-game-btn" id="nextGameBtn">
-                🚀 다음 게임
-            </button>
-            <button class="action-btn new-game-btn" id="newGameBtn">
-                🎮 새 게임 시작
-            </button>
-            <button class="action-btn home-btn" id="homeBtn">
-                🏠 홈으로 돌아가기
-            </button>
-        </div>
-    </div>
-
-    <!-- 게임 데이터와 질문 시스템 로드 -->
-    <script src="gameData.js"></script>
-    <script src="questions.js"></script>
-    <script src="gameover.js"></script>
-</body>
+        <!-- 게임 데이터와 질문 시스템 로드 -->
+        <script src="gameData.js"></script>
+        <script src="questions.js"></script>
+        <script src="gameover.js"></script>
+    </body>
 </html>
