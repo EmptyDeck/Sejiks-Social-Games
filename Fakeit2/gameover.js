@@ -178,14 +178,17 @@ function initializeUI() {
         displayFakerPerformance();
         document.getElementById('fakerSection').style.display = 'block';
         document.getElementById('normalPlayerSection').style.display = 'none';
+        displayScores(); // ✅ 여기에서만 점수 표시!
     } else {
         document.getElementById('fakerSection').style.display = 'none';
         document.getElementById('normalPlayerSection').style.display = 'block';
+        // 점수 표시 생략
     }
 
-    displayScores();         // 최종 점수 표시
     displayVotingResults();  // 라운드별 투표 결과 표시
 }
+
+
 function displayVotingResults() {
     console.log('투표 결과 표시 시작...');
     const votingResultContainer = document.getElementById('votingResult');
@@ -229,30 +232,41 @@ function displayVotingResults() {
 }
 // 라이어 성과 통계 표시
 function displayFakerPerformance() {
-    console.log('라이어 성과 통계 표시 시작...');
+    console.log('Starting to display liar performance stats...');
+    
+    // Get the HTML element to display stats
     const performanceStats = document.getElementById('performanceStats');
     if (!performanceStats) {
-        console.warn('❌ performanceStats 요소 없음. 성과 통계 표시 불가.');
+        console.warn('❌ No performanceStats element found. Cannot display stats.');
         return;
     }
     
+    // Clear previous content
     performanceStats.innerHTML = '';
-    let votedCount = 0;
-    Object.values(finalVotes).forEach(count => {
-        if (typeof count === 'number' && count > 0) {
-            votedCount += count;
-        }
-    });
-    const totalVoters = totalPlayers - 1; // 라이어 제외
-    const fooledCount = totalVoters - votedCount;
+    
+    // Assume playerIndex is the liar’s index (0 for host, 1 for Player 1, etc.)
+    const liarKey = playerIndex === 0 ? 'Host' : `Player${playerIndex}`;
+    
+    // Votes received by the liar (caught)
+    const votesReceived = finalVotes[liarKey] || 0; // Number of players who voted for the liar
+    
+    // Total possible voters (exclude the liar)
+    const totalVoters = totalPlayers - 1; // 5 players total, 4 can vote
+    
+    // Players fooled (those who didn’t vote for the liar)
+    const fooledCount = totalVoters - votesReceived;
+    
+    // Success rate (percentage of players fooled)
     const successRate = totalVoters > 0 ? Math.round((fooledCount / totalVoters) * 100) : 0;
     
+    // Stats to display
     const stats = [
-        { label: '속인 플레이어', value: fooledCount },
-        { label: '들킨 투표', value: votedCount },
-        { label: '성공률', value: `${successRate}%` }
+        { label: 'Fooled Players', value: fooledCount },        // Players who didn’t vote for the liar
+        { label: 'Votes Received', value: votesReceived },     // Players who caught the liar
+        { label: 'Success Rate', value: `${successRate}%` }    // Percentage fooled
     ];
     
+    // Display each stat
     stats.forEach(stat => {
         const statItem = document.createElement('div');
         statItem.className = 'stat-item';
@@ -262,7 +276,8 @@ function displayFakerPerformance() {
         `;
         performanceStats.appendChild(statItem);
     });
-    console.log('✅ 라이어 성과 통계 표시 완료:', stats);
+    
+    console.log('✅ Liar performance stats displayed:', stats);
 }
 
 
@@ -450,7 +465,8 @@ function setupEventListeners() {
 // 새 게임 시작
 function startNewGame() {
     console.log('새 게임 시작 시도 중...');
-    
+    window.location.href = 'host.html';
+    return
     // 데이터 초기화 (점수는 유지)
     const preservedData = {
         playerScores: localStorage.getItem('playerScores'),

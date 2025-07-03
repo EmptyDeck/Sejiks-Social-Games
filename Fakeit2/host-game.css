@@ -750,7 +750,7 @@ body::before {
 
 .large-modal {
     width: 500px;
-    max-height: 70vh;
+    max-height: 90vh;
     overflow-y: auto;
 }
 

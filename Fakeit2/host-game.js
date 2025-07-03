@@ -1030,7 +1030,7 @@ function confirmFakerGiveUp() {
     fakerGaveUp = true;
     const giveUpBtn = document.getElementById('faker-give-up-btn');
     if (giveUpBtn) {
-        giveUpBtn.textContent = '🏳️ 페이커가 포기했습니다';
+        giveUpBtn.textContent = '🏳️ 라이어가 포기했습니다';
         giveUpBtn.style.background = 'linear-gradient(135deg, #22c55e, #15803d)';
         giveUpBtn.disabled = true;
         console.log('✅ 라이어 포기 확인됨');
@@ -1064,48 +1064,42 @@ function showPlayerInfo() {
         return;
     }
     
+    // Clear existing content
     playerInfoList.innerHTML = '';
     
-    // 호스트 정보 먼저 표시 (인덱스 0)
-    const hostIsFaker = window.isPlayerFaker(inviteCode, currentGame, 0);
-    const hostDiv = document.createElement('div');
-    hostDiv.className = 'player-info-item';
-    hostDiv.innerHTML = `
-        <div class="player-info-left">
-            <span class="player-info-name">호스트</span>
-            <span class="player-info-code">(${inviteCode})</span>
-        </div>
-        <span class="player-info-role ${hostIsFaker ? 'faker' : 'normal'}">
-            ${hostIsFaker ? '라이어' : '일반 플레이어'}
-        </span>
-    `;
-    playerInfoList.appendChild(hostDiv);
-    
-    // 플레이어들 정보 표시 (인덱스 1부터)
-    if (playerCodes) {
-        Object.keys(playerCodes).forEach((playerName) => {
-            if (playerName !== '호스트') {
-                const code = playerCodes[playerName];
-                const playerNumber = parseInt(playerName.replace('플레이어', ''));
-                const playerIndex = playerNumber; // 플레이어1 = 인덱스1
-                const isFaker = window.isPlayerFaker(code, currentGame, playerIndex);
-                const playerDiv = document.createElement('div');
-                playerDiv.className = 'player-info-item';
-                playerDiv.innerHTML = `
-                    <div class="player-info-left">
-                        <span class="player-info-name">${playerName}</span>
-                        <span class="player-info-code">(${code})</span>
-                    </div>
-                    <span class="player-info-role ${isFaker ? 'faker' : 'normal'}">
-                        ${isFaker ? '라이어' : '일반 플레이어'}
-                    </span>
-                `;
-                playerInfoList.appendChild(playerDiv);
-            }
-        });
+    // Get game info from invite code
+    const gameInfo = window.getGameInfoFromCode(inviteCode);
+    if (!gameInfo) {
+        console.error('게임 정보를 가져올 수 없습니다.');
+        return;
     }
+    
+    const { totalPlayers } = gameInfo;
+    
+    // Get liars for current game
+    const fakers = window.getFakersForGame(inviteCode, currentGame);
+    
+    // Display all players (0-indexed)
+    for (let playerIndex = 0; playerIndex < totalPlayers; playerIndex++) {
+        const isFaker = fakers.includes(playerIndex);
+        const playerName = playerIndex === 0 ? '호스트' : `플레이어${playerIndex}`;
+        
+        const playerDiv = document.createElement('div');
+        playerDiv.className = 'player-info-item';
+        playerDiv.innerHTML = `
+            <div class="player-info-left">
+                <span class="player-info-name">${playerName}</span>
+                <span class="player-info-code">(${inviteCode})</span>
+            </div>
+            <span class="player-info-role ${isFaker ? 'faker' : 'normal'}">
+                ${isFaker ? '라이어' : '일반 플레이어'}
+            </span>
+        `;
+        playerInfoList.appendChild(playerDiv);
+    }
+    
     showModal('playerInfoModal');
-    console.log('✅ 플레이어 정보 표시됨');
+    console.log(`✅ 플레이어 정보 표시됨 - 총 ${totalPlayers}명, 라이어: ${fakers.length}명`);
 }
 
 // 게임 종료 모달 표시

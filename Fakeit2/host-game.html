@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>페이커 게임 - 호스트</title>
+    <title>라이어 게임 - 호스트</title>
     <link rel="stylesheet" href="host-game.css">
 </head>
 <body>
@@ -221,8 +221,7 @@
                 <!-- 최종 점수가 표시됩니다 -->
             </div>
             <div class="modal-buttons">
-                <button id="restartBtn" class="modal-btn restart-btn">🔄 다시 시작</button>
-                <button id="homeBtn" class="modal-btn home-btn">🏠 홈으로</button>
+                <button class="modal-btn gameover-btn" onclick="endGame()">🏁 확실하시나요?</button>
             </div>
         </div>
     </div>
