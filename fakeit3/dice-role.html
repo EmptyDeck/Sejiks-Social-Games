@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>역할 결정 중...</title>
+    <link rel="stylesheet" href="dice-role.css">
+</head>
+<body>
+    <div class="container">
+        <div class="title">
+            <h1>🎲 역할을 결정하고 있어요...</h1>
+            <p>주사위가 당신의 운명을 결정합니다</p>
+        </div>
+
+        <div class="diceWrap">
+            <div class="dice rolling">
+                <div class="diceFace front"></div>
+                <div class="diceFace up"></div>
+                <div class="diceFace left"></div>
+                <div class="diceFace right"></div>
+                <div class="diceFace bottom"></div>
+                <div class="diceFace back"></div>
+            </div>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <div class="role-reveal" id="roleReveal">
+                <div class="role-icon" id="roleIcon"></div>
+                <h2 class="role-title" id="roleTitle"></h2>
+                <p class="role-description" id="roleDescription"></p>
+                <button class="continue-btn" id="continueBtn">알겠습니다</button>
+            </div>
+        </div>
+
+        <div class="loading-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <script src="dice-role.js"></script>
+</body>
+</html>
