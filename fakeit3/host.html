@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>라이어 게임 - 호스트</title>
+    <link rel="stylesheet" href="host.css">
+    <script>
+    // 이전 게임 데이터 초기화
+    localStorage.clear();
+</script>
+
+
+
+</head>
+<body>
+    <a href="index.html" class="back-btn">← 뒤로</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">👑 호스트 설정</h1>
+            <p class="subtitle">게임 인원과 라이어 수를 설정해주세요</p>
+        </div>
+
+        <div class="settings-section">
+            <div class="setting-item">
+                <label class="setting-label">전체 인원수</label>
+                <div class="counter-container">
+                    <button class="counter-btn minus-btn" onclick="changeCount('total', -1)">−</button>
+                    <span class="counter-value" id="totalCount">4</span>
+                    <button class="counter-btn plus-btn" onclick="changeCount('total', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">라이어 인원수</label>
+                <div class="counter-container">
+                    <button class="counter-btn minus-btn" onclick="changeCount('faker', -1)">−</button>
+                    <span class="counter-value" id="fakerCount">1</span>
+                    <button class="counter-btn plus-btn" onclick="changeCount('faker', 1)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="codes-section">
+            <h2 class="codes-title">🎫 초대 코드</h2>
+            <button class="generate-btn" onclick="generateCodes()">초대 코드 생성하기</button>
+            
+            <div class="codes-grid" id="codesGrid">
+            </div>
+            
+
+        </div>
+
+        <button class="start-btn disabled" id="startBtn">
+            🎮 게임 시작하기
+        </button>
+    </div>
+
+    <!-- 게임 데이터와 질문 시스템 로드 -->
+    <script src="gameData.js"></script>
+    <script src="questions.js"></script>
+    <script src="host.js"></script>
+</body>
+</html>
