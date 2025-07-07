@@ -1,3 +1,4 @@
+//card-role.js
 // 전역 변수
 let nextPage = '';
 let totalPlayers = 4;
@@ -7,6 +8,7 @@ let inviteCode = '';
 let roleAssignments = {}; // 미리 결정된 역할 할당
 let playerRole = '';
 let cardFlipped = false;
+let selectedCardIndex = -1;
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
@@ -17,17 +19,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 페이지 초기화
 function initializePage() {
-    // URL 파라미터에서 다음 페이지 정보 읽기
     const urlParams = new URLSearchParams(window.location.search);
     nextPage = urlParams.get('next') || 'host-game.html';
     
-    // localStorage에서 게임 데이터 읽기
     loadGameData();
     
-    // 역할 할당 (미리 결정)
-    assignRoles();
+    // 플레이어 역할만 미리 결정 (카드 역할은 나중에)
+    determinePlayerRole();
     
-    // UI 업데이트
     updateGameInfo();
     
     console.log('페이지 초기화 완료:', {
@@ -36,30 +35,62 @@ function initializePage() {
         fakerCount,
         playerIndex,
         inviteCode,
-        roleAssignments
+        playerRole // 이것만 미리 결정됨
     });
 }
 
-// 게임 데이터 로드
+function determinePlayerRole() {
+    const gameNumber = 1;
+    const liars = window.getFakersForGame(inviteCode, gameNumber);
+    
+    // 현재 플레이어가 라이어인지 확인
+    playerRole = liars.includes(playerIndex) ? 'liar' : 'normal';
+    
+    console.log('플레이어 역할 결정:', {
+        inviteCode,
+        gameNumber,
+        playerIndex,
+        liars,
+        playerRole
+    });
+}
+
+
+
 // 게임 데이터 로드
 function loadGameData() {
     try {
+        // 기존 코드와 동일하게 localStorage에서 로드
         totalPlayers = parseInt(localStorage.getItem('totalPlayers')) || 4;
         fakerCount = parseInt(localStorage.getItem('fakerCount')) || 1;
         playerIndex = parseInt(localStorage.getItem('playerIndex')) || 0;
         inviteCode = localStorage.getItem('inviteCode') || localStorage.getItem('hostCode') || 'ABCD';
         
-        // 유효성 검사 - MODIFY THIS PART
+        // 유효성 검사
         if (totalPlayers < 2) totalPlayers = 4;
-        if (totalPlayers > 17) totalPlayers = 17; // NEW: Add max limit
+        if (totalPlayers > 17) totalPlayers = 17;
         if (fakerCount < 1) fakerCount = 1;
         if (fakerCount >= totalPlayers) fakerCount = Math.max(1, totalPlayers - 1);
+        
+        // gameData.js가 로드되었는지 확인
+        if (!window.isGameDataLoaded || !window.isGameDataLoaded()) {
+            console.error('gameData.js가 로드되지 않았습니다.');
+            throw new Error('GameData system not loaded');
+        }
+        
+        // 초대코드 검증
+        const validation = window.validateGameData(inviteCode);
+        if (!validation.valid) {
+            console.error('초대코드 검증 실패:', validation.errors);
+            throw new Error('Invalid invite code');
+        }
         
         console.log('게임 데이터 로드 완료:', {
             totalPlayers,
             fakerCount,
             playerIndex,
-            inviteCode
+            inviteCode,
+            validation: validation.data
         });
     } catch (error) {
         console.error('게임 데이터 로드 실패:', error);
@@ -71,21 +102,13 @@ function loadGameData() {
     }
 }
 
+
 // 역할 할당 (미리 결정)
 function assignRoles() {
-    // 초대 코드를 시드로 사용하여 일관된 역할 할당
-    const seed = hashCode(inviteCode);
-    const random = createSeededRandom(seed);
-    
-    // 모든 플레이어 인덱스 배열 생성
-    const playerIndices = Array.from({length: totalPlayers}, (_, i) => i);
-    
-    // 라이어 인덱스 무작위 선택
-    const liars = [];
-    for (let i = 0; i < fakerCount; i++) {
-        const randomIndex = Math.floor(random() * playerIndices.length);
-        liars.push(playerIndices.splice(randomIndex, 1)[0]);
-    }
+    // gameData.js의 getFakersForGame 함수를 사용하여 라이어 선정
+    // 현재 게임 번호는 1로 고정 (카드 역할 확인 단계에서는 게임1 기준)
+    const gameNumber = 1;
+    const liars = window.getFakersForGame(inviteCode, gameNumber);
     
     // 역할 할당 객체 생성
     roleAssignments = {};
@@ -93,32 +116,15 @@ function assignRoles() {
         roleAssignments[i] = liars.includes(i) ? 'liar' : 'normal';
     }
     
-    console.log('역할 할당 완료:', roleAssignments);
+    console.log('역할 할당 완료 (gameData.js 기반):', {
+        inviteCode,
+        gameNumber,
+        liars,
+        roleAssignments
+    });
 }
 
-// 문자열 해시 생성
-function hashCode(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // 32비트 정수로 변환
-    }
-    return Math.abs(hash);
-}
 
-// 시드 기반 랜덤 생성기
-function createSeededRandom(seed) {
-    let m = 0x80000000; // 2^31
-    let a = 1103515245;
-    let c = 12345;
-    let state = seed;
-    
-    return function() {
-        state = (a * state + c) % m;
-        return state / (m - 1);
-    };
-}
 
 // 게임 정보 UI 업데이트
 function updateGameInfo() {
@@ -131,17 +137,16 @@ function generateCards() {
     const container = document.getElementById('cardsContainer');
     container.innerHTML = '';
     
-    // 카드 생성 (총 플레이어 수만큼)
     for (let i = 0; i < totalPlayers; i++) {
         const card = createCard(i);
         container.appendChild(card);
         
-        // 카드 입장 애니메이션 지연
         setTimeout(() => {
             card.style.animationDelay = `${i * 0.1}s`;
         }, i * 100);
     }
 }
+
 
 // 개별 카드 생성
 function createCard(index) {
@@ -156,21 +161,9 @@ function createCard(index) {
     const cardBack = document.createElement('div');
     cardBack.className = 'card-face card-back';
     
-    // 카드 앞면 (역할 정보)
+    // 카드 앞면은 나중에 동적으로 생성
     const cardFront = document.createElement('div');
-    const role = roleAssignments[index];
-    cardFront.className = `card-face card-front ${role}`;
-    
-    const emoji = document.createElement('div');
-    emoji.className = 'card-emoji';
-    emoji.textContent = role === 'liar' ? '🎭' : '👤';
-    
-    const text = document.createElement('div');
-    text.className = 'card-text';
-    text.textContent = role === 'liar' ? '라이어' : '일반 플레이어';
-    
-    cardFront.appendChild(emoji);
-    cardFront.appendChild(text);
+    cardFront.className = 'card-face card-front';
     
     cardInner.appendChild(cardBack);
     cardInner.appendChild(cardFront);
@@ -178,6 +171,7 @@ function createCard(index) {
     
     return card;
 }
+
 
 // 이벤트 리스너 설정
 function setupEventListeners() {
@@ -198,18 +192,16 @@ function setupEventListeners() {
 }
 
 // 카드 뒤집기
-// 카드 뒤집기
 function flipCard(card) {
     if (cardFlipped) return;
     
-    const cardIndex = parseInt(card.dataset.index);
-    playerRole = roleAssignments[cardIndex];
-    
-    // 카드 뒤집기 애니메이션
-    card.classList.add('flipped');
+    selectedCardIndex = parseInt(card.dataset.index);
     cardFlipped = true;
     
-    // 다른 카드들 비활성화
+    // 1. 선택된 카드에 플레이어 역할 할당
+    assignRoleToCard(card, playerRole);
+    
+    // 2. 다른 카드들 비활성화
     const allCards = document.querySelectorAll('.card');
     allCards.forEach(c => {
         if (c !== card) {
@@ -217,31 +209,92 @@ function flipCard(card) {
         }
     });
     
-    // NEW: After 0.3 seconds, reveal all cards
+    // 3. 0.3초 후 모든 카드 공개
     setTimeout(() => {
         revealAllCards();
     }, 300);
     
-    // NEW: After 0.5 seconds total, show result
+    // 4. 0.5초 후 결과 표시
     setTimeout(() => {
         showResult();
     }, 500);
     
-    console.log('카드 뒤집기:', {
-        cardIndex,
-        playerRole,
-        playerIndex
+    console.log('카드 선택:', {
+        selectedCardIndex,
+        playerRole
     });
 }
+
+// 카드에 역할 할당
+function assignRoleToCard(card, role) {
+    const cardFront = card.querySelector('.card-front');
+    cardFront.className = `card-face card-front ${role}`;
+    
+    const emoji = document.createElement('div');
+    emoji.className = 'card-emoji';
+    emoji.textContent = role === 'liar' ? '🎭' : '👤';
+    
+    const text = document.createElement('div');
+    text.className = 'card-text';
+    text.textContent = role === 'liar' ? '라이어' : '일반 플레이어';
+    
+    cardFront.appendChild(emoji);
+    cardFront.appendChild(text);
+    
+    card.classList.add('flipped');
+}
+
+
 
 // NEW: Reveal all cards function
 function revealAllCards() {
     const allCards = document.querySelectorAll('.card');
-    allCards.forEach(card => {
-        card.classList.add('flipped');
+    const remainingRoles = generateRemainingRoles();
+    
+    allCards.forEach((card, index) => {
+        if (index !== selectedCardIndex) {
+            // 랜덤 역할 할당
+            const randomRole = remainingRoles.pop();
+            assignRoleToCard(card, randomRole);
+        }
         card.classList.remove('disabled');
     });
 }
+
+function generateRemainingRoles() {
+    const roles = [];
+    const normalCount = totalPlayers - fakerCount;
+    const liarCount = fakerCount;
+    
+    // 플레이어가 선택한 역할을 제외하고 나머지 역할 생성
+    if (playerRole === 'liar') {
+        // 플레이어가 라이어면, 나머지는 일반 플레이어들과 남은 라이어들
+        for (let i = 0; i < normalCount; i++) {
+            roles.push('normal');
+        }
+        for (let i = 0; i < liarCount - 1; i++) {
+            roles.push('liar');
+        }
+    } else {
+        // 플레이어가 일반이면, 나머지는 라이어들과 남은 일반 플레이어들
+        for (let i = 0; i < normalCount - 1; i++) {
+            roles.push('normal');
+        }
+        for (let i = 0; i < liarCount; i++) {
+            roles.push('liar');
+        }
+    }
+    
+    // 배열 셔플
+    for (let i = roles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [roles[i], roles[j]] = [roles[j], roles[i]];
+    }
+    
+    return roles;
+}
+
+
 
 // 결과 표시
 function showResult() {
