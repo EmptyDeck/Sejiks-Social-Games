@@ -13,6 +13,7 @@ let maxRounds = 4;
 let maxGames = 4;
 let playerIndex = 0; // 호스트는 항상 0번
 let playerScores = {};
+let voteData = []; // 투표 데이터 배열
 
 // 그림 그리기 변수
 let canvas, ctx;
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeCanvas();
         initializePlayerScores();
         setupEventListeners();
+        initializeVoteData();
         // 게임 자동 시작
         if (inviteCode) {
             startGame();
@@ -1134,12 +1136,11 @@ function showFinalScores() {
 
 // 게임 종료
 function endGame() {
-    // 최종 데이터 저장
     localStorage.setItem('gameEndRound', currentRound.toString());
     localStorage.setItem('gameEndGame', currentGame.toString());
     localStorage.setItem('playerIndex', '0');
-    console.log('✅ 호스트 게임 종료 데이터 저장 완료');
-    console.log('✅ gameover.html로 이동');
+    localStorage.setItem(`votes_${inviteCode}_game_${currentGame}`, JSON.stringify(voteData));
+    console.log('✅ 종료 데이터:', { gameEndRound: currentRound, gameEndGame: currentGame, voteData });
     window.location.href = 'gameover.html';
 }
 
@@ -1266,3 +1267,13 @@ function closeModal(modalId) {
     }
 }
 
+function initializeVoteData() {
+    const savedVotes = localStorage.getItem(`votes_${inviteCode}_game_${currentGame}`);
+    if (savedVotes) {
+        voteData = JSON.parse(savedVotes);
+    } else {
+        voteData = Array.from({ length: totalPlayers }, (_, i) => [i, -1, -1, -1, -1]);
+        localStorage.setItem(`votes_${inviteCode}_game_${currentGame}`, JSON.stringify(voteData));
+    }
+    console.log('✅ 투표 데이터 초기화:', voteData);
+}

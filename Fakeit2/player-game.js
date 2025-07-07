@@ -11,7 +11,7 @@ let submittedDrawing = null;
 let maxRounds = 4;
 let maxGames = 4;
 let playerIndex = 1; // ✅ 플레이어는 1부터 시작 (0은 호스트 전용)
-
+let voteData = []; // 투표 데이터 배열
 // 그림 그리기 변수
 let canvas, ctx;
 let isDrawing = false;
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showError('게임 시스템 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
         return;
     }
-    
+    initializeVoteData();
     initializeCanvas();
     checkExistingGame();
     setupEventListeners();
@@ -918,4 +918,14 @@ function highlightNextGameButton() {
             }, 3000);
         }
     }
+}
+function initializeVoteData() {
+    const savedVotes = localStorage.getItem(`votes_${playerCode}_game_${currentGame}`);
+    if (savedVotes) {
+        voteData = JSON.parse(savedVotes);
+    } else {
+        voteData = Array.from({ length: totalPlayers }, (_, i) => [i, -1, -1, -1, -1]);
+        localStorage.setItem(`votes_${playerCode}_game_${currentGame}`, JSON.stringify(voteData));
+    }
+    console.log('✅ 투표 데이터 초기화:', voteData);
 }
