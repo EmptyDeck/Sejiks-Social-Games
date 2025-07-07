@@ -11,19 +11,19 @@ let fromPage = '';
 let votes = {}; // 투표 결과 저장
 let gameData = null;
 let totalPlayers = 4; // 호스트 + 플레이어들
+let voteData = []; // 투표 데이터 배열
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
     console.log('answer 페이지 로드');
     loadGameData();
+    initializeRoundVotes(); // 추가
     initializePage();
     setupEventListeners();
 });
-
 // 게임 데이터 로드
 function loadGameData() {
     console.log('데이터 로드 시작');
-    // localStorage에서 데이터 가져오기
     inviteCode = localStorage.getItem('inviteCode') || '';
     playerIndex = parseInt(localStorage.getItem('playerIndex')) || 0;
     currentRound = parseInt(localStorage.getItem('currentRound')) || 1;
@@ -32,18 +32,21 @@ function loadGameData() {
     submittedAnswer = localStorage.getItem('submittedAnswer') || '';
     submittedDrawing = localStorage.getItem('submittedDrawing') || '';
 
-    // URL에서 from 파라미터 확인
     const urlParams = new URLSearchParams(window.location.search);
     fromPage = urlParams.get('from') || 'host';
-    console.log(`fromPage 값: ${fromPage}`); // 디버깅 로그 추가
+    console.log(`fromPage 값: ${fromPage}`);
 
-    // 게임 데이터 가져오기
-    gameData = JSON.parse(localStorage.getItem(`game_${inviteCode}`)) || {};
-
-    // 총 플레이어 수 계산 (호스트 + 플레이어들)
     const playerCount = parseInt(localStorage.getItem('playerCount')) || 3;
-    totalPlayers = playerCount + 1; // 호스트 포함
-    console.log(`로드 완료: 코드=${inviteCode}, 총=${totalPlayers}명, 라운드=${currentRound}`);
+    totalPlayers = playerCount + 1;
+
+    // 투표 데이터 로드
+    const savedVotes = localStorage.getItem(`votes_${inviteCode}_game_${currentGame}`);
+    if (savedVotes) {
+        voteData = JSON.parse(savedVotes);
+    } else {
+        voteData = Array.from({ length: totalPlayers }, (_, i) => [i, -1, -1, -1, -1]);
+    }
+    console.log('✅ 투표 데이터 로드:', voteData);
 }
 
 
@@ -136,22 +139,24 @@ function createVoteButton(targetId, targetName) {
 function toggleVote(targetId) {
     console.log(`투표 토글: ${targetId}`);
     const button = document.getElementById(`vote-${targetId}`);
-    if (votes[targetId]) {
-        delete votes[targetId];
+    const targetIndex = targetId === 'host' ? 0 : parseInt(targetId.replace('player', ''));
+
+    if (voteData[targetIndex][currentRound] === 1) {
+        voteData[targetIndex][currentRound] = 0; // 투표 취소
         button.classList.remove('voted');
         console.log(`투표 취소: ${targetId}`);
     } else {
-        votes[targetId] = true;
+        voteData[targetIndex][currentRound] = 1; // 투표 추가
         button.classList.add('voted');
         console.log(`투표 추가: ${targetId}`);
     }
     updateVoteDisplay();
-    saveVotes(); // 추가된 함수 호출
+    saveVotes();
 }
 
 // 투표 표시 업데이트
 function updateVoteDisplay() {
-    const voteCount = Object.keys(votes).length;
+    const voteCount = voteData.reduce((count, row) => count + (row[currentRound] === 1 ? 1 : 0), 0);
     document.getElementById('voteCount').textContent = `투표: ${voteCount}명`;
     console.log(`투표 수: ${voteCount}`);
 }
@@ -191,8 +196,8 @@ function giveUpAsLiar() {
 function confirmGiveUp() {
     console.log('라이어 포기 확정');
     closeModal('giveUpModal');
+    saveVotes();
     localStorage.setItem('gameResult', 'liar_give_up');
-    localStorage.setItem('finalVotes', JSON.stringify(votes));
     window.location.href = 'gameover.html';
 }
 
@@ -204,8 +209,7 @@ function endGame() {
 
 function confirmEndGame() {
     closeModal('endGameModal');
-    saveVotes(); // 👉 투표 저장
-    localStorage.setItem('finalVotes', JSON.stringify(votes));
+    saveVotes();
     localStorage.setItem('gameResult', 'normal_end');
     window.location.href = 'gameover.html';
 }
@@ -230,23 +234,37 @@ function confirmNextRound() {
     console.log('다음 라운드 확정');
     closeModal('nextRoundModal');
     saveVotes();
+    
+    // 플레이어 답변 데이터 초기화
+    clearPlayerAnswerData();
+    
     currentRound++;
     localStorage.setItem('currentRound', currentRound.toString());
     goBack();
 }
 
-
-
 // 다음 게임
 function nextGame() {
     console.log('다음 게임 요청');
-    openModal('nextGameModal');
+    
+    if (currentGame === 4) {
+        // 게임 종료 버튼 강조 효과 추가
+        const endGameBtn = document.getElementById('endGameBtn');
+        endGameBtn.classList.add('highlight-button');
+        return; // 게임 증가만 하고 리턴
+    }
+    else{
+        openModal('nextGameModal');
+    }
 }
 
 function confirmNextGame() {
     console.log('다음 게임 확정');
     closeModal('nextGameModal');
     saveVotes();
+
+    // 플레이어 답변 데이터 초기화
+    clearPlayerAnswerData();
 
     // 게임 업데이트
     currentGame++;
@@ -259,11 +277,19 @@ function confirmNextGame() {
     goBack();
 }
 
+// 플레이어 답변 데이터 초기화 함수
+function clearPlayerAnswerData() {
+    console.log('플레이어 답변 데이터 초기화');
+    localStorage.removeItem('playerAnswer');
+    localStorage.removeItem('playerDrawing');
+    localStorage.removeItem('answerSubmitted');
+    console.log('✅ 플레이어 답변 데이터 초기화 완료');
+}
+
 // 원래 페이지로 돌아가기
 function goBack() {
     console.log(`돌아가기: ${fromPage}`);
-    // 투표 결과 저장
-    localStorage.setItem('votes', JSON.stringify(votes));
+    saveVotes();
     if (fromPage === 'host' || fromPage === 'player0') {
         window.location.href = 'host-game.html';
     } else {
@@ -305,8 +331,16 @@ function saveVotes() {
         console.warn('필수 정보 누락: 투표 저장 실패');
         return;
     }
-
-    const voteKey = `vote_${inviteCode}_game_${currentGame}_round_${currentRound}`;
-    localStorage.setItem(voteKey, JSON.stringify(votes));
-    console.log(`✅ 투표 저장됨: ${voteKey}`, votes);
+    localStorage.setItem(`votes_${inviteCode}_game_${currentGame}`, JSON.stringify(voteData));
+    console.log(`✅ 투표 저장됨: votes_${inviteCode}_game_${currentGame}`, voteData);
+}
+function initializeRoundVotes() {
+    console.log(`라운드 ${currentRound} 투표 초기화 시작`);
+    for (let i = 0; i < totalPlayers; i++) {
+        if (voteData[i][currentRound] === -1) {
+            voteData[i][currentRound] = 0;
+        }
+    }
+    localStorage.setItem(`votes_${inviteCode}_game_${currentGame}`, JSON.stringify(voteData));
+    console.log(`✅ 라운드 ${currentRound} 투표 초기화 완료:`, voteData);
 }

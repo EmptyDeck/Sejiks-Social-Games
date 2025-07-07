@@ -7,14 +7,13 @@ let currentRound = 1;
 let currentGame = 1;
 let totalPlayers = 4;
 let playerScores = {};
-let finalVotes = {};
+let voteData = []; // 새로운 투표 데이터 배열
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== gameover.html 로드 시작 ===');
     console.log('DOM 로드 완료. 초기화 시작...');
     
-    // 게임 데이터 시스템 로드 확인
     if (!window.isGameDataLoaded || !window.isGameDataLoaded()) {
         console.error('❌ 게임 데이터 시스템이 로드되지 않았습니다.');
         showError('게임 시스템 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
@@ -36,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadGameData() {
     console.log('데이터 로드 시작...');
     
-    // 초대 코드 유효성 검사
     inviteCode = localStorage.getItem('inviteCode') || '';
     if (!inviteCode || inviteCode.length !== 4 || !/^[A-Z]{4}$/.test(inviteCode)) {
         console.error('❌ 유효하지 않은 초대 코드:', inviteCode);
@@ -45,7 +43,6 @@ function loadGameData() {
         return false;
     }
     
-    // 플레이어 인덱스 유효성 검사
     const playerIndexTemp = localStorage.getItem('playerIndex');
     if (playerIndexTemp === null || isNaN(parseInt(playerIndexTemp))) {
         console.error('❌ 유효하지 않은 플레이어 인덱스:', playerIndexTemp);
@@ -55,11 +52,9 @@ function loadGameData() {
     }
     playerIndex = parseInt(playerIndexTemp);
     
-    // 라운드 및 게임 번호 로드
-    currentRound = parseInt(localStorage.getItem('gameEndRound')) || 1;
+    currentRound = parseInt(localStorage.getItem('currentRound')) || 1; // gameEndRound 대신 currentRound 사용
     currentGame = parseInt(localStorage.getItem('gameEndGame')) || 1;
     
-    // 총 플레이어 수 로드 (초대 코드로부터)
     try {
         const gameInfo = window.getGameInfoFromCode(inviteCode);
         if (!gameInfo || gameInfo.totalPlayers < 2) {
@@ -69,13 +64,12 @@ function loadGameData() {
         console.log('✅ totalPlayers 초대 코드에서 로드됨:', totalPlayers);
     } catch (error) {
         console.error('❌ totalPlayers 로드 실패, 기본값 사용:', error);
-        totalPlayers = 4; // 기본값
+        totalPlayers = 4;
         showError('게임 정보를 로드할 수 없습니다. 게임을 다시 시작해주세요.');
         disableControls('게임 정보 로드 실패');
         return false;
     }
     
-    // 점수 데이터 로드
     const savedScores = localStorage.getItem('playerScores');
     if (savedScores) {
         try {
@@ -90,19 +84,18 @@ function loadGameData() {
         initializePlayerScores();
     }
     
-    // 투표 데이터 로드
-    const savedVotes = localStorage.getItem('finalVotes');
+    const savedVotes = localStorage.getItem(`votes_${inviteCode}_game_${currentGame}`);
     if (savedVotes) {
         try {
-            finalVotes = JSON.parse(savedVotes);
-            console.log('✅ 저장된 투표 데이터 로드 완료:', finalVotes);
+            voteData = JSON.parse(savedVotes);
+            console.log('✅ 저장된 투표 데이터 로드 완료:', voteData);
         } catch (error) {
             console.warn('❌ 저장된 투표 데이터 복원 실패:', error);
-            finalVotes = {};
+            voteData = Array.from({ length: totalPlayers }, (_, i) => [i, -1, -1, -1, -1]);
         }
     } else {
-        console.log('✅ 저장된 투표 데이터 없음, 빈 객체 사용');
-        finalVotes = {};
+        console.log('✅ 저장된 투표 데이터 없음, 초기화 진행');
+        voteData = Array.from({ length: totalPlayers }, (_, i) => [i, -1, -1, -1, -1]);
     }
     
     console.log('✅ 게임 데이터 로드 완료:', {
@@ -111,11 +104,11 @@ function loadGameData() {
         currentRound,
         currentGame,
         totalPlayers,
-        playerScores
+        playerScores,
+        voteData
     });
     return true;
 }
-
 
 // 데이터 유효성 검사 실패 시 컨트롤 비활성화
 function disableControls(reason) {
@@ -159,7 +152,6 @@ function initializePlayerScores() {
     console.log('✅ 점수 초기화 완료 (초대 코드 기반 플레이어 수:', totalPlayers, '):', playerScores);
 }
 
-
 // UI 초기화
 function initializeUI() {
     updateGameInfo();
@@ -174,21 +166,20 @@ function initializeUI() {
     }
 
     if (amILiar) {
-        calculateScoresForLiar(); // 점수 계산
+        calculateScoresForLiar();
         displayFakerPerformance();
         document.getElementById('fakerSection').style.display = 'block';
         document.getElementById('normalPlayerSection').style.display = 'none';
-        displayScores(); // ✅ 여기에서만 점수 표시!
+        displayScores();
     } else {
         document.getElementById('fakerSection').style.display = 'none';
         document.getElementById('normalPlayerSection').style.display = 'block';
-        // 점수 표시 생략
     }
 
-    displayVotingResults();  // 라운드별 투표 결과 표시
+    displayVotingResults();
 }
 
-
+// 투표 결과 표시
 function displayVotingResults() {
     console.log('투표 결과 표시 시작...');
     const votingResultContainer = document.getElementById('votingResult');
@@ -197,76 +188,51 @@ function displayVotingResults() {
         return;
     }
 
-    const inviteCode = localStorage.getItem('inviteCode') || '';
-    const currentGame = parseInt(localStorage.getItem('currentGame')) || 1;
-
-    if (!inviteCode) {
-        votingResultContainer.innerHTML = '<p>투표 결과를 불러올 수 없습니다.</p>';
-        return;
-    }
-
     let html = '<h4>라운드별 투표 현황</h4>';
-
     for (let round = 1; round <= currentRound; round++) {
-        const voteKey = `vote_${inviteCode}_game_${currentGame}_round_${round}`;
-        const savedVote = localStorage.getItem(voteKey);
-
         html += `<div style="margin-bottom: 15px;"><strong>라운드 ${round}</strong><ul>`;
-        if (savedVote) {
-            const votes = JSON.parse(savedVote);
-            const voters = Object.keys(votes);
-            if (voters.length > 0) {
-                voters.forEach(voter => {
-                    html += `<li>${voter}</li>`;
-                });
-            } else {
-                html += `<li>아무도 투표하지 않았습니다</li>`;
-            }
+        const roundVotes = voteData.map(row => row[round]);
+        const votedPlayers = roundVotes.map((vote, idx) => vote === 1 ? idx : -1).filter(idx => idx !== -1);
+        if (votedPlayers.length > 0) {
+            votedPlayers.forEach(playerIdx => {
+                const playerName = playerIdx === 0 ? '호스트' : `플레이어${playerIdx}`;
+                html += `<li>${playerName}</li>`;
+            });
         } else {
-            html += `<li>데이터 없음</li>`;
+            html += `<li>아무도 투표하지 않았습니다</li>`;
         }
         html += '</ul></div>';
     }
-
     votingResultContainer.innerHTML = html;
 }
+
 // 라이어 성과 통계 표시
 function displayFakerPerformance() {
     console.log('Starting to display liar performance stats...');
-    
-    // Get the HTML element to display stats
     const performanceStats = document.getElementById('performanceStats');
     if (!performanceStats) {
         console.warn('❌ No performanceStats element found. Cannot display stats.');
         return;
     }
-    
-    // Clear previous content
     performanceStats.innerHTML = '';
-    
-    // Assume playerIndex is the liar’s index (0 for host, 1 for Player 1, etc.)
-    const liarKey = playerIndex === 0 ? 'Host' : `Player${playerIndex}`;
-    
-    // Votes received by the liar (caught)
-    const votesReceived = finalVotes[liarKey] || 0; // Number of players who voted for the liar
-    
-    // Total possible voters (exclude the liar)
-    const totalVoters = totalPlayers - 1; // 5 players total, 4 can vote
-    
-    // Players fooled (those who didn’t vote for the liar)
+
+    const liarKey = playerIndex;
+    let votesReceived = 0;
+    let totalVoters = totalPlayers - 1;
+
+    for (let round = 1; round <= currentRound; round++) {
+        votesReceived += voteData[liarKey][round] === 1 ? 1 : 0;
+    }
+
     const fooledCount = totalVoters - votesReceived;
-    
-    // Success rate (percentage of players fooled)
     const successRate = totalVoters > 0 ? Math.round((fooledCount / totalVoters) * 100) : 0;
-    
-    // Stats to display
+
     const stats = [
-        { label: 'Fooled Players', value: fooledCount },        // Players who didn’t vote for the liar
-        { label: 'Votes Received', value: votesReceived },     // Players who caught the liar
-        { label: 'Success Rate', value: `${successRate}%` }    // Percentage fooled
+        { label: 'Fooled Players', value: fooledCount },
+        { label: 'Votes Received', value: votesReceived },
+        { label: 'Success Rate', value: `${successRate}%` }
     ];
-    
-    // Display each stat
+
     stats.forEach(stat => {
         const statItem = document.createElement('div');
         statItem.className = 'stat-item';
@@ -276,91 +242,56 @@ function displayFakerPerformance() {
         `;
         performanceStats.appendChild(statItem);
     });
-    
     console.log('✅ Liar performance stats displayed:', stats);
 }
 
-
+// 라이어 점수 계산
 function calculateScoresForLiar() {
     console.log('라이어 점수 계산 시작...');
-
-    const inviteCode = localStorage.getItem('inviteCode') || '';
-    const currentGame = parseInt(localStorage.getItem('currentGame')) || 1;
-    const totalPlayers = parseInt(localStorage.getItem('totalPlayers')) || 4;
 
     if (!inviteCode) {
         console.warn('❌ 초대 코드 없음. 점수 계산 불가.');
         return;
     }
 
-    // 모든 라운드 투표 로드
-    const allVotes = {};
-    for (let round = 1; round <= currentRound; round++) {
-        const voteKey = `vote_${inviteCode}_game_${currentGame}_round_${round}`;
-        const savedVote = localStorage.getItem(voteKey);
-        if (savedVote) {
-            try {
-                allVotes[round] = JSON.parse(savedVote);
-                console.log(`✅ 라운드 ${round} 투표 로드 완료`);
-            } catch (e) {
-                console.error(`❌ 라운드 ${round} 투표 파싱 실패`, e);
-            }
-        } else {
-            console.log(`❌ 라운드 ${round} 투표 없음`);
-            allVotes[round] = {};
-        }
-    }
-
-    // 초기 점수 설정
     let liarScore = 0;
     const voterScores = {};
 
-    // 플레이어 이름 매핑
-    const playerNames = ['호스트'];
-    for (let i = 1; i < totalPlayers; i++) {
-        playerNames.push(`플레이어${i}`);
-        voterScores[`player${i}`] = 0;
+    // 모든 플레이어의 점수 초기화
+    for (let i = 0; i < totalPlayers; i++) {
+        voterScores[i] = 0;
     }
 
-    // 각 라운드별로 점수 계산
-    Object.entries(allVotes).forEach(([round, votes]) => {
-        console.log(`📊 라운드 ${round} 투표 분석`);
-
-        const votedList = Object.keys(votes);
-
-        // 규칙 1: 투표한 사람에게 +1점
-        votedList.forEach(voter => {
-            if (voter.startsWith('player') && voterScores[voter] !== undefined) {
-                voterScores[voter]++;
-                console.log(`✅ ${voter}에게 1점 추가 (라운드 ${round})`);
+    // 각 라운드별 점수 계산
+    for (let round = 1; round <= currentRound; round++) {
+        let votedCount = 0;
+        for (let player = 0; player < totalPlayers; player++) {
+            if (voteData[player][round] === 1) {
+                voterScores[player] += 1; // 투표한 플레이어에게 1점
+                votedCount++;
+                console.log(`✅ 플레이어 ${player}에게 1점 추가 (라운드 ${round})`);
             }
-        });
-
-        // 규칙 2: 라이어에게 점수 추가 (투표하지 않은 사람 수)
-        const votedCount = votedList.length;
-        const nonVotedCount = totalPlayers - 1 - votedCount; // 호스트 제외
-        liarScore += nonVotedCount;
+        }
+        const nonVotedCount = totalPlayers - 1 - votedCount; // 라이어 제외
+        liarScore += nonVotedCount; // 라이어에게 투표하지 않은 플레이어 수만큼 점수 추가
         console.log(`✅ 라이어에게 ${nonVotedCount}점 추가 (라운드 ${round})`);
-    });
+    }
 
-    // 점수를 전역 점수 객체에 반영
+    // 라이어 점수 반영
     const liarName = playerIndex === 0 ? '호스트' : `플레이어${playerIndex}`;
     playerScores[liarName] = (playerScores[liarName] || 0) + liarScore;
 
-    // 투표한 플레이어 점수 반영
-    playerNames.forEach(name => {
-        const key = name === '호스트' ? 'host' : name.replace('플레이어', 'player');
-        if (key.startsWith('player') && voterScores[key]) {
-            playerScores[name] = (playerScores[name] || 0) + voterScores[key];
+    // 투표자 점수 반영
+    for (let i = 0; i < totalPlayers; i++) {
+        if (i !== playerIndex) { // 라이어 제외
+            const playerName = i === 0 ? '호스트' : `플레이어${i}`;
+            playerScores[playerName] = (playerScores[playerName] || 0) + voterScores[i];
         }
-    });
+    }
 
-    // localStorage 업데이트
     localStorage.setItem('playerScores', JSON.stringify(playerScores));
     console.log('✅ 최종 점수 계산 완료:', playerScores);
 }
-
-
 
 // 게임 정보 업데이트
 function updateGameInfo() {
@@ -411,7 +342,6 @@ function updatePlayerRole() {
     }
 }
 
-
 // 점수 표시
 function displayScores() {
     const finalScoresContainer = document.getElementById('finalScores');
@@ -431,7 +361,6 @@ function displayScores() {
         finalScoresContainer.appendChild(item);
     });
 }
-
 
 // 이벤트 리스너 설정
 function setupEventListeners() {
@@ -466,71 +395,30 @@ function setupEventListeners() {
 function startNewGame() {
     console.log('새 게임 시작 시도 중...');
     window.location.href = 'host.html';
-    return
-    // 데이터 초기화 (점수는 유지)
-    const preservedData = {
-        playerScores: localStorage.getItem('playerScores'),
-        inviteCode: inviteCode,
-        totalPlayers: totalPlayers.toString()
-    };
-    
-    // 게임 관련 데이터 초기화
-    localStorage.removeItem('currentRound');
-    localStorage.removeItem('currentGame');
-    localStorage.removeItem('finalVotes');
-    localStorage.removeItem('submittedAnswer');
-    localStorage.removeItem('submittedDrawing');
-    localStorage.removeItem('answerType');
-    localStorage.removeItem('answerSubmitted');
-    localStorage.removeItem('hostAnswer');
-    localStorage.removeItem('hostDrawing');
-    
-    // 보존할 데이터 복원
-    Object.entries(preservedData).forEach(([key, value]) => {
-        if (value) localStorage.setItem(key, value);
-    });
-    
-    // 새 게임 및 라운드 설정
-    localStorage.setItem('currentGame', '1');
-    localStorage.setItem('currentRound', '1');
-    
-    console.log('✅ 새 게임 데이터 저장 완료:', {
-        currentGame: 1,
-        currentRound: 1,
-        preservedScores: preservedData.playerScores
-    });
-    
-    // 페이지 이동
-    redirectToGamePage();
 }
 
 // 다음 게임 시작
 function startNextGame() {
     console.log('다음 게임 시작 시도 중...');
     
-    // 데이터 초기화 (점수는 유지)
     const preservedData = {
         playerScores: localStorage.getItem('playerScores'),
         inviteCode: inviteCode,
         totalPlayers: totalPlayers.toString()
     };
     
-    // 게임 관련 데이터 초기화
     localStorage.removeItem('currentRound');
-    localStorage.removeItem('finalVotes');
     localStorage.removeItem('submittedAnswer');
     localStorage.removeItem('submittedDrawing');
     localStorage.removeItem('answerType');
     localStorage.removeItem('answerSubmitted');
-    localStorage.removeItem('hostAnswer');
+ digitaleStorage.removeItem('hostAnswer');
     localStorage.removeItem('hostDrawing');
     
-    // 보존할 데이터 복원
     Object.entries(preservedData).forEach(([key, value]) => {
         if (value) localStorage.setItem(key, value);
     });
     
-    // 다음 게임 및 라운드 1 설정
     const nextGame = currentGame + 1;
     localStorage.setItem('currentGame', nextGame.toString());
     localStorage.setItem('currentRound', '1');
@@ -541,16 +429,12 @@ function startNextGame() {
         preservedScores: preservedData.playerScores
     });
     
-    // 페이지 이동
     redirectToGamePage();
 }
 
 // 홈으로 이동
 function goHome() {
     console.log('홈으로 이동 시도 중...');
-    // 모든 데이터 초기화
-    localStorage.clear();
-    console.log('✅ 모든 데이터 초기화 완료');
     window.location.href = 'index.html';
 }
 

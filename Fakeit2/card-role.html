@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카드 뒤집기 - 역할 확인</title>
+    <link rel="stylesheet" href="card-role.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎴 카드를 선택하세요</h1>
+            <p>당신의 역할을 결정하세요</p>
+            <div class="game-info">
+                <span id="gameCode">코드: ----</span>
+                <span id="playerInfo">플레이어 -/-</span>
+            </div>
+        </div>
+
+        <div class="cards-container" id="cardsContainer">
+            <!-- 카드들이 동적으로 생성됩니다 -->
+        </div>
+
+        <div class="instructions">
+            <p>💡 아무 카드나 선택하여 뒤집어보세요</p>
+            <p class="warning">⚠️ 한 번 뒤집은 후에는 다른 카드를 선택할 수 없습니다</p>
+        </div>
+
+        <div class="result-overlay" id="resultOverlay">
+            <div class="result-card">
+                <div class="role-reveal" id="roleReveal">
+                    <div class="role-icon" id="roleIcon"></div>
+                    <h2 class="role-title" id="roleTitle"></h2>
+                    <p class="role-description" id="roleDescription"></p>
+                    <button class="continue-btn" id="continueBtn">게임 시작하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="card-role.js"></script>
+</body>
+</html>

@@ -221,12 +221,34 @@ function saveGameData() {
     }
 }
 
+// /**
+//  * 게임 시작 함수
+//  */
+// function startGame() {
+//     if (!inviteCode) {
+//         alert('먼저 초대코드를 생성해주세요.');
+//         return;
+//     }
+    
+//     try {
+//         // 최종 데이터 저장
+//         saveGameData();
+        
+//         console.log('게임 시작 - host-game.html로 이동');
+        
+//         // host-game.html로 이동
+//         window.location.href = 'host-game.html';
+        
+//     } catch (error) {
+//         console.error('게임 시작 중 오류:', error);
+//         alert('게임 시작 중 오류가 발생했습니다: ' + error.message);
+//     }
+// }
 /**
  * 게임 시작 함수
  */
 function startGame() {
     if (!inviteCode) {
-        alert('먼저 초대코드를 생성해주세요.');
         return;
     }
     
@@ -234,10 +256,10 @@ function startGame() {
         // 최종 데이터 저장
         saveGameData();
         
-        console.log('게임 시작 - host-game.html로 이동');
+        console.log('게임 시작 - card-role.html을 거쳐 host-game.html로 이동');
         
-        // host-game.html로 이동
-        window.location.href = 'host-game.html';
+        // card-role.html을 거쳐 host-game.html로 이동
+        window.location.href = 'card-role.html?next=host-game.html';
         
     } catch (error) {
         console.error('게임 시작 중 오류:', error);

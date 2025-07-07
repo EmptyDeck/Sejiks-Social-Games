@@ -478,18 +478,77 @@ function validatePlayerNumber(playerIndex, totalPlayers) {
     return { valid: true };
 }
 
+// // 게임 참여
+// function joinGame() {
+//     if (!isCodeComplete()) {
+//         showError('4자리 코드를 모두 입력해주세요.');
+//         return;
+//     }
+//     const code = getEnteredCode();
+//     const validation = validateCode(code);
+//     if (!validation.valid) {
+//         showError(validation.message);
+//         return;
+//     }
+//     const gameInfo = validation.gameInfo;
+//     const selectedPlayer = currentPlayerIndex;
+//     const playerValidation = validatePlayerNumber(selectedPlayer, gameInfo.totalPlayers);
+//     if (!playerValidation.valid) {
+//         showError(playerValidation.message);
+//         return;
+//     }
+//     console.log('게임 참여 검증 완료:', {
+//         code: validation.code,
+//         selectedPlayer: selectedPlayer,
+//         gameInfo: gameInfo,
+//         validRange: `1~${gameInfo.totalPlayers - 1}`
+//     });
+//     showSuccess(`플레이어 ${selectedPlayer}번으로 참여 준비 완료!`);
+//     document.body.classList.add('loading');
+//     joinBtn.textContent = '참여 중...';
+//     setTimeout(() => {
+//         try {
+//             const playerData = {
+//                 playerCode: validation.code,
+//                 totalPlayers: gameInfo.totalPlayers,
+//                 fakerCount: gameInfo.fakerCount,
+//                 gameNumber: 1,
+//                 playerIndex: currentPlayerIndex,
+//                 currentRound: 1
+//             };
+//             console.log('게임 참여 완료:', playerData);
+//             const playerDataString = JSON.stringify(playerData);
+//             window.location.href = `player-game.html?data=${encodeURIComponent(playerDataString)}`;
+//         } catch (error) {
+//             console.error('게임 참여 중 오류:', error);
+//             document.body.classList.remove('loading');
+//             joinBtn.textContent = '🎮 게임 참여하기';
+//             showError('게임 참여 중 오류가 발생했습니다.');
+//         }
+//     }, 1000);
+// }
+
+// 페이지 로드 시 첫 번째 입력 필드에 포커스
+window.addEventListener('load', function() {
+    if (codeInputs[0]) {
+        codeInputs[0].focus();
+    }
+});
+
 // 게임 참여
 function joinGame() {
     if (!isCodeComplete()) {
         showError('4자리 코드를 모두 입력해주세요.');
         return;
     }
+    
     const code = getEnteredCode();
     const validation = validateCode(code);
     if (!validation.valid) {
         showError(validation.message);
         return;
     }
+    
     const gameInfo = validation.gameInfo;
     const selectedPlayer = currentPlayerIndex;
     const playerValidation = validatePlayerNumber(selectedPlayer, gameInfo.totalPlayers);
@@ -497,15 +556,18 @@ function joinGame() {
         showError(playerValidation.message);
         return;
     }
+    
     console.log('게임 참여 검증 완료:', {
         code: validation.code,
         selectedPlayer: selectedPlayer,
         gameInfo: gameInfo,
         validRange: `1~${gameInfo.totalPlayers - 1}`
     });
+    
     showSuccess(`플레이어 ${selectedPlayer}번으로 참여 준비 완료!`);
     document.body.classList.add('loading');
     joinBtn.textContent = '참여 중...';
+    
     setTimeout(() => {
         try {
             const playerData = {
@@ -516,9 +578,21 @@ function joinGame() {
                 playerIndex: currentPlayerIndex,
                 currentRound: 1
             };
+            
             console.log('게임 참여 완료:', playerData);
-            const playerDataString = JSON.stringify(playerData);
-            window.location.href = `player-game.html?data=${encodeURIComponent(playerDataString)}`;
+            
+            // localStorage에 플레이어 데이터 저장
+            // 개별 키로 저장하도록 변경
+            localStorage.setItem('totalPlayers', gameInfo.totalPlayers);
+            localStorage.setItem('fakerCount', gameInfo.fakerCount);
+            localStorage.setItem('playerIndex', currentPlayerIndex);
+            localStorage.setItem('inviteCode', validation.code);
+            localStorage.setItem('gameNumber', 1);
+            localStorage.setItem('currentRound', 1);
+            
+            // card-role.html을 거쳐 player-game.html로 이동
+            window.location.href = 'card-role.html?next=player-game.html';
+            
         } catch (error) {
             console.error('게임 참여 중 오류:', error);
             document.body.classList.remove('loading');
@@ -527,10 +601,3 @@ function joinGame() {
         }
     }, 1000);
 }
-
-// 페이지 로드 시 첫 번째 입력 필드에 포커스
-window.addEventListener('load', function() {
-    if (codeInputs[0]) {
-        codeInputs[0].focus();
-    }
-});
