@@ -1,25 +1,240 @@
-just like nextRound, I want if the game is 4th game, the gameover button highlights.
-also make it not go to the next game 
+modify the code to go to card-role everytime the new game starts(becusae the role could change)
 
-example:
-// 다음 라운드
-function nextRound() {
-    console.log('다음 라운드 요청');
+this is the join.js code(that already works)
+
+// 게임 참여
+function joinGame() {
+    if (!isCodeComplete()) {
+        showError('4자리 코드를 모두 입력해주세요.');
+        return;
+    }
     
-    if (currentRound === 4) {
-    // 다음 게임 버튼 강조 효과 추가
-    const nextGameBtn = document.getElementById('nextGameBtn');
-    nextGameBtn.classList.add('highlight-button');
-    return; // 라운드 증가만 하고 리턴
+    const code = getEnteredCode();
+    const validation = validateCode(code);
+    if (!validation.valid) {
+        showError(validation.message);
+        return;
     }
-    else{
-    openModal('nextRoundModal');
+    
+    const gameInfo = validation.gameInfo;
+    const selectedPlayer = currentPlayerIndex;
+    const playerValidation = validatePlayerNumber(selectedPlayer, gameInfo.totalPlayers);
+    if (!playerValidation.valid) {
+        showError(playerValidation.message);
+        return;
     }
-
+    
+    console.log('게임 참여 검증 완료:', {
+        code: validation.code,
+        selectedPlayer: selectedPlayer,
+        gameInfo: gameInfo,
+        validRange: `1~${gameInfo.totalPlayers - 1}`
+    });
+    
+    showSuccess(`플레이어 ${selectedPlayer}번으로 참여 준비 완료!`);
+    document.body.classList.add('loading');
+    joinBtn.textContent = '참여 중...';
+    
+    setTimeout(() => {
+        try {
+            const playerData = {
+                playerCode: validation.code,
+                totalPlayers: gameInfo.totalPlayers,
+                fakerCount: gameInfo.fakerCount,
+                gameNumber: 1,
+                playerIndex: currentPlayerIndex,
+                currentRound: 1
+            };
+            
+            console.log('게임 참여 완료:', playerData);
+            
+            // localStorage에 플레이어 데이터 저장
+            // 개별 키로 저장하도록 변경
+            localStorage.setItem('totalPlayers', gameInfo.totalPlayers);
+            localStorage.setItem('fakerCount', gameInfo.fakerCount);
+            localStorage.setItem('playerIndex', currentPlayerIndex);
+            localStorage.setItem('inviteCode', validation.code);
+            localStorage.setItem('gameNumber', 1);
+            localStorage.setItem('currentRound', 1);
+            
+            // card-role.html을 거쳐 player-game.html로 이동
+            window.location.href = 'card-role.html?next=player-game.html';
+            
+        } catch (error) {
+            console.error('게임 참여 중 오류:', error);
+            document.body.classList.remove('loading');
+            joinBtn.textContent = '🎮 게임 참여하기';
+            showError('게임 참여 중 오류가 발생했습니다.');
+        }
+    }, 1000);
 }
 
-To modfiy:
+// 다음 페이지로 이동
+function goToNextPage() {
+    // 역할 정보를 localStorage에 저장
+    localStorage.setItem('playerRole', playerRole);
+    localStorage.setItem('roleRevealed', 'true');
+    
+    console.log('다음 페이지 이동:', nextPage, '역할:', playerRole);
+    
+    // 다음 페이지로 이동
+    window.location.href = nextPage;
+}
+
+
+
+code from host-game
+
+
+// 다음 게임
+function nextGame() {
+    if (currentGame < maxGames) {
+        currentGame++;
+        currentRound = 1;
+        resetRoundState();
+        updateGameInfo();
+        updatePlayerRole(); // 새 게임에서 역할 재확인
+        showQuestion();
+        localStorage.setItem('currentGame', currentGame.toString());
+        localStorage.setItem('currentRound', currentRound.toString());
+        console.log('✅ 다음 게임으로 진행 (호스트):', currentGame);
+        console.log('✅ 이동 전 데이터 저장 완료:', {
+            currentGame,
+            currentRound
+        });
+    } else {
+        showEndGameModal();
+        console.log('❌ 마지막 게임 - 게임 종료 모달 표시');
+    }
+}
+
+code from player-game
+
+
+// 다음게임
+function nextGame() {
+    if (currentGame < maxGames) {
+        currentGame++;
+        currentRound = 1;
+        resetRoundState();
+        updateGameInfo();
+        updatePlayerRole(); // 새 게임에서 역할 재확인
+        showQuestion();
+        
+        localStorage.setItem('currentGame', currentGame.toString());
+        localStorage.setItem('currentRound', currentRound.toString());
+        console.log('다음 게임으로 진행:', currentGame);
+    } else {
+        // alert 대신 게임 종료 버튼 강조
+        const endGameBtn = document.getElementById('endGameBtn');
+        if (endGameBtn) {
+            endGameBtn.classList.add('pulse-highlight');
+            setTimeout(() => {
+                endGameBtn.classList.remove('pulse-highlight');
+            }, 3000);
+        }
+        console.log('마지막 게임 - 게임 종료 버튼 강조');
+    }
+}
+
+
+a part of gameover.js code:
+
+
+
+// 다음 게임 시작
+function startNextGame() {
+    console.log('다음 게임 시작 시도 중...');
+    
+    const preservedData = {
+        playerScores: localStorage.getItem('playerScores'),
+        inviteCode: inviteCode,
+        totalPlayers: totalPlayers.toString()
+    };
+    
+    localStorage.removeItem('currentRound');
+    localStorage.removeItem('submittedAnswer');
+    localStorage.removeItem('submittedDrawing');
+    localStorage.removeItem('answerType');
+    localStorage.removeItem('answerSubmitted');
+ digitaleStorage.removeItem('hostAnswer');
+    localStorage.removeItem('hostDrawing');
+    
+    Object.entries(preservedData).forEach(([key, value]) => {
+        if (value) localStorage.setItem(key, value);
+    });
+    
+    const nextGame = currentGame + 1;
+    localStorage.setItem('currentGame', nextGame.toString());
+    localStorage.setItem('currentRound', '1');
+    
+    console.log('✅ 다음 게임 데이터 저장 완료:', {
+        currentGame: nextGame,
+        currentRound: 1,
+        preservedScores: preservedData.playerScores
+    });
+    
+    redirectToGamePage();
+}
+
+// 홈으로 이동
+function goHome() {
+    console.log('홈으로 이동 시도 중...');
+    window.location.href = 'index.html';
+}
+
+// 게임 페이지로 리다이렉트
+function redirectToGamePage() {
+    console.log('게임 페이지로 이동 시도 중...');
+    localStorage.setItem('playerIndex', playerIndex.toString());
+    console.log('✅ 이동 전 데이터 저장 완료:', { playerIndex });
+    
+    if (playerIndex === 0) {
+        console.log('✅ 호스트로 이동: host-game.html');
+        window.location.href = 'host-game.html';
+    } else {
+        console.log(`✅ 플레이어 ${playerIndex}로 이동: player-game.html`);
+        window.location.href = 'player-game.html';
+    }
+}
+
+
+
+a part of code from answer.js
+
+
+
+
+// 다음 게임
 function nextGame() {
     console.log('다음 게임 요청');
-    openModal('nextGameModal');
+    
+    if (currentGame === 4) {
+        // 게임 종료 버튼 강조 효과 추가
+        const endGameBtn = document.getElementById('endGameBtn');
+        endGameBtn.classList.add('highlight-button');
+        return; // 게임 증가만 하고 리턴
+    }
+    else{
+        openModal('nextGameModal');
+    }
+}
+
+function confirmNextGame() {
+    console.log('다음 게임 확정');
+    closeModal('nextGameModal');
+    saveVotes();
+
+    // 플레이어 답변 데이터 초기화
+    clearPlayerAnswerData();
+
+    // 게임 업데이트
+    currentGame++;
+    currentRound = 1;
+    localStorage.setItem('currentGame', currentGame.toString());
+    localStorage.setItem('currentRound', '1');
+    localStorage.setItem('votes', JSON.stringify(votes));
+    
+    // 원래 페이지로 돌아가기
+    goBack();
 }

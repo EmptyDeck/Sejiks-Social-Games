@@ -1,0 +1,44 @@
+this is a flash card web app
+
+design:
+at start I have to put two numbers (default is 1 and 2505). That two numbers represents where to start and where to end.
+
+There is a vocablist called "vocabList.js" it in a format like this :
+const vocabList = [
+  {
+    "word": "abandon",
+    "definition": "1. 포기하다  2. 방종"
+  },
+  {
+    "word": "abase",
+    "definition": "낮추다, 줄이다"
+  },
+
+There are 2505 words. I can choose number from start to finish. 
+for example : 1001 to 1200 would be me memorising 200words.
+make the number pick to a wheel based so I can change easily
+Also put two button on each one to add +100 and -100
+
+
+there is a parameter before I start. A number of words I will memorise at a time. Example: if I put 30, I will have 30 words memorizing. And if I memorised a word very well, and it possliblity to show up reduces under 5%, one more letter to the batch. (if the posliblity is lower then 5% not considered with in 30) This way, I can memorise it in a batch to repeately meorise and also I can still test my memorise skills by not putting words outside the batch absoilutly.
+
+
+flip card
+after I flip it I can choose two options
+"Yes" for I know it. and "No" for I dont know it.
+
+how it works:
+
+
+every time I know that specific word, it reduces the possiblity to show that word reduces.
+But if I get it wrong, the possliblity increces. But with few advanced tricks.
+1. if I get the same word right seqecneally, it reduces a lot, 
+2. if the word posliblity to show up is very low but if I get it wrong once, it incesases a lot.
+3. if the number of posliblity to show up is under 5%, it readuces by half every time I get it right. so that it redueces but it never goes to 0.
+
+
+I want to some how make this work well
+
+can you also save all that data in my phone so that everytime I go to that website, I can conitnue from where I stoped?
+
+
