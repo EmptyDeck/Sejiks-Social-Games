@@ -1,0 +1,17 @@
+Main idea
+
+
+Most important mechenism
+1. There should be a joint css and joint js file where all files can share the style and function so that it has the same style and reuse the functions to shorted the code.
+2. all files should start with 주석 that has info about all files.
+for example : if there is file host,game,join, and it has all html , css, js , the join file should start like this
+//-file list
+//
+
+
+This is a web app based party game where you guess the possiblity of a survay
+And this is how it works
+All players join the website. The host clicks "host" All other players click "join"
+The host can pick number of players by pressing + and - . (default 4) and there is also ++ and -- for add 2 players, and minus 2 players.
+And then host click "generate code" and the code generates. it uses 4 diffrent alphabets except i and l which means 4 of 24 alphabets mixes. which is 24^4 posliblitys
+that should have all the info about
