@@ -260,19 +260,22 @@ function setupEventListeners() {
     
     const nextRoundBtn = document.getElementById('next-round-btn');
     if (nextRoundBtn) {
-        nextRoundBtn.addEventListener('click', nextRound);
+        nextRoundBtn.addEventListener('click', handleNextRound);
         console.log('✅ 다음 라운드 버튼 이벤트 리스너 설정 완료');
     } else {
         console.warn('❌ next-round-btn 요소 없음');
     }
-    
+
     const nextGameBtn = document.getElementById('next-game-btn');
     if (nextGameBtn) {
-        nextGameBtn.addEventListener('click', nextGame);
+        nextGameBtn.addEventListener('click', handleNextGame);
         console.log('✅ 다음 게임 버튼 이벤트 리스너 설정 완료');
     } else {
         console.warn('❌ next-game-btn 요소 없음');
     }
+    const cancelNextRound = document.getElementById('cancelNextRound');
+
+
     
     // 호스트 전용 기능
     const fakerGiveUpBtn = document.getElementById('faker-give-up-btn');
@@ -320,7 +323,32 @@ function setupEventListeners() {
 // 모달 이벤트 리스너 설정
 function setupModalEventListeners() {
     console.log('모달 이벤트 리스너 설정 시작...');
-    
+
+
+
+    // 재확인 모달
+
+    const cancelNextRound = document.getElementById('cancelNextRound');
+    if (cancelNextRound) {
+        cancelNextRound.addEventListener('click', () => closeModal('nextRoundModal'));
+        console.log('✅ 다음 라운드 취소 버튼 이벤트 리스너 설정 완료');
+    }
+    const confirmNextRoundBtn = document.getElementById('confirmNextRound');
+    if (confirmNextRoundBtn) {
+        confirmNextRoundBtn.addEventListener('click', confirmNextRound);
+        console.log('✅ 다음 라운드 확인 버튼 이벤트 리스너 설정 완료');
+    }
+    const cancelNextGame = document.getElementById('cancelNextGame');
+    if (cancelNextGame) {
+        cancelNextGame.addEventListener('click', () => closeModal('nextGameModal'));
+        console.log('✅ 다음 게임 취소 버튼 이벤트 리스너 설정 완료');
+    }
+    const confirmNextGameBtn = document.getElementById('confirmNextGame');
+    if (confirmNextGameBtn) {
+        confirmNextGameBtn.addEventListener('click', confirmNextGame);
+        console.log('✅ 다음 게임 확인 버튼 이벤트 리스너 설정 완료');
+    }
+    //
     const cancelGiveUp = document.getElementById('cancelGiveUp');
     if (cancelGiveUp) {
         cancelGiveUp.addEventListener('click', () => closeModal('giveUpModal'));
@@ -883,44 +911,84 @@ function moveToAnswerPage() {
 }
 
 // 다음 라운드
-function nextRound() {
+// 다음 라운드
+function handleNextRound() {
     if (currentRound < maxRounds) {
-        currentRound++;
-        resetRoundState();
-        updateGameInfo();
-        updatePlayerRole(); // 새로운 라운드에서 역할 재확인
-        showQuestion();
-        localStorage.setItem('currentRound', currentRound.toString());
-        console.log('✅ 다음 라운드로 진행 (호스트):', currentRound);
-        console.log('✅ 이동 전 데이터 저장 완료:', {
-            currentRound
-        });
+        showModal('nextRoundModal');
+        console.log('✅ 다음 라운드 모달 표시');
     } else {
         highlightNextGameButton();
         console.log('❌ 마지막 라운드 - 다음 게임 버튼 강조');
     }
 }
 
+function confirmNextRound() {
+    currentRound++;
+    resetRoundState();
+    updateGameInfo();
+    updatePlayerRole();
+    showQuestion();
+    localStorage.setItem('currentRound', currentRound.toString());
+    console.log('✅ 다음 라운드로 진행 (호스트):', currentRound);
+    console.log('✅ 이동 전 데이터 저장 완료:', {
+        currentRound
+    });
+    window.scrollTo(0, 0); // Scroll to top of the page
+    closeModal('nextRoundModal');
+}
+
 // 다음 게임
-function nextGame() {
+function handleNextGame() {
     if (currentGame < maxGames) {
-        currentGame++;
-        currentRound = 1;
-        resetRoundState();
-        updateGameInfo();
-        updatePlayerRole(); // 새 게임에서 역할 재확인
-        showQuestion();
-        localStorage.setItem('currentGame', currentGame.toString());
-        localStorage.setItem('currentRound', currentRound.toString());
-        console.log('✅ 다음 게임으로 진행 (호스트):', currentGame);
-        console.log('✅ 이동 전 데이터 저장 완료:', {
-            currentGame,
-            currentRound
-        });
+        showModal('nextGameModal');
+        console.log('✅ 다음 게임 모달 표시');
     } else {
         showEndGameModal();
         console.log('❌ 마지막 게임 - 게임 종료 모달 표시');
     }
+}
+
+// function confirmNextGame() {
+//     currentGame++;
+//     currentRound = 1;
+//     resetRoundState();
+//     updateGameInfo();
+//     updatePlayerRole();
+//     showQuestion();
+//     localStorage.setItem('currentGame', currentGame.toString());
+//     localStorage.setItem('currentRound', currentRound.toString());
+//     console.log('✅ 다음 게임으로 진행 (호스트):', currentGame);
+//     console.log('✅ 이동 전 데이터 저장 완료:', {
+//         currentGame,
+//         currentRound
+//     });
+//     window.scrollTo(0, 0); // Scroll to top of the page
+//     closeModal('nextGameModal');
+// }
+
+function confirmNextGame() {
+    const nextGame = parseInt(localStorage.getItem('currentGame') || '1') + 1;
+    localStorage.setItem('currentGame', nextGame.toString());
+    localStorage.setItem('currentRound', '1');
+    localStorage.removeItem('playerRole');
+    localStorage.removeItem('roleRevealed');
+    
+    resetRoundState();
+    updateGameInfo();
+    updatePlayerRole();
+    showQuestion();
+    
+    console.log('✅ 다음 게임으로 진행 (호스트):', nextGame);
+    console.log('✅ 이동 전 데이터 저장 완료:', {
+        currentGame: nextGame,
+        currentRound: 1
+    });
+    
+    // Redirect to card-role.html for role reassignment
+    console.log('✅ card-role.html로 이동');
+    window.location.href = 'card-role.html?next=host-game.html';
+    window.scrollTo(0, 0); // Scroll to top of the page
+    closeModal('nextGameModal');
 }
 
 // 라운드 상태 초기화

@@ -127,8 +127,8 @@ function setupEventListeners() {
     document.getElementById('submitAnswerBtn').addEventListener('click', submitAnswer);
     document.getElementById('editAnswerBtn').addEventListener('click', editAnswer);
     document.getElementById('goToAnswerBtn').addEventListener('click', goToAnswer);
-    document.getElementById('nextRoundBtn').addEventListener('click', nextRound);
-    document.getElementById('nextGameBtn').addEventListener('click', nextGame);
+    document.getElementById('nextRoundBtn').addEventListener('click', handleNextRound);
+    document.getElementById('nextGameBtn').addEventListener('click', handleNextGame);
     document.getElementById('endGameBtn').addEventListener('click', showEndGameModal);
     
     // 그림 도구 관련
@@ -139,9 +139,55 @@ function setupEventListeners() {
     document.getElementById('brushSize').addEventListener('input', changeBrushSize);
     
     // 모달 관련
-    document.getElementById('closeError').addEventListener('click', () => closeModal('errorModal'));
-    document.getElementById('cancelEndGame').addEventListener('click', () => closeModal('endGameModal'));
-    document.getElementById('confirmEndGame').addEventListener('click', endGame);
+    setupModalEventListeners();
+}
+
+function setupModalEventListeners() {
+    console.log('모달 이벤트 리스너 설정 시작...');
+    
+    const closeError = document.getElementById('closeError');
+    if (closeError) {
+        closeError.addEventListener('click', () => closeModal('errorModal'));
+        console.log('✅ 에러 모달 닫기 버튼 이벤트 리스너 설정 완료');
+    }
+    
+    const cancelEndGame = document.getElementById('cancelEndGame');
+    if (cancelEndGame) {
+        cancelEndGame.addEventListener('click', () => closeModal('endGameModal'));
+        console.log('✅ 게임 종료 취소 버튼 이벤트 리스너 설정 완료');
+    }
+    
+    const confirmEndGame = document.getElementById('confirmEndGame');
+    if (confirmEndGame) {
+        confirmEndGame.addEventListener('click', endGame);
+        console.log('✅ 게임 종료 확인 버튼 이벤트 리스너 설정 완료');
+    }
+    
+    const cancelNextRound = document.getElementById('cancelNextRound');
+    if (cancelNextRound) {
+        cancelNextRound.addEventListener('click', () => closeModal('nextRoundModal'));
+        console.log('✅ 다음 라운드 취소 버튼 이벤트 리스너 설정 완료');
+    }
+    
+    const confirmNextRoundBtn = document.getElementById('confirmNextRound');
+    if (confirmNextRoundBtn) {
+        confirmNextRoundBtn.addEventListener('click', confirmNextRound);
+        console.log('✅ 다음 라운드 확인 버튼 이벤트 리스너 설정 완료');
+    }
+    
+    const cancelNextGame = document.getElementById('cancelNextGame');
+    if (cancelNextGame) {
+        cancelNextGame.addEventListener('click', () => closeModal('nextGameModal'));
+        console.log('✅ 다음 게임 취소 버튼 이벤트 리스너 설정 완료');
+    }
+    
+    const confirmNextGameBtn = document.getElementById('confirmNextGame');
+    if (confirmNextGameBtn) {
+        confirmNextGameBtn.addEventListener('click', confirmNextGame);
+        console.log('✅ 다음 게임 확인 버튼 이벤트 리스너 설정 완료');
+    }
+    
+    console.log('✅ 모달 이벤트 리스너 설정 완료');
 }
 
 // 코드 입력 처리
@@ -702,48 +748,87 @@ function moveToAnswerPage() {
     window.location.href = `answer.html?from=player${playerIndex}`;
 }
 
-
-// 다음라운드
-function nextRound() {
+// 다음 라운드
+function handleNextRound() {
     if (currentRound < maxRounds) {
-        currentRound++;
-        resetRoundState();
-        updateGameInfo();
-        updatePlayerRole(); // 새로운 라운드에서 역할 재확인
-        showQuestion();
-        
-        localStorage.setItem('currentRound', currentRound.toString());
-        console.log('다음 라운드로 진행:', currentRound);
+        showModal('nextRoundModal');
+        console.log('✅ 다음 라운드 모달 표시');
     } else {
-        // alert 대신 "다음 게임" 버튼 강조
         highlightNextGameButton();
+        console.log('❌ 마지막 라운드 - 다음 게임 버튼 강조');
     }
 }
 
-// 다음게임
-function nextGame() {
+function confirmNextRound() {
+    currentRound++;
+    resetRoundState();
+    updateGameInfo();
+    updatePlayerRole();
+    showQuestion();
+    localStorage.setItem('currentRound', currentRound.toString());
+    console.log('✅ 다음 라운드로 진행 (플레이어):', currentRound);
+    console.log('✅ 이동 전 데이터 저장 완료:', {
+        currentRound
+    });
+    closeModal('nextRoundModal');
+    window.scrollTo(0, 0); // Scroll to top of the page
+    console.log('✅ 화면을 맨 위로 스크롤');
+}
+
+// 다음 게임
+function handleNextGame() {
     if (currentGame < maxGames) {
-        currentGame++;
-        currentRound = 1;
-        resetRoundState();
-        updateGameInfo();
-        updatePlayerRole(); // 새 게임에서 역할 재확인
-        showQuestion();
-        
-        localStorage.setItem('currentGame', currentGame.toString());
-        localStorage.setItem('currentRound', currentRound.toString());
-        console.log('다음 게임으로 진행:', currentGame);
+        showModal('nextGameModal');
+        console.log('✅ 다음 게임 모달 표시');
     } else {
-        // alert 대신 게임 종료 버튼 강조
-        const endGameBtn = document.getElementById('endGameBtn');
-        if (endGameBtn) {
-            endGameBtn.classList.add('pulse-highlight');
-            setTimeout(() => {
-                endGameBtn.classList.remove('pulse-highlight');
-            }, 3000);
-        }
-        console.log('마지막 게임 - 게임 종료 버튼 강조');
+        showEndGameModal();
+        console.log('❌ 마지막 게임 - 게임 종료 모달 표시');
     }
+}
+
+// function confirmNextGame() {
+//     //player-game.js
+//     currentGame++;
+//     currentRound = 1;
+//     resetRoundState();
+//     updateGameInfo();
+//     updatePlayerRole();
+//     showQuestion();
+//     localStorage.setItem('currentGame', currentGame.toString());
+//     localStorage.setItem('currentRound', currentRound.toString());
+//     console.log('✅ 다음 게임으로 진행 (플레이어):', currentGame);
+//     console.log('✅ 이동 전 데이터 저장 완료:', {
+//         currentGame,
+//         currentRound
+//     });
+//     closeModal('nextGameModal');
+//     window.scrollTo(0, 0); // Scroll to top of the page
+//     console.log('✅ 화면을 맨 위로 스크롤');
+// }
+function confirmNextGame() {
+    const nextGame = parseInt(localStorage.getItem('currentGame') || '1') + 1;
+    localStorage.setItem('currentGame', nextGame.toString());
+    localStorage.setItem('currentRound', '1');
+    localStorage.removeItem('playerRole');
+    localStorage.removeItem('roleRevealed');
+    
+    resetRoundState();
+    updateGameInfo();
+    updatePlayerRole();
+    showQuestion();
+    
+    console.log('✅ 다음 게임으로 진행 (플레이어):', nextGame);
+    console.log('✅ 이동 전 데이터 저장 완료:', {
+        currentGame: nextGame,
+        currentRound: 1
+    });
+    
+    // Redirect to card-role.html for role reassignment
+    console.log('✅ card-role.html로 이동');
+    window.location.href = 'card-role.html?next=player-game.html';
+    window.scrollTo(0, 0); // Scroll to top of the page
+    console.log('✅ 화면을 맨 위로 스크롤');
+    closeModal('nextGameModal');
 }
 
 // 라운드 상태 초기화

@@ -53,7 +53,7 @@ function loadGameData() {
     playerIndex = parseInt(playerIndexTemp);
     
     currentRound = parseInt(localStorage.getItem('currentRound')) || 1; // gameEndRound 대신 currentRound 사용
-    currentGame = parseInt(localStorage.getItem('gameEndGame')) || 1;
+    currentGame = parseInt(localStorage.getItem('currentGame')) || 1;
     
     try {
         const gameInfo = window.getGameInfoFromCode(inviteCode);
@@ -321,13 +321,8 @@ function updatePlayerRole() {
     }
     
     if (playerRoleElement) {
-        if (playerIndex === 0) {
-            playerRoleElement.textContent = `호스트${amILiar ? ' (라이어)' : ''}`;
-            playerRoleElement.className = amILiar ? 'role-value faker' : 'role-value normal';
-        } else {
-            playerRoleElement.textContent = `플레이어 ${playerIndex}${amILiar ? ' (라이어)' : ''}`;
-            playerRoleElement.className = amILiar ? 'role-value faker' : 'role-value normal';
-        }
+        playerRoleElement.textContent = amILiar ? '라이어' : '일반 플레이어';
+        playerRoleElement.className = amILiar ? 'role-value faker' : 'role-value normal';
         console.log(`✅ 역할 업데이트: ${playerRoleElement.textContent}`);
     } else {
         console.warn('❌ playerRole 요소 없음');
@@ -397,29 +392,69 @@ function startNewGame() {
     window.location.href = 'host.html';
 }
 
-// 다음 게임 시작
+// // 다음 게임 시작
+// function startNextGame() {
+//     console.log('다음 게임 시작 시도 중...');
+    
+//     const preservedData = {
+//         playerScores: localStorage.getItem('playerScores'),
+//         inviteCode: inviteCode,
+//         totalPlayers: totalPlayers.toString()
+//     };
+    
+//     localStorage.removeItem('currentRound');
+//     localStorage.removeItem('submittedAnswer');
+//     localStorage.removeItem('submittedDrawing');
+//     localStorage.removeItem('answerType');
+//     localStorage.removeItem('answerSubmitted');
+//  digitaleStorage.removeItem('hostAnswer');
+//     localStorage.removeItem('hostDrawing');
+    
+//     Object.entries(preservedData).forEach(([key, value]) => {
+//         if (value) localStorage.setItem(key, value);
+//     });
+    
+//     const nextGame = currentGame + 1;
+//     localStorage.setItem('currentGame', nextGame.toString());
+//     localStorage.setItem('currentRound', '1');
+    
+//     console.log('✅ 다음 게임 데이터 저장 완료:', {
+//         currentGame: nextGame,
+//         currentRound: 1,
+//         preservedScores: preservedData.playerScores
+//     });
+    
+//     redirectToGamePage();
+// }
+
 function startNextGame() {
     console.log('다음 게임 시작 시도 중...');
     
     const preservedData = {
         playerScores: localStorage.getItem('playerScores'),
-        inviteCode: inviteCode,
-        totalPlayers: totalPlayers.toString()
+        inviteCode: localStorage.getItem('inviteCode'),
+        totalPlayers: localStorage.getItem('totalPlayers'),
+        playerIndex: localStorage.getItem('playerIndex'),
+        fakerCount: localStorage.getItem('fakerCount')
     };
     
+    // Clear game-specific data
     localStorage.removeItem('currentRound');
     localStorage.removeItem('submittedAnswer');
     localStorage.removeItem('submittedDrawing');
     localStorage.removeItem('answerType');
     localStorage.removeItem('answerSubmitted');
- digitaleStorage.removeItem('hostAnswer');
+    localStorage.removeItem('hostAnswer');
     localStorage.removeItem('hostDrawing');
+    localStorage.removeItem('playerRole');
+    localStorage.removeItem('roleRevealed');
     
+    // Preserve essential data
     Object.entries(preservedData).forEach(([key, value]) => {
         if (value) localStorage.setItem(key, value);
     });
     
-    const nextGame = currentGame + 1;
+    const nextGame = parseInt(localStorage.getItem('currentGame') || '1') + 1;
     localStorage.setItem('currentGame', nextGame.toString());
     localStorage.setItem('currentRound', '1');
     
@@ -429,7 +464,11 @@ function startNextGame() {
         preservedScores: preservedData.playerScores
     });
     
-    redirectToGamePage();
+    // Redirect to card-role.html with appropriate next page based on playerIndex
+    const playerIndex = parseInt(localStorage.getItem('playerIndex') || '0');
+    const nextPage = playerIndex === 0 ? 'host-game.html' : 'player-game.html';
+    console.log(`✅ card-role.html로 이동, 다음 페이지: ${nextPage}`);
+    window.location.href = `card-role.html?next=${nextPage}`;
 }
 
 // 홈으로 이동
