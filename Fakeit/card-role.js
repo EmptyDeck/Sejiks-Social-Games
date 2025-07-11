@@ -1,4 +1,3 @@
-//card-role.js
 // 전역 변수
 let nextPage = '';
 let totalPlayers = 4;
@@ -40,7 +39,7 @@ function initializePage() {
 }
 
 function determinePlayerRole() {
-    const gameNumber = 1;
+    const gameNumber = parseInt(localStorage.getItem('currentGame') || '1');
     const liars = window.getFakersForGame(inviteCode, gameNumber);
     
     // 현재 플레이어가 라이어인지 확인
@@ -54,8 +53,6 @@ function determinePlayerRole() {
         playerRole
     });
 }
-
-
 
 // 게임 데이터 로드
 function loadGameData() {
@@ -102,12 +99,10 @@ function loadGameData() {
     }
 }
 
-
 // 역할 할당 (미리 결정)
 function assignRoles() {
     // gameData.js의 getFakersForGame 함수를 사용하여 라이어 선정
-    // 현재 게임 번호는 1로 고정 (카드 역할 확인 단계에서는 게임1 기준)
-    const gameNumber = 1;
+    const gameNumber = parseInt(localStorage.getItem('currentGame') || '1');
     const liars = window.getFakersForGame(inviteCode, gameNumber);
     
     // 역할 할당 객체 생성
@@ -123,8 +118,6 @@ function assignRoles() {
         roleAssignments
     });
 }
-
-
 
 // 게임 정보 UI 업데이트
 function updateGameInfo() {
@@ -146,7 +139,6 @@ function generateCards() {
         }, i * 100);
     }
 }
-
 
 // 개별 카드 생성
 function createCard(index) {
@@ -171,7 +163,6 @@ function createCard(index) {
     
     return card;
 }
-
 
 // 이벤트 리스너 설정
 function setupEventListeners() {
@@ -244,9 +235,7 @@ function assignRoleToCard(card, role) {
     card.classList.add('flipped');
 }
 
-
-
-// NEW: Reveal all cards function
+// 모든 카드 공개
 function revealAllCards() {
     const allCards = document.querySelectorAll('.card');
     const remainingRoles = generateRemainingRoles();
@@ -293,8 +282,6 @@ function generateRemainingRoles() {
     
     return roles;
 }
-
-
 
 // 결과 표시
 function showResult() {

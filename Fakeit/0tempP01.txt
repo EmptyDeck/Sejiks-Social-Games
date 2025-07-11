@@ -86,55 +86,47 @@ function goToNextPage() {
 code from host-game
 
 
-// 다음 게임
-function nextGame() {
-    if (currentGame < maxGames) {
-        currentGame++;
-        currentRound = 1;
-        resetRoundState();
-        updateGameInfo();
-        updatePlayerRole(); // 새 게임에서 역할 재확인
-        showQuestion();
-        localStorage.setItem('currentGame', currentGame.toString());
-        localStorage.setItem('currentRound', currentRound.toString());
-        console.log('✅ 다음 게임으로 진행 (호스트):', currentGame);
-        console.log('✅ 이동 전 데이터 저장 완료:', {
-            currentGame,
-            currentRound
-        });
-    } else {
-        showEndGameModal();
-        console.log('❌ 마지막 게임 - 게임 종료 모달 표시');
-    }
+function confirmNextGame() {
+    currentGame++;
+    currentRound = 1;
+    resetRoundState();
+    updateGameInfo();
+    updatePlayerRole();
+    showQuestion();
+    localStorage.setItem('currentGame', currentGame.toString());
+    localStorage.setItem('currentRound', currentRound.toString());
+    console.log('✅ 다음 게임으로 진행 (호스트):', currentGame);
+    console.log('✅ 이동 전 데이터 저장 완료:', {
+        currentGame,
+        currentRound
+    });
+    window.scrollTo(0, 0); // Scroll to top of the page
+    closeModal('nextGameModal');
 }
+
+
+
 
 code from player-game
 
-
-// 다음게임
-function nextGame() {
-    if (currentGame < maxGames) {
-        currentGame++;
-        currentRound = 1;
-        resetRoundState();
-        updateGameInfo();
-        updatePlayerRole(); // 새 게임에서 역할 재확인
-        showQuestion();
-        
-        localStorage.setItem('currentGame', currentGame.toString());
-        localStorage.setItem('currentRound', currentRound.toString());
-        console.log('다음 게임으로 진행:', currentGame);
-    } else {
-        // alert 대신 게임 종료 버튼 강조
-        const endGameBtn = document.getElementById('endGameBtn');
-        if (endGameBtn) {
-            endGameBtn.classList.add('pulse-highlight');
-            setTimeout(() => {
-                endGameBtn.classList.remove('pulse-highlight');
-            }, 3000);
-        }
-        console.log('마지막 게임 - 게임 종료 버튼 강조');
-    }
+function confirmNextGame() {
+    //player-game.js
+    currentGame++;
+    currentRound = 1;
+    resetRoundState();
+    updateGameInfo();
+    updatePlayerRole();
+    showQuestion();
+    localStorage.setItem('currentGame', currentGame.toString());
+    localStorage.setItem('currentRound', currentRound.toString());
+    console.log('✅ 다음 게임으로 진행 (플레이어):', currentGame);
+    console.log('✅ 이동 전 데이터 저장 완료:', {
+        currentGame,
+        currentRound
+    });
+    closeModal('nextGameModal');
+    window.scrollTo(0, 0); // Scroll to top of the page
+    console.log('✅ 화면을 맨 위로 스크롤');
 }
 
 

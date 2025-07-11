@@ -267,14 +267,18 @@ function confirmNextGame() {
     clearPlayerAnswerData();
 
     // 게임 업데이트
-    currentGame++;
-    currentRound = 1;
-    localStorage.setItem('currentGame', currentGame.toString());
+    const nextGame = parseInt(localStorage.getItem('currentGame') || '1') + 1;
+    localStorage.setItem('currentGame', nextGame.toString());
     localStorage.setItem('currentRound', '1');
     localStorage.setItem('votes', JSON.stringify(votes));
+    localStorage.removeItem('playerRole');
+    localStorage.removeItem('roleRevealed');
     
-    // 원래 페이지로 돌아가기
-    goBack();
+    // Redirect to card-role.html with appropriate next page based on playerIndex
+    const playerIndex = parseInt(localStorage.getItem('playerIndex') || '0');
+    const nextPage = playerIndex === 0 ? 'host-game.html' : 'player-game.html';
+    console.log(`✅ card-role.html로 이동, 다음 페이지: ${nextPage}`);
+    window.location.href = `card-role.html?next=${nextPage}`;
 }
 
 // 플레이어 답변 데이터 초기화 함수
