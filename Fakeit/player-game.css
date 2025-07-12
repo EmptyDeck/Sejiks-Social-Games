@@ -611,42 +611,36 @@ body::before {
 
 /* 모바일 최적화 */
 @media (max-width: 768px) {
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-size: 100% 100vh;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+    }
+    
+    html {
+        height: 100%;
+        height: -webkit-fill-available;
+    }
+    
+    /* Ensure container doesn't cause white space */
     .container {
-        padding: 0 10px;
-    }
-    
-    .input-container {
-        flex-direction: column;
-    }
-    
-    .join-btn {
-        width: 100%;
-    }
-    
-    .modal-buttons {
-        flex-direction: column;
-    }
-    
-    .modal-btn {
-        width: 100%;
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
     }
 }
 
 @media (max-width: 480px) {
     body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-size: 100% 100vh;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
         padding: 10px;
-    }
-    
-    .code-input-section {
-        padding: 2rem 1rem;
-    }
-    
-    .code-title {
-        font-size: 1.5rem;
-    }
-    
-    .code-icon {
-        font-size: 3rem;
     }
 }
 /* 기존 CSS에 추가할 스타일들 */
@@ -1156,9 +1150,19 @@ body::before {
 /* iOS Safari 특별 처리 */
 @supports (-webkit-touch-callout: none) {
     body {
-        background-attachment: scroll;
+        /* Remove background-attachment: scroll and use fixed positioning */
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         background-size: 100% 100%;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+        min-height: -webkit-fill-available; /* iOS specific */
+    }
+    
+    /* Ensure the body covers the full screen */
+    html {
+        height: 100%;
+        height: -webkit-fill-available; /* iOS specific */
     }
     
     /* iOS에서 backdrop-filter가 제대로 안 될 경우 */
@@ -1187,14 +1191,38 @@ body::before {
 /* iPhone 전용 추가 최적화 */
 @media screen and (-webkit-min-device-pixel-ratio: 2) and (max-width: 812px) {
     body {
-        background: #667eea;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         background-size: 100% 100vh;
         background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+        height: auto; /* Change from 100% to auto */
     }
     
     html {
         height: 100%;
+        height: -webkit-fill-available;
+    }
+    
+    /* Remove the absolute positioning from the pseudo-element */
+    body::before {
+        position: fixed; /* Keep as fixed instead of absolute */
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 100vh;
+        height: -webkit-fill-available;
+        background: 
+            radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(240, 147, 251, 0.05) 0%, transparent 50%),
+            linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        animation: backgroundPulse 8s ease-in-out infinite;
+        pointer-events: none;
+        z-index: -1;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
     }
     
     /* 모바일에서 성능 최적화 */
