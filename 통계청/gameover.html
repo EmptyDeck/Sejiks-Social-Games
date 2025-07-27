@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics - Game Over</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="gameover.css">
+</head>
+<body>
+    <!-- Statistics Game - File Structure:
+    ├── common.css (shared styles)
+    ├── common.js (shared functions)
+    ├── index.html
+    ├── index.css
+    ├── index.js
+    ├── absolute.html
+    ├── absolute.css
+    ├── absolute.js
+    ├── join.html
+    ├── join.css
+    ├── join.js
+    ├── play.html
+    ├── play.css
+    ├── play.js
+    ├── statistics.js
+    ├── abs-gen-game.js
+    ├── standby.html
+    ├── standby.css
+    ├── standby.js
+    └── gameover.html - here -->
+
+    <div class="container">
+        <div class="game-header">
+            <h1 class="game-title">Game Over!</h1>
+            <p class="game-subtitle">Thanks for playing!</p>
+        </div>
+
+        <div class="card final-results-card">
+            <div class="trophy-icon">🏆</div>
+            <h2 class="final-score-label">Your Final Score:</h2>
+            <div class="final-score-value" id="finalScoreValue">0</div>
+
+            <div class="game-stats">
+                <h3>Game Statistics</h3>
+                <p>Game Code: <span id="statsGameCode"></span></p>
+                <p>Game Mode: <span id="statsGameMode"></span></p>
+                <p>Rounds Completed: <span id="statsRoundsCompleted"></span>/10</p>
+                <p>Average Score per Round: <span id="statsAverageScore"></span> points</p>
+                <p>Game Finished: <span id="statsCompletedAt"></span></p>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" id="mainMenuButton">
+                    🏠 Main Menu
+                </button>
+                <button class="btn btn-primary" id="playAgainButton">
+                    🔄 Play Again
+                </button>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="tip-card">
+                <h3>✨ Keep Practicing!</h3>
+                <p>The more you play, the better you'll get at guessing those tricky stats!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script src="gameover.js"></script>
+</body>
+</html>

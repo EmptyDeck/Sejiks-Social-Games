@@ -1,0 +1,203 @@
+/* Statistics Game - Game Over Page Styles */
+
+body {
+    background-color: var(--pink); /* Using your defined pink color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Inter', sans-serif; /* Assuming Inter font */
+    overflow: hidden; /* Prevent scrollbars from floating elements */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 500px; /* Constrain width for better readability */
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative; /* For floating elements */
+}
+
+.game-header {
+    text-align: center;
+    margin-bottom: 30px;
+    opacity: 0; /* For entrance animation */
+    transform: translateY(-20px); /* For entrance animation */
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.game-header.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.game-title {
+    font-size: 3rem;
+    color: var(--dark-blue);
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.game-subtitle {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.card.final-results-card {
+    background-color: white;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    width: 100%;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    opacity: 0; /* For entrance animation */
+    transform: scale(0.9); /* For entrance animation */
+    transition: opacity 0.5s ease-out 0.2s, transform 0.5s ease-out 0.2s; /* Delayed transition */
+}
+
+.card.final-results-card.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.trophy-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    animation: bounceIn 1s ease-out;
+    color: var(--orange); /* Use orange for accent */
+}
+
+.final-score-label {
+    font-size: 1.5rem;
+    color: var(--dark-blue);
+    margin-bottom: 10px;
+}
+
+.final-score-value {
+    font-size: 4rem;
+    font-weight: bold;
+    color: var(--orange);
+    margin-bottom: 30px;
+    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+    animation: popIn 0.8s ease-out forwards;
+}
+
+.game-stats {
+    background-color: #f8f8f8;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 30px;
+    text-align: left;
+    border: 1px solid #eee;
+}
+
+.game-stats h3 {
+    font-size: 1.3rem;
+    color: var(--dark-blue);
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+    position: relative;
+    padding-bottom: 5px;
+}
+
+.game-stats h3::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    width: 40px;
+    height: 3px;
+    background-color: var(--blue);
+    border-radius: 2px;
+}
+
+.game-stats p {
+    font-size: 1.1rem;
+    color: #555;
+    margin: 8px 0;
+}
+
+.game-stats span {
+    font-weight: bold;
+    color: var(--dark-blue);
+}
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.action-buttons .btn {
+    flex-grow: 1;
+    min-width: 150px;
+}
+
+.info-section {
+    margin-top: 30px;
+    opacity: 0; /* For entrance animation */
+    transform: translateY(20px); /* For entrance animation */
+    transition: opacity 0.5s ease-out 0.4s, transform 0.5s ease-out 0.4s; /* Delayed transition */
+}
+
+.info-section.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tip-card {
+    background-color: var(--blue);
+    color: white;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.tip-card h3 {
+    font-size: 1.4rem;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+/* Animations */
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    80% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .game-title {
+        font-size: 2.5rem;
+    }
+    .final-score-value {
+        font-size: 3.5rem;
+    }
+    .trophy-icon {
+        font-size: 3rem;
+    }
+    .action-buttons {
+        flex-direction: column;
+    }
+    .action-buttons .btn {
+        width: 100%;
+        min-width: unset;
+    }
+}

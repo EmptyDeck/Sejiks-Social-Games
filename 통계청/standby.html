@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics - Standby</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="standby.css">
+</head>
+<body>
+    <!-- Statistics Game - File Structure:
+    ├── common.css (shared styles)
+    ├── common.js (shared functions)
+    ├── index.html
+    ├── index.css
+    ├── index.js
+    ├── absolute.html
+    ├── absolute.css
+    ├── absolute.js
+    ├── join.html
+    ├── join.css
+    ├── join.js
+    ├── play.html
+    ├── play.css
+    ├── play.js
+    ├── statistics.js
+    ├── abs-gen-game.js
+    └── standby.html - here -->
+
+    <div class="container">
+        <div class="standby-screen" id="standbyScreen">
+            <div class="tap-indicator">
+                <span class="tap-icon">👇</span>
+                <h1 class="tap-text">Tap to Reveal!</h1>
+            </div>
+        </div>
+
+        <div class="results-screen" id="resultsScreen" style="display: none;">
+            <div class="results-card">
+                <h2 class="results-title">📊 Round Results</h2>
+                <div class="question-summary">
+                    <p class="summary-question" id="summaryQuestion"></p>
+                    <p class="summary-source" id="summarySource"></p>
+                </div>
+                <div class="answer-comparison">
+                    <div class="your-answer">
+                        <h3>Your Guess</h3>
+                        <span class="answer-value" id="yourAnswerValue"></span><span class="percent-symbol">%</span>
+                    </div>
+                    <div class="actual-answer">
+                        <h3>Actual Answer</h3>
+                        <span class="answer-value" id="actualAnswerValue"></span><span class="percent-symbol">%</span>
+                    </div>
+                </div>
+                <div class="score-summary">
+                    <p>Difference: <span id="differenceValue"></span>%</p>
+                    <p>Round Score: <span id="roundScoreValue"></span> points</p>
+                    <p>Total Score: <span id="totalScoreValue"></span> points</p>
+                </div>
+                <div class="action-buttons">
+                    <!-- New buttons for Go Back and Cover It -->
+                    <button class="btn btn-secondary" id="goBackButton">
+                        ← Go Back
+                    </button>
+                    <button class="btn btn-secondary" id="coverItButton">
+                        🙈 Cover It
+                    </button>
+                    <!-- Existing proceed button, text will be dynamic -->
+                    <button class="btn btn-large btn-primary" id="proceedButton">
+                        ➡️ Next Round
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script src="standby.js"></script>
+</body>
+</html>

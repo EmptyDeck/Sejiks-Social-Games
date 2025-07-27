@@ -1,0 +1,177 @@
+/* Statistics Game - Index Page Styles */
+/* File Structure:
+   ├── common.css (shared styles)
+   ├── common.js (shared functions)
+   ├── index.html
+   ├── index.css - here
+   ├── index.js
+   ├── absolute.html
+   ├── absolute.css
+   ├── absolute.js
+   ├── join.html
+   ├── join.css
+   ├── join.js
+   ├── play.html
+   ├── play.css
+   ├── play.js
+   ├── statistics.js
+   └── abs-gen-game.js
+*/
+
+.welcome-section {
+    margin-bottom: 30px;
+}
+
+.welcome-section h2 {
+    color: var(--dark-blue);
+    font-size: 2rem;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.welcome-text {
+    color: var(--dark-gray);
+    font-size: 1.1rem;
+    line-height: 1.5;
+    opacity: 0.8;
+}
+
+.mode-selector {
+    display: flex;
+    gap: 20px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.mode-card {
+    background: var(--gray);
+    border-radius: 15px;
+    padding: 25px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 3px solid transparent;
+    min-width: 200px;
+    position: relative;
+    animation: pulse 2s infinite;
+}
+
+.mode-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px var(--shadow);
+    border-color: var(--blue);
+}
+
+.mode-card.selected {
+    background: var(--blue);
+    color: var(--white);
+    border-color: var(--dark-blue);
+    animation: none;
+    transform: translateY(-5px);
+}
+
+.mode-card.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #e0e0e0;
+}
+
+.mode-card.disabled:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: transparent;
+}
+
+.mode-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.mode-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.mode-description {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    line-height: 1.3;
+}
+
+.coming-soon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--orange);
+    color: var(--white);
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.action-buttons {
+    margin-top: 30px;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.info-section {
+    margin-top: 40px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.info-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 5px 15px var(--shadow);
+    backdrop-filter: blur(10px);
+}
+
+.info-card h3 {
+    color: var(--dark-blue);
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.info-card p {
+    color: var(--dark-gray);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* Animations */
+@keyframes modeSelect {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.mode-card.selecting {
+    animation: modeSelect 0.3s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .mode-selector {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .mode-card {
+        width: 100%;
+        max-width: 280px;
+    }
+    
+    .welcome-section h2 {
+        font-size: 1.6rem;
+    }
+    
+    .info-card {
+        padding: 20px;
+    }
+}

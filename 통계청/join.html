@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics - Join Game</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="join.css">
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <h1 class="game-title">🚪 Join Game</h1>
+            <p class="game-subtitle">Enter the 4-letter game code to join!</p>
+        </div>
+
+        <div class="card">
+            <div class="join-info">
+                <div class="join-icon">🎮</div>
+                <h2>Ready to Join the Fun?</h2>
+                <p class="join-description">
+                    Ask your host for the 4-letter game code and enter it below to join their game room!
+                </p>
+            </div>
+
+            <div class="code-input-section">
+                <label class="input-label">Game Code</label>
+                <div class="code-input" id="codeInput">
+                    <input type="text" class="code-letter" maxlength="1" id="letter1">
+                    <input type="text" class="code-letter" maxlength="1" id="letter2">
+                    <input type="text" class="code-letter" maxlength="1" id="letter3">
+                    <input type="text" class="code-letter" maxlength="1" id="letter4">
+                </div>
+                <div class="code-helper">
+                    <p>💡 Code format: 4 letters (no I or L)</p>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-large btn-primary" id="joinButton">
+                    🚀 Join Game
+                </button>
+                <button class="btn btn-secondary" id="clearButton">
+                    🗑️ Clear
+                </button>
+            </div>
+
+            <div class="back-section">
+                <button class="btn btn-secondary" id="backButton">
+                    ← Back
+                </button>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="tip-card">
+                <h3>💫 Pro Tips</h3>
+                <div class="tips">
+                    <div class="tip">🎯 Double-check the code with your host</div>
+                    <div class="tip">⚡ Codes are case-insensitive</div>
+                    <div class="tip">🔤 Letters I and L are not used in codes</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="loadingModal" style="display: none;">
+        <div class="modal-content">
+            <div class="loading-spinner"></div>
+            <h3>🔍 Joining Game...</h3>
+            <p>Connecting to game room</p>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script src="join.js"></script>
+</body>
+</html>
