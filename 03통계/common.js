@@ -147,13 +147,13 @@ function validateGameCode(code) {
 
 // 점수 계산 함수 (기존 calculateScore 함수 개선)
 function calculateGameScore(userAnswer, actualAnswer) {
-    if (actualAnswer === 0) {
-        return userAnswer === 0 ? 100 : 0;
+    const diff = Math.abs(actualAnswer - userAnswer);
+    if (diff >= 20) {
+        return 0;
     }
-    const difference = Math.abs(userAnswer - actualAnswer);
-    const accuracy = Math.max(0, 100 - (difference / actualAnswer * 100));
-    return Math.round(Math.pow(accuracy, 2));
+    return Math.pow(21 - diff, 2);
 }
+
 
 // 게임 데이터 저장/불러오기
 function saveCurrentAnswer(answerData) {
