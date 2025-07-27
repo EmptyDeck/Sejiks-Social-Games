@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인간 통계 보고서 - 게임 종료</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="gameover.css">
+</head>
+<body>
+    <!-- 인간 통계 보고서 - 파일 구조:
+    ├── common.css (공유 스타일)
+    ├── common.js (공통 함수)
+    ├── index.html
+    ├── index.css
+    ├── index.js
+    ├── absolute.html
+    ├── absolute.css
+    ├── absolute.js
+    ├── join.html
+    ├── join.css
+    ├── join.js
+    ├── play.html
+    ├── play.css
+    ├── play.js
+    ├── statistics.js
+    ├── abs-gen-game.js
+    ├── standby.html
+    ├── standby.css
+    ├── standby.js
+    └── gameover.html - 여기
+    -->
+
+    <div class="container">
+        <div class="game-header">
+            <h1 class="game-title">게임 종료!</h1>
+            <p class="game-subtitle">플레이해 주셔서 감사합니다!</p>
+        </div>
+
+        <div class="card final-results-card">
+            <div class="trophy-icon">🏆</div>
+            <h2 class="final-score-label">최종 점수:</h2>
+            <div class="final-score-value" id="finalScoreValue">0</div>
+
+            <div class="game-stats">
+                <h3>게임 통계</h3>
+                <p>게임 코드: <span id="statsGameCode"></span></p>
+                <p>완료한 라운드: <span id="statsRoundsCompleted"></span>/10</p>
+                <p>라운드당 평균 점수: <span id="statsAverageScore"></span>점</p>
+                <p>게임 완료 시간: <span id="statsCompletedAt"></span></p>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" id="mainMenuButton">
+                    🏠 메인 메뉴
+                </button>
+                <button class="btn btn-primary" id="playAgainButton">
+                    🔄 다시 시작하기
+                </button>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="tip-card">
+                <h3>✨ 계속 연습해 보세요!</h3>
+                <p>플레이를 반복할수록 어렵고 재미있는 통계 퀴즈를 더 잘 맞힐 수 있습니다!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script src="gameover.js"></script>
+</body>
+</html>

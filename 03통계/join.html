@@ -1,65 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statistics - Join Game</title>
+    <title>인간 통계 보고서 - 게임 참가</title>
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="join.css">
 </head>
 <body>
     <div class="container">
         <div class="game-header">
-            <h1 class="game-title">🚪 Join Game</h1>
-            <p class="game-subtitle">Enter the 4-letter game code to join!</p>
+            <h1 class="game-title">🚪 게임 참가</h1>
+            <p class="game-subtitle">4글자 게임 코드를 입력해서 참가하세요!</p>
         </div>
 
         <div class="card">
             <div class="join-info">
                 <div class="join-icon">🎮</div>
-                <h2>Ready to Join the Fun?</h2>
+                <h2>재미있는 게임에 참가할 준비가 되셨나요?</h2>
                 <p class="join-description">
-                    Ask your host for the 4-letter game code and enter it below to join their game room!
+                    호스트에게 4글자 게임 코드를 받아서 아래에 입력하고 게임 방에 참가하세요!
                 </p>
             </div>
 
             <div class="code-input-section">
-                <label class="input-label">Game Code</label>
+                <label class="input-label">게임 코드</label>
                 <div class="code-input" id="codeInput">
                     <input type="text" class="code-letter" maxlength="1" id="letter1">
                     <input type="text" class="code-letter" maxlength="1" id="letter2">
                     <input type="text" class="code-letter" maxlength="1" id="letter3">
                     <input type="text" class="code-letter" maxlength="1" id="letter4">
                 </div>
-                <div class="code-helper">
-                    <p>💡 Code format: 4 letters (no I or L)</p>
-                </div>
             </div>
 
             <div class="action-buttons">
                 <button class="btn btn-large btn-primary" id="joinButton">
-                    🚀 Join Game
+                    🚀 게임 참가
                 </button>
                 <button class="btn btn-secondary" id="clearButton">
-                    🗑️ Clear
+                    🗑️ 지우기
                 </button>
             </div>
 
             <div class="back-section">
                 <button class="btn btn-secondary" id="backButton">
-                    ← Back
+                    ← 뒤로 가기
                 </button>
-            </div>
-        </div>
-
-        <div class="info-section">
-            <div class="tip-card">
-                <h3>💫 Pro Tips</h3>
-                <div class="tips">
-                    <div class="tip">🎯 Double-check the code with your host</div>
-                    <div class="tip">⚡ Codes are case-insensitive</div>
-                    <div class="tip">🔤 Letters I and L are not used in codes</div>
-                </div>
             </div>
         </div>
     </div>
@@ -67,8 +53,8 @@
     <div class="modal-overlay" id="loadingModal" style="display: none;">
         <div class="modal-content">
             <div class="loading-spinner"></div>
-            <h3>🔍 Joining Game...</h3>
-            <p>Connecting to game room</p>
+            <h3>🔍 게임에 참가 중...</h3>
+            <p>게임 방에 연결하는 중입니다</p>
         </div>
     </div>
 

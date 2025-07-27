@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인간 통계 보고서 - 절대 모드</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="absolute.css">
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <h1 class="game-title">🎯 절대 모드</h1>
+            <p class="game-subtitle">정확한 비율과 통계를 맞혀 보세요!</p>
+        </div>
+
+        <div class="card">
+            <div class="mode-info">
+                <div class="mode-icon">📊</div>
+                <h2>지식을 시험해 볼 준비가 되셨나요?</h2>
+                <p class="mode-description">
+                    절대 모드에서는 놀라운 통계의 정확한 비율을 예측해야 합니다.<br>
+                    정답에 가까울수록 더 높은 점수를 얻을 수 있어요!
+                </p>
+            </div>
+
+            <div class="game-options">
+                <div class="option-card" id="hostOption">
+                    <div class="option-icon">👑</div>
+                    <div class="option-title">게임 생성</div>
+                    <div class="option-desc">새로운 게임 방 만들기</div>
+                </div>
+
+                <div class="option-card" id="joinOption">
+                    <div class="option-icon">🚪</div>
+                    <div class="option-title">게임 참가</div>
+                    <div class="option-desc">게임 코드로 입장하기</div>
+                </div>
+            </div>
+
+            <div class="action-section" id="actionSection" style="display: none;">
+                <button class="btn btn-large btn-primary" id="actionButton">
+                    🎮 계속하기
+                </button>
+            </div>
+
+            <div class="back-section">
+                <button class="btn btn-secondary" id="backToMainButton">
+                    ← 메인 메뉴로 돌아가기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIX: Use classic script tags, NOT modules -->
+    <script src="common.js"></script>
+    <script src="absolute.js"></script>
+</body>
+</html>

@@ -555,15 +555,13 @@ const statisticsData = [
     }
 ];
 
-export function getStatisticByIndex(index) {
-    if (index >= 0 && index < statisticsData.length) {
+function getStatisticByIndex(index) {
+    if (index >=0 && index < statisticsData.length) {
         return statisticsData[index];
     }
-    return statisticsData[0]; // fallback to first question
+    return statisticsData[0]; // fallback
 }
 
-export function getTotalQuestions() {
+function getTotalQuestions() {
     return statisticsData.length;
 }
-
-export { statisticsData };

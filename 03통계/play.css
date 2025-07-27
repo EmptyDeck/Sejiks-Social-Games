@@ -1,0 +1,421 @@
+/* Statistics Game - Play Game Styles */
+/* File Structure: */
+/* ├── common.css (shared styles) */
+/* ├── common.js (shared functions) */
+/* ├── index.html */
+/* ├── index.css */
+/* ├── index.js */
+/* ├── absolute.html */
+/* ├── absolute.css */
+/* ├── absolute.js */
+/* ├── join.html */
+/* ├── join.css */
+/* ├── join.js */
+/* ├── play.html */
+/* ├── play.css - here */
+/* ├── play.js */
+/* ├── statistics.js */
+/* └── abs-gen-game.js */
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Game Header */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--blue), var(--dark-blue));
+    padding: 25px;
+    border-radius: 20px;
+    color: white;
+    box-shadow: 0 8px 25px rgba(8, 89, 221, 0.3);
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: slideInDown 0.6s ease-out forwards;
+}
+
+.game-info h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.round-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 1.1rem;
+}
+
+.round-number {
+    background: var(--orange);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-weight: bold;
+    min-width: 30px;
+    text-align: center;
+    animation: pulse 2s infinite;
+}
+
+.score-display {
+    text-align: right;
+    font-size: 1.2rem;
+}
+
+.score-label {
+    opacity: 0.9;
+}
+
+.score-value {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: var(--pink);
+    margin-left: 10px;
+}
+
+/* Question Card */
+.question-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 3px solid var(--pink);
+    opacity: 0;
+    transform: scale(0.95);
+    animation: scaleIn 0.6s ease-out 0.2s forwards;
+}
+
+.question-content {
+    text-align: center;
+}
+
+.question-text {
+    font-size: 1.6rem;
+    color: var(--dark-blue);
+    margin-bottom: 20px;
+    line-height: 1.4;
+    font-weight: 600;
+}
+
+.question-source {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--pink);
+    padding: 15px 20px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    color: var(--dark-blue);
+}
+
+.source-icon {
+    font-size: 1.2rem;
+}
+
+/* Circular Slider */
+.slider-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideInUp 0.6s ease-out 0.4s forwards;
+}
+
+.slider-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.circular-slider {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink), #fff);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.circular-slider:hover {
+    transform: scale(1.02);
+}
+
+.slider-track {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    border: 6px solid #e0e0e0;
+    box-sizing: border-box;
+}
+
+.slider-fill {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    box-sizing: border-box;
+    border: none; /* border 제거 */
+    transition: background 0.3s ease;
+}
+
+.slider-handle {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: var(--orange);
+    border-radius: 50%;
+    border: 4px solid white;
+    box-shadow: 0 4px 15px rgba(255, 102, 72, 0.4);
+    cursor: grab;
+    transition: transform 0.2s ease;
+    top: 0;
+    left: 125px;
+}
+
+.slider-handle:hover {
+    transform: scale(1.2);
+}
+
+.slider-handle:active {
+    cursor: grabbing;
+    transform: scale(1.1);
+}
+
+.slider-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.percentage-display {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 5px;
+}
+
+.percentage-value {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--dark-blue);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.percentage-symbol {
+    font-size: 2rem;
+    color: var(--orange);
+    font-weight: bold;
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 280px;
+    color: var(--dark-blue);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideInUp 0.6s ease-out 0.6s forwards;
+}
+
+.btn {
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn-secondary {
+    background: var(--blue);
+    color: white;
+    box-shadow: 0 6px 20px rgba(132, 175, 251, 0.4);
+}
+
+.btn-secondary:hover {
+    background: var(--dark-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(132, 175, 251, 0.6);
+}
+
+.btn-orange {
+    background: var(--orange);
+    color: white;
+    box-shadow: 0 6px 20px rgba(255, 102, 72, 0.4);
+}
+
+.btn-orange:hover {
+    background: #e55a40;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 102, 72, 0.6);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Loading Modal */
+.loading-modal {
+    text-align: center;
+    padding: 40px;
+    background: white;
+    border-radius: 20px;
+    border: 3px solid var(--blue);
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid var(--pink);
+    border-top: 5px solid var(--orange);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+/* Animations */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+        gap: 20px;
+    }
+    
+    .game-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .question-text {
+        font-size: 1.3rem;
+    }
+    
+    .circular-slider {
+        width: 240px;
+        height: 240px;
+    }
+    
+    .slider-track,
+    .slider-fill {
+        width: 210px;
+        height: 210px;
+    }
+    
+    .slider-handle {
+        left: 105px;
+    }
+    
+    .slider-labels {
+        width: 240px;
+    }
+    
+    .percentage-value {
+        font-size: 2.5rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}

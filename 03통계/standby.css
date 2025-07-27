@@ -1,0 +1,234 @@
+/* Statistics Game - Standby Page Styles */
+
+body {
+    background-color: var(--pink); /* Using your defined pink color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Inter', sans-serif; /* Assuming Inter font */
+    overflow: hidden; /* Prevent scrollbars from floating elements */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 500px; /* Constrain width for better readability */
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative; /* For floating elements */
+}
+
+/* Standby Screen */
+.standby-screen {
+    background-color: var(--blue); /* Using your defined blue color */
+    color: white;
+    border-radius: 20px;
+    padding: 40px 20px;
+    text-align: center;
+    width: 100%;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.3s ease-out, opacity 0.5s ease-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px; /* Ensure it's large enough to tap */
+}
+
+.standby-screen.hidden {
+    opacity: 0;
+    transform: scale(0.9);
+    pointer-events: none; /* Disable clicks when hidden */
+}
+
+.tap-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.tap-icon {
+    font-size: 4rem;
+    animation: bounce 1.5s infinite ease-in-out;
+}
+
+.tap-text {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Results Screen */
+.results-screen {
+    background-color: white;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    width: 100%;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    opacity: 0; /* Start hidden */
+    transform: translateY(20px) scale(0.9); /* Start slightly off-screen and scaled */
+}
+
+.results-screen.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.results-title {
+    font-size: 2rem;
+    color: var(--dark-blue);
+    margin-bottom: 25px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.results-title::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    width: 60px;
+    height: 4px;
+    background-color: var(--orange);
+    border-radius: 2px;
+}
+
+.question-summary {
+    background-color: #f8f8f8;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+}
+
+.summary-question {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--dark-blue);
+    margin-bottom: 5px;
+}
+
+.summary-source {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.answer-comparison {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    margin-bottom: 25px;
+    gap: 15px;
+}
+
+.your-answer, .actual-answer {
+    flex: 1;
+    background-color: #eef;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--blue);
+}
+
+.your-answer h3, .actual-answer h3 {
+    font-size: 1rem;
+    color: var(--dark-blue);
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.answer-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--orange);
+    display: inline-block;
+    animation: popIn 0.5s ease-out forwards;
+}
+
+.percent-symbol {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--orange);
+    vertical-align: super;
+}
+
+.score-summary p {
+    font-size: 1.1rem;
+    color: #555;
+    margin: 8px 0;
+}
+
+.score-summary span {
+    font-weight: bold;
+    color: var(--dark-blue);
+}
+
+/* Adjusted action buttons for 3 buttons */
+.action-buttons {
+    margin-top: 30px;
+    display: flex; /* Use flexbox for button layout */
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+    justify-content: center; /* Center buttons */
+    gap: 10px; /* Space between buttons */
+}
+
+/* Ensure large button takes more space if needed, or adjust all to be equal */
+.action-buttons .btn-large {
+    flex-grow: 1; /* Allow it to grow */
+    min-width: 150px; /* Minimum width */
+}
+.action-buttons .btn {
+    flex-grow: 1; /* Allow all buttons to grow */
+    min-width: 100px; /* Smaller minimum width for secondary buttons */
+}
+
+
+/* Animations */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    80% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .tap-text {
+        font-size: 2rem;
+    }
+    .tap-icon {
+        font-size: 3rem;
+    }
+    .results-title {
+        font-size: 1.8rem;
+    }
+    .answer-value {
+        font-size: 2rem;
+    }
+    .percent-symbol {
+        font-size: 1.2rem;
+    }
+    .action-buttons {
+        flex-direction: column; /* Stack buttons vertically on small screens */
+    }
+    .action-buttons .btn,
+    .action-buttons .btn-large {
+        width: 100%; /* Full width when stacked */
+        min-width: unset;
+    }
+}

@@ -156,11 +156,30 @@ function handleProceed() {
         return;
     }
     if (answerData.round >= 10) {
+        console.log('Final round reached, showing game over screen.');
+        saveGameResults();
         goToPage('gameover.html');
     } else {
+        console.log('Proceeding to next round.');
         let nextRoundNum = answerData.round + 1;
         setCurrentRound(nextRoundNum);
         goToPage('play.html');
+    }
+}
+function saveGameResults() {
+
+    const gameData = {
+        totalScore: answerData.totalScore,
+        rounds: answerData.round,
+        gameCode: getGameCode(),  
+        gameMode: getGameMode(),
+        completedAt: new Date().toISOString()
+    };
+    try {
+        localStorage.setItem('gameResults', JSON.stringify(gameData));
+        console.log('Saved game results in localStorage:', gameData);
+    } catch (e) {
+        console.warn('Could not save game results:', e);
     }
 }
 
