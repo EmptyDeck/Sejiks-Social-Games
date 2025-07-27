@@ -59,7 +59,7 @@ function generateUniqueRandomNumbers(min, max, count, randomFunc) {
  * @returns {number[]} 10개의 고유한 무작위 숫자 배열.
  * @throws {Error} 입력 유효성 검사 실패 시 (예: 길이가 4가 아니거나 'I', 'L' 포함).
  */
-export function generateSeededGameNumbers(inputAlphabets) {
+function generateSeededGameNumbers(inputAlphabets) {
     const maxNumber = 100;
     const numNumbersPerGame = 10;
 

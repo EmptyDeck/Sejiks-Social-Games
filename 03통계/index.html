@@ -1,0 +1,59 @@
+<!--
+Statistics/
+    ├── common.css
+    ├── common.js
+    ├── index.html - 여기
+    ├── index.css
+    ├── index.js
+    ...
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인간 통계 보고서 - 파티 게임</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <h1 class="game-title">📊 인간 통계 보고서</h1>
+            <p class="game-subtitle">최고의 파티 추측 게임!</p>
+        </div>
+
+        <div class="card">
+            <div class="welcome-section">
+                <h2>🎉 인간 통계 보고서에 오신 걸 환영합니다!</h2>
+                <p class="welcome-text">친구들과 함께 놀라운 통계 지식을 테스트해 보세요!</p>
+            </div>
+
+            <div class="mode-selector">
+                <div class="mode-card" id="absoluteMode">
+                    <div class="mode-icon">🎯</div>
+                    <div class="mode-title">절대 모드</div>
+                    <div class="mode-description">정확한 비율과 통계를 맞춰 보세요</div>
+                </div>
+                
+                <div class="mode-card" id="relativeMode">
+                    <div class="mode-icon">⚖️</div>
+                    <div class="mode-title">상대 모드</div>
+                    <div class="mode-description">곧 출시! 상대적 수치 비교하기</div>
+                    <div class="coming-soon">🚧 곧 출시</div>
+                </div>
+            </div>
+
+            <div class="action-buttons" id="actionButtons" style="display: none;">
+                <button class="btn btn-large btn-primary" id="startGameButton">
+                    🚀 게임 시작
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fixed: Use classic script tags, NOT modules -->
+    <script src="common.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인간 통계 보고서 - 대기</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="standby.css">
+</head>
+<body>
+    <!-- 인간 통계 보고서 - 파일 구조:
+    ├── common.css (공유 스타일)
+    ├── common.js (공통 함수)
+    ├── index.html
+    ├── index.css
+    ├── index.js
+    ├── absolute.html
+    ├── absolute.css
+    ├── absolute.js
+    ├── join.html
+    ├── join.css
+    ├── join.js
+    ├── play.html
+    ├── play.css
+    ├── play.js
+    ├── statistics.js
+    ├── abs-gen-game.js
+    └── standby.html - 여기 -->
+
+    <div class="container">
+        <div class="standby-screen" id="standbyScreen">
+            <div class="tap-indicator">
+                <span class="tap-icon">👇</span>
+                <h1 class="tap-text">탭해서 결과 확인!</h1>
+            </div>
+        </div>
+
+        <div class="results-screen" id="resultsScreen" style="display: none;">
+            <div class="results-card">
+                <h2 class="results-title">📊 라운드 결과</h2>
+                <div class="question-summary">
+                    <p class="summary-question" id="summaryQuestion"></p>
+                    <p class="summary-source" id="summarySource"></p>
+                </div>
+                <div class="answer-comparison">
+                    <div class="your-answer">
+                        <h3>당신의 추측</h3>
+                        <span class="answer-value" id="yourAnswerValue"></span><span class="percent-symbol">%</span>
+                    </div>
+                    <div class="actual-answer">
+                        <h3>정답</h3>
+                        <span class="answer-value" id="actualAnswerValue"></span><span class="percent-symbol">%</span>
+                    </div>
+                </div>
+                <div class="score-summary">
+                    <p>차이: <span id="differenceValue"></span>%</p>
+                    <p>라운드 점수: <span id="roundScoreValue"></span>점</p>
+                    <p>총 점수: <span id="totalScoreValue"></span>점</p>
+                </div>
+                <div class="action-buttons">
+                    <!-- 뒤로 가기와 가리기 버튼 -->
+                    <button class="btn btn-secondary" id="goBackButton">
+                        ← 뒤로 가기
+                    </button>
+                    <button class="btn btn-secondary" id="coverItButton">
+                        🙈 가리기
+                    </button>
+                    <!-- 기존 진행 버튼, 텍스트는 동적으로 변경됨 -->
+                    <button class="btn btn-large btn-primary" id="proceedButton">
+                        ➡️ 다음 라운드
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script src="standby.js"></script>
+</body>
+</html>

@@ -27,9 +27,7 @@ let gameCode = '';
 let gameMode = '';
 let isDragging = false;
 
-// --- Debug Mode Flag ---
 const DEBUG_MODE = false;
-// --- End Debug Mode Flag ---
 
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('backButton').addEventListener('click', confirmBack);

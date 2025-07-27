@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인간 통계 보고서 - 게임 플레이</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="play.css">
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <div class="game-info">
+                <h1>📊 인간 통계 보고서</h1>
+                <div class="round-indicator">
+                    <span class="round-text">라운드</span>
+                    <span class="round-number" id="roundNumber">1</span>
+                    <span class="round-total">/10</span>
+                </div>
+            </div>
+            <div class="score-display">
+                <span class="score-label">점수:</span>
+                <span class="score-value" id="totalScore">0</span>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div class="question-content">
+                <h2 class="question-text" id="questionText">문제를 불러오는 중...</h2>
+                <div class="question-source">
+                    <span class="source-icon">📋</span>
+                    <span class="source-text" id="sourceText">출처를 불러오는 중...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="slider-container">
+            <div class="slider-wrapper">
+                <div class="circular-slider" id="circularSlider">
+                    <div class="slider-track"></div>
+                    <div class="slider-fill" id="sliderFill"></div>
+                    <div class="slider-handle" id="sliderHandle"></div>
+                    <div class="slider-center">
+                        <div class="percentage-display">
+                            <span class="percentage-value" id="percentageValue">50</span>
+                            <span class="percentage-symbol">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-labels">
+                    <span class="label-min">0%</span>
+                    <span class="label-max">100%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-secondary" id="backButton">
+                ⬅️ 뒤로
+            </button>
+            <button class="btn btn-orange" id="submitButton">
+                ✅ 답 제출하기
+            </button>
+            <button class="btn btn-secondary" id="nextButton" style="display: none;">
+                ➡️ 다음 라운드
+            </button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="loadingModal" style="display: none;">
+        <div class="modal-content loading-modal">
+            <div class="loading-spinner"></div>
+            <h3>🎲 문제를 불러오는 중...</h3>
+            <p>통계 도전 문제를 준비하고 있습니다</p>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script src="statistics.js"></script>
+    <script src="abs-gen-game.js"></script>
+    <script src="play.js"></script>
+</body>
+</html>
