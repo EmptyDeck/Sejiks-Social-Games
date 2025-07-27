@@ -2,14 +2,74 @@ Main idea
 
 
 Most important mechenism
-1. There should be a joint css and joint js file where all files can share the style and function so that it has the same style and reuse the functions to shorted the code.
-2. all files should start with 주석 that has info about all files.
+1. There should be a common.js and common.css file where all files can share the style and function so that it has the same style and reuse the functions to shorted the code.
+2. all files should start with annotation that has info about all files.
 for example : if there is file host,game,join, and it has all html , css, js , the join file should start like this
-//-file list
-//
+3. All pages should have 3 files. 
+   - html file
+   - css file
+   - js file
+4. All files should start with the annotation about the whole files and the current location.
+Example:
+//Statistics/
+//    ├── host.css
+//    ├── host.html - here
+//    ├── host.js
+//    ├── index.html
 
+4. Note this game is offline game. It doesnt have server or databse. It is played by the generated code.
+5. Make it pretty and fun. Use some emojis, colors, and animations.
+Base Color are there : #84affb for blue, #ffe1d7 for pink, #0259dd for dark blue, #ff6648 for orange.
 
+Game name : Statistics
 This is a web app based party game where you guess the possiblity of a survay
+
+There are tow mode; 1. Absolute mode, 2. Relative mode
+1. Absolute mode
+
+
+Web flow
+
+index(main page it has reletive and absolute mode):
+Reletive.html and Absolute.html both have 'host' and 'join' buttons.
+
+host.html:it can generate a code (4 letters) with out i and l. That is 24^4 possibilities(331776 possibilities) That 4 letters should include infomation about the game. And when I press PLAY. it shouldo go to 'play.html' host.html should send generated code to play.html
+
+join.html:  there is 4 blank to fill the code. and it should go to 'play.html' when I press PLAY. join.html should send generated code to play.html
+
+play.html :
+On the top. it should have statistics question and souce of that info(e.g.: How many people sleep with dolls after 18? Source: Study by XYZ from 2018) and the ROUND number (e.g.: Round 1/10). It should bring the question like this:
+1. use The 4 letter code and abs-gen-game.js to generate 10 random numbers (0-100)  I already have a file named 'abs-gen-game.js' and has 'export function generateSeededGameNumbers(inputAlphabets)' 
+and will return 10 random numbers(for each round). And you should bring statistics from 'statistics.js' according to the numbers one by one.
+2. use statistics.js to get the question according to the number.
+statistics.js contect example:
+const statisticsData = [
+    {
+        question: "How many people sleep with dolls after 18?",
+        source: "From a 2017, Build-A-Bear x Atomik Research (US) with over 2000 people",
+        answer: 46
+    },
+    {
+        question: "What percentage of people worldwide own a smartphone?",
+        source: "Statista, 2023 - Global Smartphone Ownership Survey",
+        answer: 84
+    },
+
+
+There should be a Circular Slider ui. The user can drag the slider to guess the percentage of the answer.
+Bottom : And there should be a button "submit" to submit the answer, "Back" to go back to the previous page, and "Next" to go to the next question. all options should have a modlue to double check if the user really wants to submit or go back or next. When you press submit, it goes to standby.html
+3. Standby.html:
+It covers my answer. And it says "Tap!" on the moddle. When i tap it, it shows the answer with scores. The score is calculated by the formula:
+score = (100 - Math.abs(userAnswer - actualAnswer) / actualAnswer * 100)^ 2. And this score accumulates for each round.
+gameover.html:
+It shows the final score and some statistics about my games. 
+
+
+
+
+2. Reletive mode:
+I will make it later.
+
 And this is how it works
 All players join the website. The host clicks "host" All other players click "join"
 The host can pick number of players by pressing + and - . (default 4) and there is also ++ and -- for add 2 players, and minus 2 players.

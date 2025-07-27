@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics - Play Game</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="play.css">
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <div class="game-info">
+                <h1>📊 Statistics Game</h1>
+                <div class="round-indicator">
+                    <span class="round-text">Round</span>
+                    <span class="round-number" id="roundNumber">1</span>
+                    <span class="round-total">/10</span>
+                </div>
+            </div>
+            <div class="score-display">
+                <span class="score-label">Score:</span>
+                <span class="score-value" id="totalScore">0</span>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div class="question-content">
+                <h2 class="question-text" id="questionText">Loading question...</h2>
+                <div class="question-source">
+                    <span class="source-icon">📋</span>
+                    <span class="source-text" id="sourceText">Loading source...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="slider-container">
+            <div class="slider-wrapper">
+                <div class="circular-slider" id="circularSlider">
+                    <div class="slider-track"></div>
+                    <div class="slider-fill" id="sliderFill"></div>
+                    <div class="slider-handle" id="sliderHandle"></div>
+                    <div class="slider-center">
+                        <div class="percentage-display">
+                            <span class="percentage-value" id="percentageValue">50</span>
+                            <span class="percentage-symbol">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-labels">
+                    <span class="label-min">0%</span>
+                    <span class="label-max">100%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-secondary" id="backButton">
+                ⬅️ Back
+            </button>
+            <button class="btn btn-orange" id="submitButton">
+                ✅ Submit Answer
+            </button>
+            <button class="btn btn-secondary" id="nextButton" style="display: none;">
+                ➡️ Next Round
+            </button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="loadingModal" style="display: none;">
+        <div class="modal-content loading-modal">
+            <div class="loading-spinner"></div>
+            <h3>🎲 Loading Question...</h3>
+            <p>Preparing your statistics challenge</p>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script src="play.js"></script>
+
+</body>
+</html>

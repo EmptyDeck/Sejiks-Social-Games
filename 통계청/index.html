@@ -1,0 +1,69 @@
+<!--
+Statistics/
+    ├── common.css
+    ├── common.js
+    ├── index.html - here
+    ├── index.css
+    ├── index.js
+    ...
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics - Party Game</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <h1 class="game-title">📊 Statistics</h1>
+            <p class="game-subtitle">The Ultimate Party Guessing Game!</p>
+        </div>
+
+        <div class="card">
+            <div class="welcome-section">
+                <h2>🎉 Welcome to Statistics!</h2>
+                <p class="welcome-text">Test your knowledge of surprising statistics with friends!</p>
+            </div>
+
+            <div class="mode-selector">
+                <div class="mode-card" id="absoluteMode">
+                    <div class="mode-icon">🎯</div>
+                    <div class="mode-title">Absolute Mode</div>
+                    <div class="mode-description">Guess exact percentages and statistics</div>
+                </div>
+                
+                <div class="mode-card" id="relativeMode">
+                    <div class="mode-icon">⚖️</div>
+                    <div class="mode-title">Relative Mode</div>
+                    <div class="mode-description">Coming Soon! Compare relative values</div>
+                    <div class="coming-soon">🚧 Coming Soon</div>
+                </div>
+            </div>
+
+            <div class="action-buttons" id="actionButtons" style="display: none;">
+                <button class="btn btn-large btn-primary" id="startGameButton">
+                    🚀 Start Playing
+                </button>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-card">
+                <h3>🎮 How to Play</h3>
+                <p>1. Choose a game mode<br>
+                2. Host creates a room or join with a code<br>
+                3. Guess statistics and earn points<br>
+                4. Have fun with friends!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fixed: Use classic script tags, NOT modules -->
+    <script src="common.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>
