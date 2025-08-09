@@ -1,0 +1,44 @@
+.<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>결과 - GRE Voca Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="common.css">
+  <link rel="stylesheet" href="results.css">
+</head>
+<body>
+  <div class="container">
+    <div class="center">
+      <div class="card">
+        <h1 class="h1">게임 결과</h1>
+        <p class="sub">수고하셨습니다!</p>
+
+        <div class="stats">
+          <div class="stat-row">
+            <span>점수</span>
+            <span id="finalScore">0</span>
+          </div>
+          <div class="stat-row">
+            <span>총 문제</span>
+            <span id="totalQuestions">0</span>
+          </div>
+        </div>
+
+        <div class="weak-section" id="weakWordsContainer">
+          <h3>취약 단어</h3>
+          <ul id="weakWordsList"></ul>
+        </div>
+
+        <div class="row">
+          <button class="btn" id="homeBtn">메인으로</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer">© 2025 GRE Voca Game</div>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="results.js"></script>
+</body>
+</html>

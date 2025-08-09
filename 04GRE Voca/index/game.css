@@ -1,0 +1,138 @@
+.top-bar {
+  display: flex;
+  justify-content: center; /* 가운데 정렬 */
+  margin-bottom: 12px;
+  font-weight: bold;
+}
+
+/* 진행도 바 스타일 */
+.progress-wrap { 
+  margin: 8px 0 16px; 
+  text-align: center;
+}
+
+.progress-info { 
+  font-size: 12px; 
+  color: var(--muted); 
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.progress {
+  width: 80%;
+  height: 12px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--primary), #8aa4ff);
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+/* 타이머 하단 배치 스타일 */
+.timer-bottom {
+  text-align: center;
+  margin: 12px 0;
+  padding: 8px;
+}
+
+/* 다음 버튼 활성/비활성 상태 스타일 개선 */
+#nextBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: var(--muted);
+  color: rgba(255,255,255,0.5);
+  /* 비활성 상태에서 호버 효과 비활성화 */
+  pointer-events: none;
+}
+
+#nextBtn:not(:disabled) {
+  opacity: 1;
+  cursor: pointer;
+  background: var(--primary);
+  color: white;
+  transition: opacity 0.3s ease, background 0.3s ease;
+}
+
+#nextBtn:not(:disabled):hover {
+  background: var(--primary-hover, #4a6cf7);
+}
+
+.question {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 20px 0;
+}
+
+.answers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.answer-btn {
+  padding: 14px;
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: center;
+  font-size: 14px;
+  transition: background 0.15s ease;
+}
+
+.answer-btn:active {
+  background: rgba(255,255,255,0.1);
+}
+
+/* 버튼 상태 스타일 개선 */
+.btn.secondary.correct { 
+    background: var(--accent); 
+    color: white; 
+    border-color: transparent; 
+}
+
+.btn.secondary.wrong { 
+    background: var(--danger); 
+    color: white; 
+    border-color: transparent; 
+}
+
+.btn.secondary:active {
+    filter: brightness(0.95);
+}
+
+/* 비활성화된 선택지 버튼 스타일 추가 */
+.btn.secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 정답/오답 표시 후에도 명확한 구분 */
+.btn.secondary.correct:disabled {
+  opacity: 1; /* 정답은 완전히 보이게 */
+}
+
+.btn.secondary.wrong:disabled {
+  opacity: 0.8; /* 오답은 약간 흐리게 */
+}
+
+.center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+#gameCard {
+  margin: auto;
+}

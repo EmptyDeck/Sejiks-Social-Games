@@ -1,0 +1,36 @@
+.stats {
+  margin: 20px 0;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-weight: 600;
+}
+
+.weak-section {
+  margin-top: 20px;
+}
+
+.weak-section h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.weak-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.weak-section li {
+  background: var(--card);
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  border-radius: var(--radius);
+  font-size: 14px;
+}

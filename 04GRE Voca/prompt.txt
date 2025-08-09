@@ -1,0 +1,51 @@
+I am trying to make a gre voca mobile web game. I will make it using html,js,css. 
+
+This is how it works. I have a list of voca as a js file like this :
+const vocabList = [
+  {
+    "word": "abandon",
+    "definition": "1. 포기하다  2. 방종"
+  },
+  {
+    "word": "abase",
+    "definition": "낮추다, 줄이다"
+  },
+  {
+    "word": "abash",
+    "definition": "무안,당황케하다"
+  },
+  {
+    "word": "abate",
+    "definition": "줄이다"
+
+You need to use that. (name is vocabList.js)
+
+This is how it works
+
+1.main page (it has one button saying "시작")
+2. second page it has two sliders in one bar
+
+So two round sliders on one bar, so that you can decide the starting number and the end number (the bar is vertical)
+And a toggle button of kor or eng(gussing the korean and guessing the enlgish word. english is on default)
+Also the number of question button(20 in default) (there is a + and - button and ++ and -- button ++ button adds 5 , + buttons adds one)
+and when you press start. it starts
+
+3. third page.
+The quetion is (in default) a english word is showed on top
+on the bottom there is 3x3 button with korean words. The total 9 korean words are random (from all vocab list)
+algorithm is like this. There are total 20 question(in default) but every time you guess the word wrong, that word is added in the question list. it shows up later randomly
+For example I have 20 questions. I guessed 3 right in a row. now the questions are 17, I guessed one wrong, now its 18 words. I guess it wrong again. now its 19 and so on
+This is for strengthening the memorization.
++Progress indicator
+
+Points : Every time you guess one right is +1. every time you guess it right in a row is +1 again. And when you guessed it wrong, the streak resets
+So I guessed one right : +1. I guessed one right again +2, I guessed one right agian +3. I guessed one wrong +1. I guessed one right +1
+And that added points are showed everytime you guess it wrong or right. But also note that the quetion that is added later (becuase I guessed it wrong does give + or - points. its neglected form the point system)
+4. forth page 
+It shows points and stats (whats is the most weak points and etc) button going home.
+
+Rules : 
+1.in every page, make js,css,html spepratly. 
+2. Make common js and css for the functions and styles that is being used in all pages.
+3. make the style pretty and touch interactive
+4. to prevent CORS error, use <script src= not <script type="module" src="
