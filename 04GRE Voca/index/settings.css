@@ -13,7 +13,7 @@
 
 /* 단어 범위 카드 스타일 */
 .range-card {
-  background: #f9f9f9;
+  background: #5e51ab0b;
   padding: 16px;
   border-radius: 8px;
   text-align: center;
@@ -55,7 +55,7 @@ input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 20px;
   height: 20px;
-  background: #007bff;
+  background: #2a45af;
   border-radius: 50%;
   cursor: pointer;
   margin-top: -6px;
@@ -79,7 +79,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 .toggle-option.active {
   background: var(--primary);
-  color: white;
+  color: rgba(255, 255, 255, 0.08);
 }
 
 /* 카운트 컨트롤 스타일 */
