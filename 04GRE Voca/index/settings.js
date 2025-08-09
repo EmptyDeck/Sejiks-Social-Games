@@ -169,6 +169,43 @@ startGameBtn.addEventListener('click', () => {
   localStorage.setItem('settings', JSON.stringify(settings));
   goToPage('game.html'); // common.js에 goToPage() 함수가 정의되어있다고 가정
 });
+document.addEventListener('DOMContentLoaded', () => {
+  const startRange = document.getElementById('startRange');
+  const endRange = document.getElementById('endRange');
+  const startLabel = document.getElementById('startLabel');
+  const endLabel = document.getElementById('endLabel');
 
+  // 초기 값 설정
+  startRange.value = 1; // 시작 값은 1
+  endRange.value = Math.round(endRange.value / 10) * 10 || 20; // 끝 값은 10의 배수
+  startLabel.textContent = startRange.value;
+  endLabel.textContent = endRange.value;
+
+  startRange.addEventListener('input', () => {
+    let value = parseInt(startRange.value);
+    // 시작 값이 1이거나 10의 배수로 조정
+    if (value !== 1) {
+      value = Math.round(value / 10) * 10;
+    }
+    startRange.value = value;
+    startLabel.textContent = value;
+    if (value > parseInt(endRange.value)) {
+      endRange.value = value;
+      endLabel.textContent = value;
+    }
+  });
+
+  endRange.addEventListener('input', () => {
+    let value = parseInt(endRange.value);
+    // 끝 값은 10의 배수로 조정, 최대 2505 허용
+    value = Math.min(Math.round(value / 10) * 10, 2505);
+    endRange.value = value;
+    endLabel.textContent = value;
+    if (value < parseInt(startRange.value)) {
+      startRange.value = value;
+      startLabel.textContent = value;
+    }
+  });
+});
 // 초기 설정 불러오기
 loadSettings();
