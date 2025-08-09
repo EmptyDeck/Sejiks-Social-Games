@@ -1,0 +1,245 @@
+Great. We’ll build the index page first with separate HTML, CSS, and JS, and use shared common.css/common.js.
+
+Files to create/edit
+- common/common.css
+- common/common.js
+- pages/index/index.html
+- pages/index/index.css
+- pages/index/index.js
+
+1) common/common.css (basic variables and reusable styles)
+Copy this minimal base; we can expand later.
+----------------
+:root {
+  --bg: #0f1220;
+  --fg: #e9ecf1;
+  --muted: #a9b0c3;
+  --primary: #6c8cff;
+  --primary-ink: #0b1024;
+  --card: #161a2e;
+  --accent: #22c55e;
+  --danger: #ef4444;
+  --shadow: 0 6px 20px rgba(0,0,0,0.25);
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: radial-gradient(1200px 800px at 70% -10%, #1a1f3d 0%, #0f1220 60%) fixed, var(--bg);
+  color: var(--fg);
+  font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Apple Color Emoji, Segoe UI Emoji;
+}
+
+.container {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 520px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.00));
+  border: 1px solid rgba(255,255,255,0.07);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+
+.h1 {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  margin: 0 0 6px;
+}
+
+.sub {
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+
+.btn {
+  appearance: none;
+  border: 0;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: white;
+  font-weight: 700;
+  font-size: 18px;
+  width: 100%;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(108,140,255,0.35), inset 0 -2px 0 rgba(0,0,0,0.1);
+  transition: transform 0.08s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.btn:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow: 0 6px 14px rgba(108,140,255,0.3);
+}
+
+.btn.secondary {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 16px 0 24px;
+}
+----------------
+
+2) common/common.js (utilities used by all pages)
+----------------
+export function vibrate(ms = 15) {
+  if (navigator.vibrate) try { navigator.vibrate(ms); } catch(_) {}
+}
+
+export const storage = {
+  get(key, def = null) {
+    try {
+      const v = localStorage.getItem(key);
+      return v === null ? def : JSON.parse(v);
+    } catch { return def; }
+  },
+  set(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+  }
+};
+
+export function goTo(relativePath) {
+  // Simple navigation helper
+  window.location.href = relativePath;
+}
+
+export function onReady(fn) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fn, { once: true });
+  } else {
+    fn();
+  }
+}
+----------------
+
+3) pages/index/index.html
+Link the shared and page-specific files, and provide a Start button to navigate to config.
+----------------
+
+
+  
+    
+    
+    GRE Voca Trainer
+    
+    
+  
+  
+    
+      
+        
+          GRE Voca Trainer
+          빠르게 시작해서 어휘를 강화하세요.
+          
+            시작
+            이어서 진행
+          
+        
+      
+      
+        버전 0.1 -  모바일 터치 최적화
+      
+    
+
+    
+    
+  
+
+----------------
+
+4) pages/index/index.css (page-specific tweaks)
+----------------
+.logo {
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.card .h1 {
+  background: linear-gradient(90deg, #b3c4ff, #ffffff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.sub {
+  font-size: 15px;
+}
+
+.btn.secondary {
+  backdrop-filter: blur(2px);
+}
+
+@media (min-width: 560px) {
+  .card { padding: 36px; }
+  .row { gap: 14px; }
+}
+----------------
+
+5) pages/index/index.js (wire buttons, simple resume logic)
+This sets up Start to go to the config page. “Continue” tries to resume a session if one exists; otherwise it behaves like Start.
+----------------
+import { goTo, vibrate, storage, onReady } from '../../common/common.js';
+
+onReady(() => {
+  const startBtn = document.getElementById('startBtn');
+  const continueBtn = document.getElementById('continueBtn');
+
+  startBtn.addEventListener('click', () => {
+    vibrate(12);
+    goTo('../config/config.html');
+  });
+
+  continueBtn.addEventListener('click', () => {
+    vibrate(8);
+    // If there is a saved in-progress session, resume quiz; else go to config
+    const inProgress = storage.get('session.inProgress', null);
+    if (inProgress && inProgress.page === 'quiz') {
+      goTo('../quiz/quiz.html');
+    } else if (inProgress && inProgress.page === 'config') {
+      goTo('../config/config.html');
+    } else {
+      goTo('../config/config.html');
+    }
+  });
+});
+----------------
+
+How to test now
+- Place your project folders as listed.
+- Open pages/index/index.html in a browser (or run a simple local server).
+- The Start button should navigate to pages/config/config.html (we’ll build that next).
+- The Continue button won’t do much yet until we implement saving session state from config/quiz pages.
+
+If you want, I can now create the config page files (HTML/CSS/JS + slider component) next.
