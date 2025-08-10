@@ -72,10 +72,11 @@
 }
 
 .answers {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
+
 
 .answer-btn {
   padding: 14px;
