@@ -99,7 +99,7 @@ function showQuestion() {
   const allDefs = vocabList.map(v => mode === 'eng' ? v.definition : v.word);
   const correctAnswer = mode === 'eng' ? currentQuestion.definition : currentQuestion.word;
 
-  const choices = buildChoices(correctAnswer, allDefs, 9);
+  const choices = buildChoices(correctAnswer, allDefs, 5);
   optionsContainer.innerHTML = '';
   choices.forEach(choice => {
     const btn = document.createElement('button');
