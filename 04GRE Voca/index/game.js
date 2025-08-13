@@ -26,6 +26,9 @@ let roundToken = 0;
 let totalCount = Math.min(numQuestions, maxQuestionsLimit);
 let answeredCount = 0;
 
+// 틀린 문제 관리용 맵 (문제 ID -> 남은 재시도 횟수)
+let wrongQuestionsMap = new Map();
+
 const gameCard = document.getElementById('gameCard');
 const optionsContainer = document.getElementById('answerGrid');
 const scoreDisplay = document.getElementById('scoreDisplay');
@@ -81,6 +84,12 @@ function stopTimer() {
 }
 
 function showQuestion() {
+  // 최대 문제 갯수 체크 - 답변한 문제 수가 최대치에 도달하면 게임 종료
+  if (answeredCount >= maxQuestionsLimit) {
+    endGame();
+    return;
+  }
+
   isLocked = false;
   isRevealed = false;
   
@@ -91,7 +100,11 @@ function showQuestion() {
 
   roundToken++;
   currentQuestion = queue.shift();
-  currentQuestion.isRetry = currentQuestion.isRetry || false; // 기본값 false
+  
+  // 문제 ID 생성 (고유 식별자)
+  if (!currentQuestion.questionId) {
+    currentQuestion.questionId = `${currentQuestion.word}_${currentQuestion.definition}`;
+  }
 
   gameCard.querySelector('.question').textContent =
     mode === 'eng' ? currentQuestion.word : currentQuestion.definition;
@@ -125,12 +138,23 @@ function handleAnswer(selected, correct, btn) {
   stopTimer();
   
   const isCorrect = selected === correct;
+  const questionId = currentQuestion.questionId;
   
   if (isCorrect) {
     btn.classList.add('correct');
 
-    // 재출제 문제가 아니라면 점수/연속 추가
-    if (!currentQuestion.isRetry) {
+    // 틀린 문제였다면 재시도 횟수 감소
+    if (wrongQuestionsMap.has(questionId)) {
+      const remainingRetries = wrongQuestionsMap.get(questionId) - 1;
+      if (remainingRetries <= 0) {
+        wrongQuestionsMap.delete(questionId); // 모든 재시도 완료
+      } else {
+        wrongQuestionsMap.set(questionId, remainingRetries); // 재시도 횟수 감소
+      }
+    }
+
+    // 재출제 문제가 아니거나 모든 재시도가 완료된 경우에만 점수/연속 추가
+    if (!wrongQuestionsMap.has(questionId) && !currentQuestion.isFirstWrong) {
       score += 1 + streak;
       streak++;
     }
@@ -171,15 +195,36 @@ function handleWrong(btn, correct) {
     }
   });
 
-  // 틀린 문제 재출제 (isRetry = true 설정)
-  if (queue.length + extraQueue.length < maxQuestionsLimit && currentQuestion) {
+  const questionId = currentQuestion.questionId;
+
+  // 틀린 문제 처리: 이미 틀린 적이 있는 문제는 재시도 횟수만 유지, 새로 틀린 문제는 2회 재시도 설정
+  if (!wrongQuestionsMap.has(questionId)) {
+    wrongQuestionsMap.set(questionId, 2); // 2번 다시 풀어야 함
+    currentQuestion.isFirstWrong = true;
+
+    // 최대 문제 수 한도 내에서만 재출제 문제 추가
     if (totalCount < maxQuestionsLimit) {
-      totalCount++;
+      const remainingSlots = maxQuestionsLimit - totalCount;
+      const questionsToAdd = Math.min(2, remainingSlots);
+      
+      for (let i = 0; i < questionsToAdd; i++) {
+        // 큐의 랜덤한 위치에 삽입
+        const retryQuestion = {
+          ...currentQuestion,
+          isRetry: true,
+          questionId: questionId
+        };
+        
+        if (queue.length === 0) {
+          queue.push(retryQuestion);
+        } else {
+          const randomIndex = Math.floor(Math.random() * (queue.length + 1));
+          queue.splice(randomIndex, 0, retryQuestion);
+        }
+      }
+      
+      totalCount += questionsToAdd;
     }
-    extraQueue.push({
-      ...currentQuestion,
-      isRetry: true
-    });
   }
   
   nextBtn.disabled = false;
@@ -191,7 +236,15 @@ nextBtn.addEventListener('click', () => {
   
   if (extraQueue.length > 0) {
     shuffleInPlace(extraQueue);
-    queue.push(...extraQueue);
+    // extraQueue의 문제들을 queue의 랜덤한 위치에 삽입
+    extraQueue.forEach(question => {
+      if (queue.length === 0) {
+        queue.push(question);
+      } else {
+        const randomIndex = Math.floor(Math.random() * (queue.length + 1));
+        queue.splice(randomIndex, 0, question);
+      }
+    });
     extraQueue = [];
   }
   answeredCount++;
