@@ -1,3 +1,4 @@
+// game.js
 let settings = JSON.parse(localStorage.getItem('settings') || '{}');
 let startIndex = settings.start || 1;
 let endIndex = settings.end || vocabList.length;
@@ -5,6 +6,9 @@ let mode = settings.lang || 'eng';
 let numQuestions = settings.count || 20;
 let timeLimit = settings.timeLimit || 3; // 초 단위
 let maxQuestionsLimit = settings.maxQuestions || 40;
+// 시작 시간 기록
+let gameStartTime = Date.now();
+
 
 let questions = vocabList.slice(startIndex - 1, endIndex);
 shuffleInPlace(questions);
@@ -252,10 +256,13 @@ nextBtn.addEventListener('click', () => {
   showQuestion();
 });
 
+// endGame() 함수 수정
 function endGame() {
+  const elapsedTime = Math.floor((Date.now() - gameStartTime) / 1000);
   localStorage.setItem('results', JSON.stringify({
     score,
-    total: totalCount
+    total: totalCount,
+    elapsedTime: elapsedTime
   }));
   goToPage('results.html');
 }

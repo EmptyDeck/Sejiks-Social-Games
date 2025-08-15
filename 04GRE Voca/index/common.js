@@ -1,3 +1,4 @@
+// common.js
 function vibrate(ms = 15) {
   if (navigator.vibrate) try { navigator.vibrate(ms); } catch(_) {}
 }

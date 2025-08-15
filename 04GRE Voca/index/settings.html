@@ -12,21 +12,21 @@
     <div class="center">
       <div class="card">
         <h1 class="h1">설정</h1>
-        <p class="sub">게임 시작 전 범위와 옵션을 설정하세요</p>
+        <p class="sub">게임 시작 전 범위와 옵션을 설정하세요. 숫자를 클릭해 직접 수정 가능</p>
 
         <!-- 단어 범위 섹션 -->
         <div class="section">
           <label class="label">단어 범위</label>
           <div class="range-card">
             <div class="range-slider-container">
-              <div class="range-label" id="startLabel">1</div>
+              <div class="range-label clickable-input" data-input="startRange" id="startLabel">1</div>
               <div class="slider-wrapper">
                 <input type="range" id="startRange" min="1" max="2505" value="1" step="10" />
               </div>
               <div class="slider-wrapper">
                 <input type="range" id="endRange" min="1" max="2505" value="20" step="10" />
               </div>
-              <div class="range-label" id="endLabel">20</div>
+              <div class="range-label clickable-input" data-input="endRange" id="endLabel">20</div>
             </div>
           </div>
         </div>
@@ -46,7 +46,7 @@
           <div class="count-controls" data-target="questionCount">
             <button class="btn secondary small" data-change="-5">--</button>
             <button class="btn secondary small" data-change="-1">-</button>
-            <span id="questionCount">20</span>
+            <span id="questionCount" class="clickable-input" data-type="questionCount">20</span>
             <button class="btn secondary small" data-change="1">+</button>
             <button class="btn secondary small" data-change="5">++</button>
           </div>
@@ -58,7 +58,7 @@
           <div class="count-controls" data-target="timeLimit">
             <button class="btn secondary small" data-change="-5">--</button>
             <button class="btn secondary small" data-change="-1">-</button>
-            <span id="timeLimit">3</span>
+            <span id="timeLimit" class="clickable-input" data-type="timeLimit">3</span>
             <button class="btn secondary small" data-change="1">+</button>
             <button class="btn secondary small" data-change="5">++</button>
           </div>
@@ -70,7 +70,7 @@
           <div class="count-controls" data-target="maxQuestionsLimit">
             <button class="btn secondary small" data-change="-10">--</button>
             <button class="btn secondary small" data-change="-1">-</button>
-            <span id="maxQuestionsLimit">40</span>
+            <span id="maxQuestionsLimit" class="clickable-input" data-type="maxQuestionsLimit">40</span>
             <button class="btn secondary small" data-change="1">+</button>
             <button class="btn secondary small" data-change="10">++</button>
           </div>
