@@ -1,3 +1,4 @@
+// settings.js
 // Elements
 const startRange = document.getElementById('startRange');
 const endRange = document.getElementById('endRange');
@@ -66,8 +67,8 @@ function updateRangeFromInputs() {
   let s = parseInt(startRange.value);
   let e = parseInt(endRange.value);
   
-  if (s > e) s = e;
-  if (e < s) e = s;
+  // if (s > e) s = e;
+  // if (e < s) e = s;
 
   s = clamp(s, MIN_WORD, MAX_WORD);
   e = clamp(e, MIN_WORD, MAX_WORD);
@@ -130,17 +131,17 @@ document.querySelectorAll('.count-controls').forEach(group => {
 // Vertical dual range events
 startRange.addEventListener('input', () => {
   // lower thumb은 항상 upper 이하
-  if (parseInt(startRange.value) > parseInt(endRange.value)) {
-    startRange.value = endRange.value;
-  }
+  // if (parseInt(startRange.value) > parseInt(endRange.value)) {
+  //   startRange.value = endRange.value;
+  // }
   updateRangeFromInputs();
 });
 
 endRange.addEventListener('input', () => {
   // upper thumb은 항상 lower 이상
-  if (parseInt(endRange.value) < parseInt(startRange.value)) {
-    endRange.value = startRange.value;
-  }
+  // if (parseInt(endRange.value) < parseInt(startRange.value)) {
+  //   endRange.value = startRange.value;
+  // }
   updateRangeFromInputs();
 });
 
@@ -207,5 +208,81 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// 직접 입력 기능
+document.querySelectorAll('.clickable-input').forEach(element => {
+  element.addEventListener('click', function() {
+    if (this.classList.contains('editing')) return;
+    
+    const currentValue = this.textContent;
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'direct-input';
+    input.value = currentValue;
+    
+    // 범위 설정
+    const type = this.dataset.type || this.dataset.input;
+    if (type === 'startRange' || type === 'endRange') {
+      input.min = 1;
+      input.max = 2505;
+    } else if (type === 'questionCount') {
+      input.min = 1;
+      input.max = 2505;
+    } else if (type === 'timeLimit') {
+      input.min = 1;
+      input.max = 60;
+    } else if (type === 'maxQuestionsLimit') {
+      input.min = 10;
+      input.max = 100;
+    }
+    
+    this.classList.add('editing');
+    const originalText = this.textContent;
+    this.textContent = '';
+    this.appendChild(input);
+    input.focus();
+    input.select();
+    
+    const finishEditing = () => {
+      const newValue = parseInt(input.value);
+      this.classList.remove('editing');
+      this.removeChild(input);
+      
+      if (isNaN(newValue) || newValue < parseInt(input.min) || newValue > parseInt(input.max)) {
+        this.textContent = originalText;
+        return;
+      }
+      
+      this.textContent = newValue;
+      
+      // 값 업데이트
+      if (type === 'startRange') {
+        startRange.value = newValue;
+        updateRangeFromInputs();
+      } else if (type === 'endRange') {
+        endRange.value = newValue;
+        updateRangeFromInputs();
+      } else if (type === 'questionCount') {
+        questionCount = newValue;
+      } else if (type === 'timeLimit') {
+        timeLimitVal = newValue;
+      } else if (type === 'maxQuestionsLimit') {
+        maxQuestionsVal = newValue;
+      }
+    };
+    
+    input.addEventListener('blur', finishEditing);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        finishEditing();
+      } else if (e.key === 'Escape') {
+        this.classList.remove('editing');
+        this.removeChild(input);
+        this.textContent = originalText;
+      }
+    });
+  });
+});
+
 // 초기 설정 불러오기
 loadSettings();
