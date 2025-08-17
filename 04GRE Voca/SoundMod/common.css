@@ -1,0 +1,101 @@
+
+:root {
+  --bg: #0f1220;
+  --fg: #e9ecf1;
+  --muted: #a9b0c3;
+  --primary: #6c8cff;
+  --primary-ink: #0b1024;
+  --card: #161a2e;
+  --accent: #22c55e;
+  --danger: #ef4444;
+  --shadow: 0 6px 20px rgba(0,0,0,0.25);
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: radial-gradient(1200px 800px at 70% -10%, #1a1f3d 0%, #0f1220 60%) fixed, var(--bg);
+  color: var(--fg);
+  font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Apple Color Emoji, Segoe UI Emoji;
+}
+
+.container {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 520px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.00));
+  border: 1px solid rgba(255,255,255,0.07);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+
+.h1 {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  margin: 0 0 6px;
+}
+
+.sub {
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+
+.btn {
+  appearance: none;
+  border: 0;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: white;
+  font-weight: 700;
+  font-size: 18px;
+  width: 100%;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(108,140,255,0.35), inset 0 -2px 0 rgba(0,0,0,0.1);
+  transition: transform 0.08s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.btn:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow: 0 6px 14px rgba(108,140,255,0.3);
+}
+
+.btn.secondary {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 16px 0 24px;
+}
