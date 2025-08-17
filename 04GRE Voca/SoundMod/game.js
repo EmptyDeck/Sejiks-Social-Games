@@ -74,23 +74,46 @@ window.addEventListener("DOMContentLoaded", () => {
 // ================== TTS ==================
 function loadVoices() {
   const voices = speechSynthesis.getVoices();
-  // voice choice saved in localStorage
+  console.log("Available voices:", voices);
+
   const savedVoice = localStorage.getItem("selectedVoice");
   if (savedVoice) {
-    selectedVoice = voices.find(v => v.name === savedVoice) || voices[0];
-  } else {
-    selectedVoice = voices[0]; // fallback
+    selectedVoice = voices.find(v => v.name === savedVoice);
+    console.log("Saved voice:", savedVoice, "Found:", selectedVoice);
+  }
+  
+  if (!selectedVoice) {
+    selectedVoice = voices[0];
+    console.log("Fallback voice:", selectedVoice);
   }
 }
+
 
 speechSynthesis.onvoiceschanged = loadVoices;
 
 function speak(text) {
-  if (!text || !selectedVoice) return;
+  console.log("Trying to speak:", text);
+  if (!text) {
+    console.log("No text to speak");
+    return;
+  }
+  if (!selectedVoice) {
+    console.log("No voice selected");
+    return;
+  }
+
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.voice = selectedVoice;
+  utterance.onstart = () => console.log("TTS started");
+  utterance.onend = () => console.log("TTS ended");
+  utterance.onerror = (e) => console.error("TTS error:", e);
+
   speechSynthesis.speak(utterance);
 }
+console.log("speechSynthesis supported?", 'speechSynthesis' in window);
+console.log("User Agent:", navigator.userAgent);
+console.log("Protocol:", location.protocol);
+
 // ================== GAME FLOW ==================
 function loadGameState() {
   const progress = loadProgress();
