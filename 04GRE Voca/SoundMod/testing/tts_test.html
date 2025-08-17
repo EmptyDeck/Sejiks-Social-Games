@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text-to-Speech Example with Voice Selection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    select, button {
+      margin-top: 10px;
+      padding: 8px 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Text-to-Speech with Voice Selection</h2>
+
+  <textarea id="text" placeholder="Type something here..."></textarea>
+  <br>
+
+  <label for="voices">Choose a voice: </label>
+  <select id="voices"></select>
+  <br>
+
+  <button onclick="speakText()">Speak</button>
+  <button onclick="stopSpeech()">Stop</button>
+
+  <script>
+    let synth = window.speechSynthesis;
+    let utterance;
+    let voices = [];
+
+    const voiceSelect = document.getElementById("voices");
+
+    // Load the list of voices
+    function populateVoices() {
+      voices = synth.getVoices();
+      voiceSelect.innerHTML = ""; // clear existing list
+
+      voices.forEach((voice, index) => {
+        let option = document.createElement("option");
+        option.textContent = `${voice.name} (${voice.lang})`;
+        option.value = index;
+        voiceSelect.appendChild(option);
+      });
+    }
+
+    // Some browsers load voices asynchronously
+    populateVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = populateVoices;
+    }
+
+    function speakText() {
+      let text = document.getElementById("text").value;
+      if (!text) return;
+
+      if (synth.speaking) {
+        synth.cancel(); // stop any current speech
+      }
+
+      utterance = new SpeechSynthesisUtterance(text);
+      let selectedIndex = voiceSelect.value;
+
+      if (voices[selectedIndex]) {
+        utterance.voice = voices[selectedIndex];
+      }
+
+      utterance.pitch = 1; // default pitch
+      utterance.rate = 1;  // default speed
+
+      synth.speak(utterance);
+    }
+
+    function stopSpeech() {
+      if (synth.speaking) {
+        synth.cancel();
+      }
+    }
+  </script>
+</body>
+</html>

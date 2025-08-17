@@ -10,11 +10,13 @@ const maxQuestionsLimitEl = document.getElementById('maxQuestionsLimit');
 const langToggle = document.getElementById('langToggle');
 const startGameBtn = document.getElementById('startGameBtn');
 const rangeHighlight = document.getElementById('rangeHighlight');
+const unlimitedModeToggle = document.getElementById('unlimitedModeToggle');
 
 let langMode = 'eng';
 let questionCount = 20;
 let timeLimitVal = 3;       // 1 ~ 60
-let maxQuestionsVal = 40;   // 10 ~ 100
+let maxQuestionsVal = 40;   // 10 ~ 100 or unlimited
+let isUnlimitedMode = false;
 
 const MIN_WORD = 1;
 const MAX_WORD = 2505;
@@ -45,10 +47,20 @@ function loadSettings() {
   timeLimitVal = clamp(settings.timeLimit ?? 3, 1, 60);
   timeLimitEl.textContent = timeLimitVal;
 
-  maxQuestionsVal = clamp(settings.maxQuestions ?? 40, 10, 100);
-  maxQuestionsLimitEl.textContent = maxQuestionsVal;
+  // Load unlimited mode setting
+  isUnlimitedMode = settings.unlimitedMode ?? false;
+  if (isUnlimitedMode) {
+    maxQuestionsVal = 9999999999999999; // Use -1 to represent unlimited
+    maxQuestionsLimitEl.textContent = '무제한';
+    unlimitedModeToggle.classList.add('active');
+  } else {
+    maxQuestionsVal = clamp(settings.maxQuestions ?? 40, 10, 100);
+    maxQuestionsLimitEl.textContent = maxQuestionsVal;
+    unlimitedModeToggle.classList.remove('active');
+  }
 
   updateVerticalHighlight();
+  updateMaxQuestionsControls();
 }
 
 function clamp(v, min, max) {
@@ -66,9 +78,6 @@ function normalizeRange(s, e) {
 function updateRangeFromInputs() {
   let s = parseInt(startRange.value);
   let e = parseInt(endRange.value);
-  
-  // if (s > e) s = e;
-  // if (e < s) e = s;
 
   s = clamp(s, MIN_WORD, MAX_WORD);
   e = clamp(e, MIN_WORD, MAX_WORD);
@@ -95,6 +104,19 @@ function updateVerticalHighlight() {
   rangeHighlight.style.height = `${Math.max(2, bottomPercent - topPercent)}%`;
 }
 
+function updateMaxQuestionsControls() {
+  const maxQuestionsControls = document.querySelector('[data-target="maxQuestionsLimit"]');
+  if (maxQuestionsControls) {
+    if (isUnlimitedMode) {
+      maxQuestionsControls.style.opacity = '0.5';
+      maxQuestionsControls.style.pointerEvents = 'none';
+    } else {
+      maxQuestionsControls.style.opacity = '1';
+      maxQuestionsControls.style.pointerEvents = 'auto';
+    }
+  }
+}
+
 // Toggle language
 langToggle.querySelectorAll('.toggle-option').forEach(opt => {
   opt.addEventListener('click', () => {
@@ -104,6 +126,23 @@ langToggle.querySelectorAll('.toggle-option').forEach(opt => {
   });
 });
 
+// Unlimited mode toggle
+if (unlimitedModeToggle) {
+  unlimitedModeToggle.addEventListener('click', () => {
+    isUnlimitedMode = !isUnlimitedMode;
+    unlimitedModeToggle.classList.toggle('active', isUnlimitedMode);
+    
+    if (isUnlimitedMode) {
+      maxQuestionsLimitEl.textContent = '무제한';
+    } else {
+      maxQuestionsVal = 40; // Reset to default
+      maxQuestionsLimitEl.textContent = maxQuestionsVal;
+    }
+    
+    updateMaxQuestionsControls();
+  });
+}
+
 // Count controls (공용 핸들러)
 document.querySelectorAll('.count-controls').forEach(group => {
   const targetId = group.dataset.target;
@@ -111,7 +150,10 @@ document.querySelectorAll('.count-controls').forEach(group => {
 
   group.querySelectorAll('.btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      // vibrate(); // common.js에 vibrate() 함수가 정의되어있다고 가정
+      if (isUnlimitedMode && targetId === 'maxQuestionsLimit') {
+        return; // Don't allow changes in unlimited mode
+      }
+      
       const delta = parseInt(btn.dataset.change);
       
       if (targetId === 'questionCount') {
@@ -129,30 +171,14 @@ document.querySelectorAll('.count-controls').forEach(group => {
 });
 
 // Vertical dual range events
-startRange.addEventListener('input', () => {
-  // lower thumb은 항상 upper 이하
-  // if (parseInt(startRange.value) > parseInt(endRange.value)) {
-  //   startRange.value = endRange.value;
-  // }
-  updateRangeFromInputs();
-});
-
-endRange.addEventListener('input', () => {
-  // upper thumb은 항상 lower 이상
-  // if (parseInt(endRange.value) < parseInt(startRange.value)) {
-  //   endRange.value = startRange.value;
-  // }
-  updateRangeFromInputs();
-});
+startRange.addEventListener('input', updateRangeFromInputs);
+endRange.addEventListener('input', updateRangeFromInputs);
 
 // Save settings and validate
 startGameBtn.addEventListener('click', () => {
-  // vibrate(); // common.js에 vibrate() 함수가 정의되어있다고 가정
   let startVal = parseInt(startRange.value);
   let endVal = parseInt(endRange.value);
 
-  // 이 검증 로직은 input 이벤트를 통해 이미 처리되었으므로 불필요할 수 있지만,
-  // 혹시 모를 상황을 대비해 유지
   if (startVal > endVal) {
     alert('최소 시작 번호는 최대 끝 번호보다 클 수 없습니다.');
     return;
@@ -164,49 +190,47 @@ startGameBtn.addEventListener('click', () => {
     lang: langMode,
     count: clamp(questionCount, 1, MAX_WORD),
     timeLimit: clamp(timeLimitVal, 1, 60),
-    maxQuestions: clamp(maxQuestionsVal, 10, 100),
+    maxQuestions: isUnlimitedMode ? 99999 : clamp(maxQuestionsVal, 10, 100),
+    unlimitedMode: isUnlimitedMode,
   };
 
   localStorage.setItem('settings', JSON.stringify(settings));
-  goToPage('game.html'); // common.js에 goToPage() 함수가 정의되어있다고 가정
+  goToPage('game.html');
 });
+
+// Initialize range values on DOM load
 document.addEventListener('DOMContentLoaded', () => {
-  const startRange = document.getElementById('startRange');
-  const endRange = document.getElementById('endRange');
-  const startLabel = document.getElementById('startLabel');
-  const endLabel = document.getElementById('endLabel');
-
   // 초기 값 설정
-  startRange.value = 1; // 시작 값은 1
-  endRange.value = Math.round(endRange.value / 10) * 10 || 20; // 끝 값은 10의 배수
-  startLabel.textContent = startRange.value;
-  endLabel.textContent = endRange.value;
+  if (startRange && endRange) {
+    startRange.value = 1;
+    endRange.value = Math.round(endRange.value / 10) * 10 || 20;
+    startLabel.textContent = startRange.value;
+    endLabel.textContent = endRange.value;
 
-  startRange.addEventListener('input', () => {
-    let value = parseInt(startRange.value);
-    // 시작 값이 1이거나 10의 배수로 조정
-    if (value !== 1) {
-      value = Math.round(value / 10) * 10;
-    }
-    startRange.value = value;
-    startLabel.textContent = value;
-    if (value > parseInt(endRange.value)) {
-      endRange.value = value;
-      endLabel.textContent = value;
-    }
-  });
-
-  endRange.addEventListener('input', () => {
-    let value = parseInt(endRange.value);
-    // 끝 값은 10의 배수로 조정, 최대 2505 허용
-    value = Math.min(Math.round(value / 10) * 10, 2505);
-    endRange.value = value;
-    endLabel.textContent = value;
-    if (value < parseInt(startRange.value)) {
+    startRange.addEventListener('input', () => {
+      let value = parseInt(startRange.value);
+      if (value !== 1) {
+        value = Math.round(value / 10) * 10;
+      }
       startRange.value = value;
       startLabel.textContent = value;
-    }
-  });
+      if (value > parseInt(endRange.value)) {
+        endRange.value = value;
+        endLabel.textContent = value;
+      }
+    });
+
+    endRange.addEventListener('input', () => {
+      let value = parseInt(endRange.value);
+      value = Math.min(Math.round(value / 10) * 10, 2505);
+      endRange.value = value;
+      endLabel.textContent = value;
+      if (value < parseInt(startRange.value)) {
+        startRange.value = value;
+        startLabel.textContent = value;
+      }
+    });
+  }
 });
 
 // 직접 입력 기능
@@ -214,14 +238,17 @@ document.querySelectorAll('.clickable-input').forEach(element => {
   element.addEventListener('click', function() {
     if (this.classList.contains('editing')) return;
     
-    const currentValue = this.textContent;
+    // Don't allow editing max questions in unlimited mode
+    const type = this.dataset.type || this.dataset.input;
+    if (isUnlimitedMode && type === 'maxQuestionsLimit') return;
+    
+    const currentValue = this.textContent === '무제한' ? '40' : this.textContent;
     const input = document.createElement('input');
     input.type = 'number';
     input.className = 'direct-input';
     input.value = currentValue;
     
     // 범위 설정
-    const type = this.dataset.type || this.dataset.input;
     if (type === 'startRange' || type === 'endRange') {
       input.min = 1;
       input.max = 2505;
@@ -283,21 +310,19 @@ document.querySelectorAll('.clickable-input').forEach(element => {
     });
   });
 });
-// settings.js
 
+// TTS Voice Selection
 document.addEventListener("DOMContentLoaded", () => {
   const voiceSelect = document.getElementById("voiceSelect");
+  if (!voiceSelect) return;
 
-  // Load previously saved voice choice
-  const savedVoice = localStorage.getItem("ttsVoice");
+  const savedVoice = localStorage.getItem("selectedVoice");
 
   function populateVoices() {
     const voices = speechSynthesis.getVoices();
-
-    // Clear existing options
     voiceSelect.innerHTML = "";
 
-    voices.forEach((voice, i) => {
+    voices.forEach((voice) => {
       const option = document.createElement("option");
       option.value = voice.name;
       option.textContent = `${voice.name} (${voice.lang})`;
@@ -308,19 +333,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Populate voice list
   populateVoices();
-
-  // Sometimes voices load asynchronously
   if (speechSynthesis.onvoiceschanged !== undefined) {
     speechSynthesis.onvoiceschanged = populateVoices;
   }
 
-  // Save selection
   voiceSelect.addEventListener("change", () => {
-    localStorage.setItem("ttsVoice", voiceSelect.value);
+    localStorage.setItem("selectedVoice", voiceSelect.value);
   });
 });
 
-// 초기 설정 불러오기
+// Load initial settings
 loadSettings();
