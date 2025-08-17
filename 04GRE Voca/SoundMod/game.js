@@ -71,7 +71,7 @@ function speak(text) {
     try {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.voice = selectedVoice;
-      utterance.rate = 0.8;
+      utterance.rate = 1;
       utterance.pitch = 1;
       utterance.volume = 1;
       speechSynthesis.speak(utterance);
@@ -112,39 +112,52 @@ function updateWordProgress(word, isCorrect) {
   if (isCorrect) {
     progress.correctStreak++;
     
-    // Check if word is mastered
     if (progress.correctStreak >= progress.requiredStreak && !progress.mastered) {
       progress.mastered = true;
       mastered.add(getWordId(word));
       wordsMastered++;
-      return true; // Word was just mastered
+      console.log(`Word mastered: ${getWordId(word)}, wordsMastered: ${wordsMastered}`);
+      return true;
     }
   } else {
-    // Reset streak and increase wrong count
     progress.correctStreak = 0;
     progress.wrongCount++;
     progress.requiredStreak = 2 + progress.wrongCount;
-    
-    // Add retry questions to queue
-    addRetryToQueue(word);
+    console.log(`Wrong answer: ${getWordId(word)}, wrongCount: ${progress.wrongCount}, requiredStreak: ${progress.requiredStreak}`);
   }
   
-  return false; // Word not mastered
+  return false;
 }
 
-function addRetryToQueue(word) {
-  // Insert at random position in queue
-  if (queue.length === 0) {
-    queue.push(word);
-  } else {
-    const randomIndex = Math.floor(Math.random() * (queue.length + 1));
-    queue.splice(randomIndex, 0, word);
+function manageQueue(word) {
+  const progress = wordProgress.get(getWordId(word));
+  if (progress.mastered) return;
+  
+  const wordId = getWordId(word);
+  queue = queue.filter(w => getWordId(w) !== wordId);
+  
+  const toAdd = progress.requiredStreak - progress.correctStreak;
+  if (toAdd <= 0) return;
+  
+  for (let i = 0; i < toAdd; i++) {
+    if (queue.length === 0) {
+      queue.push(word);
+    } else {
+      const randomIndex = Math.floor(Math.random() * (queue.length + 1));
+      queue.splice(randomIndex, 0, word);
+    }
   }
+  
+  console.log(`Managed queue for ${wordId}: added ${toAdd}, queue.length=${queue.length}`);
 }
 
 // ================== GAME LOGIC ==================
 function initializeGame() {
-  // Shuffle available words and add initial questions
+  wordProgress.clear();
+  mastered.clear();
+  wordsMastered = 0;
+  totalQuestionsAnswered = 0;
+  
   shuffleInPlace(availableWords);
   
   for (let i = 0; i < Math.min(numQuestions, availableWords.length); i++) {
@@ -163,7 +176,14 @@ function updateProgressBar() {
   
   if (progressBar) progressBar.style.width = `${combinedPct}%`;
   if (progressLabel) {
-    progressLabel.textContent = `Q: ${totalQuestionsAnswered}/${maxQuestionsLimit} | W: ${wordsMastered}/${totalWords}`;
+    let currentStreakText = '';
+    if (currentQuestion) {
+      const progress = wordProgress.get(getWordId(currentQuestion));
+      if (progress) {
+        currentStreakText = ` | Current ${progress.correctStreak}/${progress.requiredStreak}`;
+      }
+    }
+    progressLabel.textContent = `Q: ${totalQuestionsAnswered}/${maxQuestionsLimit} | W: ${wordsMastered}/${totalWords}${currentStreakText}`;
   }
 }
 
@@ -227,7 +247,6 @@ function showGameQuestion() {
     setTimeout(() => speak(questionText), 300);
   }
 
-  // Build answer choices
   const allAnswers = availableWords.map(v => mode === 'eng' ? v.definition : v.word);
   const correctAnswer = mode === 'eng' ? currentQuestion.definition : currentQuestion.word;
   const choices = buildChoices(correctAnswer, allAnswers, 5);
@@ -251,22 +270,23 @@ function showGameQuestion() {
   startTimer(roundToken);
 }
 
+// ================== FIXED PART ==================
 function handleAnswer(selected, correct, btn) {
   if (isLocked || isRevealed) return;
   
+  console.log(`handleAnswer called: selected=${selected}, correct=${correct}`);
   isLocked = true;
   stopTimer();
-  totalQuestionsAnswered++;
   
   const isCorrect = selected === correct;
-  const wasJustMastered = updateWordProgress(currentQuestion, isCorrect);
   
   if (isCorrect) {
+    const wasJustMastered = updateWordProgress(currentQuestion, true);
     btn.classList.add('correct');
     score++;
+    totalQuestionsAnswered++;
     
     if (wasJustMastered) {
-      // Show mastery feedback
       btn.textContent += " ✓";
     }
 
@@ -274,6 +294,10 @@ function handleAnswer(selected, correct, btn) {
       [...optionsContainer.children].forEach(b => { 
         if (b !== btn) b.disabled = true; 
       });
+    }
+
+    if (!wasJustMastered) {
+      manageQueue(currentQuestion);
     }
 
     updateProgressBar();
@@ -284,6 +308,7 @@ function handleAnswer(selected, correct, btn) {
     }, 800);
 
   } else {
+    // ❌ 오답일 경우에는 여기서 updateWordProgress, manageQueue 호출하지 않음
     handleWrong(btn, correct);
   }
 }
@@ -291,6 +316,7 @@ function handleAnswer(selected, correct, btn) {
 function handleWrong(btn, correct) {
   if (isLocked && isRevealed) return;
   
+  console.log(`handleWrong called: correct=${correct}, btn=${!!btn}`);
   stopTimer();
   isLocked = true;
   isRevealed = true;
@@ -310,8 +336,12 @@ function handleWrong(btn, correct) {
     });
   }
 
-  // Update progress is handled in updateWordProgress
-  updateWordProgress(currentQuestion, false);
+  // ✅ 오답은 여기서만 처리
+  if (currentQuestion) {
+    totalQuestionsAnswered++;
+    updateWordProgress(currentQuestion, false);
+    manageQueue(currentQuestion);
+  }
   
   if (nextBtn) nextBtn.disabled = false;
   updateProgressBar();
