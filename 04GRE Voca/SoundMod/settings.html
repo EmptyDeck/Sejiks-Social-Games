@@ -67,63 +67,28 @@
         <!-- 최대 문제 개수 섹션 -->
         <div class="section">
           <label class="label">최대 문제 개수</label>
-          <div class="count-controls" data-target="maxQuestionsLimit">
-            <button class="btn secondary small" data-change="-10">--</button>
-            <button class="btn secondary small" data-change="-1">-</button>
-            <span id="maxQuestionsLimit" class="clickable-input" data-type="maxQuestionsLimit">40</span>
-            <button class="btn secondary small" data-change="1">+</button>
-            <button class="btn secondary small" data-change="10">++</button>
+
+          <!-- Unlimited Mode Toggle -->
+          <div id="unlimitedModeToggle" class="toggle">
+            <div class="toggle-option active" data-value="off">일반</div>
+            <div class="toggle-option" data-value="on">무제한</div>
           </div>
-        </div>
+
+  <!-- Max Questions Controls -->
+  <div class="count-controls" data-target="maxQuestionsLimit">
+    <button class="btn secondary small" data-change="-10">--</button>
+    <button class="btn secondary small" data-change="-1">-</button>
+    <span id="maxQuestionsLimit" class="clickable-input" data-type="maxQuestionsLimit">40</span>
+    <button class="btn secondary small" data-change="1">+</button>
+    <button class="btn secondary small" data-change="10">++</button>
+  </div>
+</div>
+
         
           <div>
             <label for="voiceSelect">TTS Voice:</label>
             <select id="voiceSelect"></select>
           </div>
-
-           <!-- Progress Controls -->
-  <section>
-    <h2>Game Progress</h2>
-    <button id="openProgressBtn">Open Progress</button>
-    <button id="saveProgressBtn">Save</button>
-    <button id="saveAsProgressBtn">Save As…</button>
-  </section>
-
-  <script type="module">
-    import { openProgressFile, saveProgress, saveProgressAs } from "./progress.js";
-
-    // Example: current game state object
-    let currentGameState = {
-      score: 0,
-      streak: 0,
-      completed: []
-    };
-
-    // Open progress file
-    document.getElementById("openProgressBtn").onclick = async () => {
-      const data = await openProgressFile();
-      if (data) {
-        console.log("Loaded progress:", data);
-        currentGameState = data; // replace current state
-        alert("Progress loaded!");
-      }
-    };
-
-    // Save (overwrite)
-    document.getElementById("saveProgressBtn").onclick = async () => {
-      await saveProgress(currentGameState);
-      alert("Progress saved!");
-    };
-
-    // Save As (new file)
-    document.getElementById("saveAsProgressBtn").onclick = async () => {
-      await saveProgressAs(currentGameState);
-      alert("Progress saved as new file!");
-    };
-  </script>
-
-
-
 
         <!-- 게임 시작 버튼 -->
         <div class="row">
