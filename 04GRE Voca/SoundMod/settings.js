@@ -1,4 +1,3 @@
-// settings.js
 // Elements
 const startRange = document.getElementById('startRange');
 const endRange = document.getElementById('endRange');
@@ -10,12 +9,13 @@ const maxQuestionsLimitEl = document.getElementById('maxQuestionsLimit');
 const langToggle = document.getElementById('langToggle');
 const startGameBtn = document.getElementById('startGameBtn');
 const rangeHighlight = document.getElementById('rangeHighlight');
-const unlimitedModeToggle = document.getElementById('unlimitedModeToggle');
+const unlimitedToggle = document.getElementById('unlimitedToggle');
+const maxQuestionsControls = document.getElementById('maxQuestionsControls');
 
 let langMode = 'eng';
 let questionCount = 20;
 let timeLimitVal = 3;       // 1 ~ 60
-let maxQuestionsVal = 40;   // 10 ~ 100 or unlimited
+let maxQuestionsVal = 40;   // 10 ~ 100
 let isUnlimitedMode = false;
 
 const MIN_WORD = 1;
@@ -50,17 +50,17 @@ function loadSettings() {
   // Load unlimited mode setting
   isUnlimitedMode = settings.unlimitedMode ?? false;
   if (isUnlimitedMode) {
-    maxQuestionsVal = 9999999999999999; // Use -1 to represent unlimited
+    unlimitedToggle.checked = true;
     maxQuestionsLimitEl.textContent = '무제한';
-    unlimitedModeToggle.classList.add('active');
+    maxQuestionsControls.style.display = 'none';
   } else {
+    unlimitedToggle.checked = false;
     maxQuestionsVal = clamp(settings.maxQuestions ?? 40, 10, 100);
     maxQuestionsLimitEl.textContent = maxQuestionsVal;
-    unlimitedModeToggle.classList.remove('active');
+    maxQuestionsControls.style.display = 'flex';
   }
 
   updateVerticalHighlight();
-  updateMaxQuestionsControls();
 }
 
 function clamp(v, min, max) {
@@ -91,29 +91,16 @@ function updateRangeFromInputs() {
 }
 
 function updateVerticalHighlight() {
-  // 계산: 위가 max, 아래가 min이 되도록 수직 방향 비율
   const total = MAX_WORD - MIN_WORD;
   const s = parseInt(startRange.value);
   const e = parseInt(endRange.value);
 
   const topPercent = ((MAX_WORD - e) / total) * 100;
   const bottomPercent = ((MAX_WORD - s) / total) * 100;
-  
-  // rangeHighlight를 부모(.vertical-range) 기준 절대 위치
-  rangeHighlight.style.top = `${topPercent}%`;
-  rangeHighlight.style.height = `${Math.max(2, bottomPercent - topPercent)}%`;
-}
 
-function updateMaxQuestionsControls() {
-  const maxQuestionsControls = document.querySelector('[data-target="maxQuestionsLimit"]');
-  if (maxQuestionsControls) {
-    if (isUnlimitedMode) {
-      maxQuestionsControls.style.opacity = '0.5';
-      maxQuestionsControls.style.pointerEvents = 'none';
-    } else {
-      maxQuestionsControls.style.opacity = '1';
-      maxQuestionsControls.style.pointerEvents = 'auto';
-    }
+  if (rangeHighlight) {
+    rangeHighlight.style.top = `${topPercent}%`;
+    rangeHighlight.style.height = `${Math.max(2, bottomPercent - topPercent)}%`;
   }
 }
 
@@ -126,20 +113,18 @@ langToggle.querySelectorAll('.toggle-option').forEach(opt => {
   });
 });
 
-// Unlimited mode toggle
-if (unlimitedModeToggle) {
-  unlimitedModeToggle.addEventListener('click', () => {
-    isUnlimitedMode = !isUnlimitedMode;
-    unlimitedModeToggle.classList.toggle('active', isUnlimitedMode);
-    
+// Unlimited toggle switch
+if (unlimitedToggle) {
+  unlimitedToggle.addEventListener('change', () => {
+    isUnlimitedMode = unlimitedToggle.checked;
     if (isUnlimitedMode) {
       maxQuestionsLimitEl.textContent = '무제한';
+      maxQuestionsControls.style.display = 'none';
     } else {
-      maxQuestionsVal = 40; // Reset to default
+      maxQuestionsVal = 40;
       maxQuestionsLimitEl.textContent = maxQuestionsVal;
+      maxQuestionsControls.style.display = 'flex';
     }
-    
-    updateMaxQuestionsControls();
   });
 }
 
@@ -151,11 +136,10 @@ document.querySelectorAll('.count-controls').forEach(group => {
   group.querySelectorAll('.btn').forEach(btn => {
     btn.addEventListener('click', () => {
       if (isUnlimitedMode && targetId === 'maxQuestionsLimit') {
-        return; // Don't allow changes in unlimited mode
+        return;
       }
-      
       const delta = parseInt(btn.dataset.change);
-      
+
       if (targetId === 'questionCount') {
         questionCount = clamp(questionCount + delta, 1, MAX_WORD);
         valueEl.textContent = questionCount;
@@ -198,57 +182,20 @@ startGameBtn.addEventListener('click', () => {
   goToPage('game.html');
 });
 
-// Initialize range values on DOM load
-document.addEventListener('DOMContentLoaded', () => {
-  // 초기 값 설정
-  if (startRange && endRange) {
-    startRange.value = 1;
-    endRange.value = Math.round(endRange.value / 10) * 10 || 20;
-    startLabel.textContent = startRange.value;
-    endLabel.textContent = endRange.value;
-
-    startRange.addEventListener('input', () => {
-      let value = parseInt(startRange.value);
-      if (value !== 1) {
-        value = Math.round(value / 10) * 10;
-      }
-      startRange.value = value;
-      startLabel.textContent = value;
-      if (value > parseInt(endRange.value)) {
-        endRange.value = value;
-        endLabel.textContent = value;
-      }
-    });
-
-    endRange.addEventListener('input', () => {
-      let value = parseInt(endRange.value);
-      value = Math.min(Math.round(value / 10) * 10, 2505);
-      endRange.value = value;
-      endLabel.textContent = value;
-      if (value < parseInt(startRange.value)) {
-        startRange.value = value;
-        startLabel.textContent = value;
-      }
-    });
-  }
-});
-
 // 직접 입력 기능
 document.querySelectorAll('.clickable-input').forEach(element => {
   element.addEventListener('click', function() {
     if (this.classList.contains('editing')) return;
-    
-    // Don't allow editing max questions in unlimited mode
+
     const type = this.dataset.type || this.dataset.input;
     if (isUnlimitedMode && type === 'maxQuestionsLimit') return;
-    
+
     const currentValue = this.textContent === '무제한' ? '40' : this.textContent;
     const input = document.createElement('input');
     input.type = 'number';
     input.className = 'direct-input';
     input.value = currentValue;
-    
-    // 범위 설정
+
     if (type === 'startRange' || type === 'endRange') {
       input.min = 1;
       input.max = 2505;
@@ -262,27 +209,26 @@ document.querySelectorAll('.clickable-input').forEach(element => {
       input.min = 10;
       input.max = 100;
     }
-    
+
     this.classList.add('editing');
     const originalText = this.textContent;
     this.textContent = '';
     this.appendChild(input);
     input.focus();
     input.select();
-    
+
     const finishEditing = () => {
       const newValue = parseInt(input.value);
       this.classList.remove('editing');
       this.removeChild(input);
-      
+
       if (isNaN(newValue) || newValue < parseInt(input.min) || newValue > parseInt(input.max)) {
         this.textContent = originalText;
         return;
       }
-      
+
       this.textContent = newValue;
-      
-      // 값 업데이트
+
       if (type === 'startRange') {
         startRange.value = newValue;
         updateRangeFromInputs();
@@ -297,7 +243,7 @@ document.querySelectorAll('.clickable-input').forEach(element => {
         maxQuestionsVal = newValue;
       }
     };
-    
+
     input.addEventListener('blur', finishEditing);
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
@@ -311,7 +257,7 @@ document.querySelectorAll('.clickable-input').forEach(element => {
   });
 });
 
-// TTS Voice Selection
+// TTS Voice Selection (영어 US/UK만)
 document.addEventListener("DOMContentLoaded", () => {
   const voiceSelect = document.getElementById("voiceSelect");
   if (!voiceSelect) return;
@@ -319,7 +265,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const savedVoice = localStorage.getItem("selectedVoice");
 
   function populateVoices() {
-    const voices = speechSynthesis.getVoices();
+    const voices = speechSynthesis.getVoices().filter(
+      v => v.lang.startsWith("en-US") || v.lang.startsWith("en-GB")
+    );
     voiceSelect.innerHTML = "";
 
     voices.forEach((voice) => {
