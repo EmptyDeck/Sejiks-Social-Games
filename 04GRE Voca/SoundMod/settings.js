@@ -17,6 +17,7 @@ let questionCount = 20;
 let timeLimitVal = 3;       // 1 ~ 60
 let maxQuestionsVal = 40;   // 10 ~ 100
 let isUnlimitedMode = false;
+let isTTSEnabled = true;
 
 const MIN_WORD = 1;
 const MAX_WORD = 2505;
@@ -59,9 +60,29 @@ function loadSettings() {
     maxQuestionsLimitEl.textContent = maxQuestionsVal;
     maxQuestionsControls.style.display = 'flex';
   }
+  // Load TTS toggle
+isTTSEnabled = settings.ttsEnabled ?? true;   // default ON
+const ttsToggle = document.getElementById("ttsToggle");
+if (ttsToggle) {
+  ttsToggle.checked = isTTSEnabled;
+}
+
 
   updateVerticalHighlight();
 }
+
+const ttsToggle = document.getElementById("ttsToggle");
+if (ttsToggle) {
+  ttsToggle.addEventListener("change", () => {
+    isTTSEnabled = ttsToggle.checked;
+    // Persist immediately so game.js can read it
+    const settings = JSON.parse(localStorage.getItem("settings") || "{}");
+    settings.ttsEnabled = isTTSEnabled;
+    localStorage.setItem("settings", JSON.stringify(settings));
+  });
+}
+
+
 
 function clamp(v, min, max) {
   return Math.min(max, Math.max(min, v));
@@ -176,6 +197,7 @@ startGameBtn.addEventListener('click', () => {
     timeLimit: clamp(timeLimitVal, 1, 60),
     maxQuestions: isUnlimitedMode ? 99999 : clamp(maxQuestionsVal, 10, 100),
     unlimitedMode: isUnlimitedMode,
+    ttsEnabled: isTTSEnabled,
   };
 
   localStorage.setItem('settings', JSON.stringify(settings));

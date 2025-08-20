@@ -59,6 +59,9 @@ if (speechSynthesis.onvoiceschanged !== undefined) {
 }
 
 function speak(text) {
+  // 🚫 Skip if TTS is disabled in settings
+  if (!settings.ttsEnabled) return;
+
   if (!text || typeof text !== 'string') return;
   if (speechSynthesis.speaking) speechSynthesis.cancel();
 
@@ -86,6 +89,7 @@ function speak(text) {
     trySpeak();
   }
 }
+
 
 // ================== WORD PROGRESS MANAGEMENT ==================
 function getWordId(word) {
