@@ -27,7 +27,10 @@ document.getElementById('questionCount').textContent = settings.count || '-';
 document.getElementById('timeLimit').textContent = 
   settings.timeLimit ? `${settings.timeLimit}초` : '-';
 
-document.getElementById('maxQuestions').textContent = settings.maxQuestions || '-';
+document.getElementById('maxQuestions').textContent = 
+  settings.unlimitedMode ? '무제한' : (settings.maxQuestions || '-');
+
+
 
 // Weak words placeholder (future expansion)
 const weakContainer = document.getElementById('weakWordsContainer');
