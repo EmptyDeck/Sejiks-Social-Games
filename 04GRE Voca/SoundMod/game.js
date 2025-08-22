@@ -1,4 +1,4 @@
-// game.js - Advanced Retry System
+// game.js - last update : add wrong voca + Advanced retry tracking
 let settings = JSON.parse(localStorage.getItem('settings') || '{}');
 let startIndex = settings.start || 1;
 let endIndex = settings.end || vocabList.length;
