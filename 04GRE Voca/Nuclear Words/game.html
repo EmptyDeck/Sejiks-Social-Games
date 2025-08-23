@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>GRE Voca Game - Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="common.css">
+  <link rel="stylesheet" href="game.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 상단 점수 바 -->
+    <div class="top-bar">
+      <div id="scoreDisplay">점수: 0</div>
+    </div>
+
+    <!-- 진행도 바 -->
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span id="progressLabel">0 / 0</span>
+      </div>
+      <div class="progress">
+        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- 게임 카드 (화면 중앙) -->
+    <div class="center">
+      <div class="card" id="gameCard">
+        <div class="question" id="questionText">단어</div>
+        
+        <!-- 답변 선택지 그리드 -->
+        <!-- 답변 선택지 -->
+        <div class="answers" id="answerGrid" role="group" aria-label="정답 선택지">
+          <button class="answer-btn">선택지 1</button>
+          <button class="answer-btn">선택지 2</button>
+          <button class="answer-btn">선택지 3</button>
+          <button class="answer-btn">선택지 4</button>
+          <button class="answer-btn">선택지 5</button>
+        </div>
+
+
+        <!-- 다음 버튼 컨테이너 -->
+        <div id="nextBtnContainer" style="margin-top:16px;">
+          <button class="btn" id="nextBtn" disabled aria-label="다음 문제로">다음</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 타이머 표시 -->
+    <div class="timer-bottom">
+      <div id="timerDisplay" style="font-size:14px; color:var(--muted);" aria-live="polite"></div>
+    </div>
+    <!-- <div class="progress-controls" style="margin-top:16px;">
+      <button id="openProgressBtn">Load Progress</button>
+      <button id="saveProgressBtn">Save Progress</button>
+      <button id="saveAsProgressBtn">Save Progress As</button>
+    </div> -->
+
+    <div class="footer">© 2025 GRE Voca Game</div>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="vocabList.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
