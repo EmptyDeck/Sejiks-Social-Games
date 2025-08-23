@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Settings - GRE Voca Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="common.css" />
+  <link rel="stylesheet" href="settings.css" />
+
+</head>
+<body>
+  <div class="container">
+    <div class="center">
+      <div class="card">
+        <h1 class="h1">설정</h1>
+        <p class="sub">게임 시작 전 범위와 옵션을 설정하세요. 숫자를 클릭해 직접 수정 가능</p>
+
+        <!-- 단어 범위 섹션 -->
+        <div class="section">
+          <label class="label">단어 범위</label>
+          <div class="range-card">
+            <div class="range-slider-container">
+              <div class="range-label clickable-input" data-input="startRange" id="startLabel">1</div>
+              <div class="slider-wrapper">
+                <input type="range" id="startRange" min="1" max="2505" value="1" step="10" />
+              </div>
+              <div class="slider-wrapper">
+                <input type="range" id="endRange" min="1" max="2505" value="20" step="10" />
+              </div>
+              <div class="range-label clickable-input" data-input="endRange" id="endLabel">20</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 언어 모드 섹션 -->
+        <div class="section">
+          <label class="label">언어 모드</label>
+          <div class="toggle" id="langToggle">
+            <div class="toggle-option active" data-value="eng">ENG</div>
+            <div class="toggle-option" data-value="kor">KOR</div>
+          </div>
+        </div>
+
+        <!-- 문제 수 섹션 -->
+        <div class="section">
+          <label class="label">문제 수</label>
+          <div class="count-controls" data-target="questionCount">
+            <button class="btn secondary small" data-change="-5">--</button>
+            <button class="btn secondary small" data-change="-1">-</button>
+            <span id="questionCount" class="clickable-input" data-type="questionCount">20</span>
+            <button class="btn secondary small" data-change="1">+</button>
+            <button class="btn secondary small" data-change="5">++</button>
+          </div>
+        </div>
+
+        <!-- 한 문제당 시간 섹션 -->
+        <div class="section">
+          <label class="label">한 문제당 시간 (초)</label>
+          <div class="count-controls" data-target="timeLimit">
+            <button class="btn secondary small" data-change="-5">--</button>
+            <button class="btn secondary small" data-change="-1">-</button>
+            <span id="timeLimit" class="clickable-input" data-type="timeLimit">3</span>
+            <button class="btn secondary small" data-change="1">+</button>
+            <button class="btn secondary small" data-change="5">++</button>
+          </div>
+        </div>
+<!-- 최대 문제 개수 섹션 -->
+<div class="section max-questions-section">
+  <div class="label-with-toggle">
+    <label class="label">최대 문제 개수    <!-- 무제한 토글 -->
+    <label class="switch">
+      <input type="checkbox" id="unlimitedToggle">
+      <span class="slider"></span>
+    </label>
+    <span class="toggle-text">무제한</span></label>
+
+  </div>
+
+  <!-- Max Questions Controls (무제한 OFF일 때만 보이게) -->
+  <div class="count-controls" id="maxQuestionsControls" data-target="maxQuestionsLimit">
+    <button class="btn secondary small" data-change="-10">--</button>
+    <button class="btn secondary small" data-change="-1">-</button>
+    <span id="maxQuestionsLimit" class="clickable-input" data-type="maxQuestionsLimit">40</span>
+    <button class="btn secondary small" data-change="1">+</button>
+    <button class="btn secondary small" data-change="10">++</button>
+  </div>
+</div>
+
+
+<!-- TTS Voice 선택 + On/Off -->
+<div class="section tts-section">
+  <label class="label">음성 읽기 설정</label>
+  <div class="tts-controls">
+    <select id="voiceSelect"></select>
+    <!-- TTS 토글 -->
+    <label class="switch">
+      <input type="checkbox" id="ttsToggle">
+      <span class="slider"></span>
+    </label>
+    <span class="toggle-text">소리 내기</span>
+  </div>
+</div>
+
+
+
+        <!-- 게임 시작 버튼 -->
+        <div class="row">
+          <button class="btn" id="startGameBtn">게임 시작</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer">© 2025 GRE Voca Game</div>
+  </div>
+  <script src="common.js"></script>
+  <script src="vocabList.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>
