@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>단어 타이핑 연습 (TTS)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1>단어 타이핑 연습</h1>
+      <p class="sub">브라우저 내장 TTS로 단어를 들려주고, 들은 대로 입력하세요.</p>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <h2>① 단어 목록 입력</h2>
+        <p class="hint">각 줄에 하나씩 입력하세요. (문장/공백/작은따옴표 모두 허용)</p>
+        <textarea id="wordInput" placeholder="예시&#10;correlation&#10;performance&#10;phenomenon&#10;bachelors&#10;can’t&#10;privileged&#10;world&#10;living beings&#10;accomplishments&#10;&#10;around&#10;&#10;accomplishment&#10;&#10;Of course" spellcheck="false"></textarea>
+        <div class="row">
+          <button id="btnStart" class="primary">시작</button>
+          <button id="btnReset">초기화</button>
+        </div>
+        <div class="row small">
+          <label><input type="checkbox" id="showDebug" /> 디버그: 현재 단어 표시</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>② 음성 설정 (TTS)</h2>
+        <div class="row">
+          <label for="voiceSelect">목소리</label>
+          <select id="voiceSelect"></select>
+        </div>
+        <div class="row">
+          <label for="rateRange">속도 <span id="rateVal">1.0</span></label>
+          <input id="rateRange" type="range" min="0.5" max="1.5" step="0.1" value="1.0" />
+        </div>
+        <div class="row">
+          <label for="pitchRange">피치 <span id="pitchVal">1.0</span></label>
+          <input id="pitchRange" type="range" min="0.5" max="1.5" step="0.1" value="1.0" />
+        </div>
+        <div class="row">
+          <button id="btnReplay">다시 듣기 (Esc)</button>
+        </div>
+      </div>
+
+      <div class="card play">
+        <h2>③ 연습</h2>
+        <div class="status">
+          <div>남은 단어: <strong id="remainingCount">0</strong></div>
+          <div>진행도</div>
+          <div class="bar"><div id="progressBar"></div></div>
+        </div>
+
+        <div id="debugWord" class="debug hidden"></div>
+
+        <form id="answerForm" autocomplete="off">
+          <input id="answerInput" type="text" placeholder="여기에 들은 단어/문장을 입력하고 Enter" disabled />
+        </form>
+
+        <div id="feedback" class="feedback"></div>
+        <div class="tips">
+          • Enter: 정답 제출 · Esc: 다시 듣기 · 입력창은 자동 포커스
+        </div>
+        <div>
+          <h3>완료된 단어</h3>
+          <ul id="doneList" class="done"></ul>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <small>모든 파일은 같은 폴더에 두세요 (index.html, styles.css, app.js).</small>
+    </footer>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
