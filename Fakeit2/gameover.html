@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>라이어 헌트 — 게임 종료</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ── End header ── */
+    .game-end-header {
+      text-align: center;
+      padding: 36px 20px 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+    }
+
+    .end-icon {
+      font-size: 52px;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .end-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .game-info {
+      font-size: 13px;
+      color: var(--text-3);
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .player-role-info {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+    }
+    .role-label { font-size: 12px; color: var(--text-3); font-weight: 600; letter-spacing: 0.04em; }
+    .role-value { font-size: 14px; font-weight: 700; color: var(--gold); }
+
+    /* ── Normal player summary ── */
+    .normal-player-section {}
+    .game-summary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 20px;
+    }
+    .summary-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .summary-content { display: flex; flex-direction: column; gap: 10px; }
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+    }
+    .summary-label { font-size: 14px; color: var(--text-2); }
+    .summary-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Faker section ── */
+    .faker-section {}
+
+    .end-message {
+      background: var(--red-glow);
+      border: 1px solid var(--red-dim);
+      border-radius: var(--r-xl);
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .message-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 30px;
+      letter-spacing: 0.04em;
+      color: var(--red);
+      margin-bottom: 8px;
+    }
+    .message-text {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+
+    .score-calculation {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 20px;
+    }
+    .score-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .score-rules {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .rule-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+    }
+    .rule-text { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+
+    /* final-scores — JS injects items here */
+    .final-scores {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* ── Action buttons ── */
+    .action-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .action-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: var(--r-xl);
+      font-size: 16px;
+      font-weight: 700;
+      transition: transform 0.15s, box-shadow 0.2s;
+      touch-action: manipulation;
+    }
+    .action-btn:active { transform: scale(0.97); }
+
+    .next-game-btn { background: var(--gold); color: var(--bg); }
+    .next-game-btn:hover { box-shadow: 0 0 28px var(--gold-glow); }
+
+    .new-game-btn { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+    .home-btn     { background: var(--surface);   color: var(--text-2); border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="game-end-header">
+      <div class="end-icon">🏆</div>
+      <h1 class="end-title">게임 종료</h1>
+      <div class="game-info" id="gameInfo">게임 1 종료</div>
+      <div class="player-role-info">
+        <span class="role-label">역할</span>
+        <span class="role-value" id="playerRole">확인 중...</span>
+        <span id="playerNumber" style="display:none;"></span>
+      </div>
+    </div>
+
+    <!-- Normal player summary -->
+    <div class="normal-player-section" id="normalPlayerSection">
+      <div class="game-summary">
+        <div class="summary-title">게임 요약</div>
+        <div class="summary-content">
+          <div class="summary-item">
+            <span class="summary-label">참여 라운드</span>
+            <span class="summary-value" id="totalRounds">1</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">총 투표 수</span>
+            <span class="summary-value" id="totalVotes">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Faker section -->
+    <div class="faker-section" id="fakerSection" style="display:none;">
+      <div class="end-message faker-message">
+        <h2 class="message-title">라이어 게임 완료!</h2>
+        <p class="message-text">당신은 라이어였습니다.<br>얼마나 잘 속였는지 확인해보세요!</p>
+      </div>
+      <div class="score-calculation">
+        <div class="score-title">최종 점수 계산</div>
+        <div class="score-rules">
+          <div class="rule-item">
+            <span class="rule-text">투표한 플레이어에게 1점씩 추가됩니다</span>
+          </div>
+          <div class="rule-item">
+            <span class="rule-text">투표하지 않은 플레이어 수만큼 라이어에게 점수가 추가됩니다</span>
+          </div>
+        </div>
+        <div class="final-scores" id="finalScores"></div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-section">
+      <button class="action-btn next-game-btn" id="nextGameBtn">다음 게임</button>
+      <button class="action-btn new-game-btn" id="newGameBtn">새 게임 시작</button>
+      <button class="action-btn home-btn" id="homeBtn">홈으로 돌아가기</button>
+    </div>
+  </div>
+
+  <script src="toast.js"></script>
+  <script src="gameData.js"></script>
+  <script src="questions.js"></script>
+  <script src="gameover.js"></script>
+</body>
+</html>

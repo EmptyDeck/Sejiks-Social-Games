@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>라이어 헌트 — 호스트</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    body { padding-top: 0; }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px 16px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* back btn override */
+    .back-btn { position: static; margin: 12px 0 0; display: inline-flex; width: auto; }
+
+    /* ── Game header ── */
+    .game-header {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .game-info { display: flex; align-items: center; gap: 10px; }
+    .game-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 0.04em;
+      color: var(--text-2);
+    }
+    .round-info {
+      display: flex;
+      align-items: baseline;
+      gap: 3px;
+      font-size: 13px;
+      color: var(--text-3);
+    }
+    .round-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      color: var(--text);
+      letter-spacing: 0.04em;
+    }
+    .round-total { font-size: 13px; color: var(--text-3); }
+
+    .host-info { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+    .invite-code {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+    }
+    .host-role {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Role card ── */
+    .role-section {}
+    .role-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .role-icon { font-size: 28px; flex-shrink: 0; }
+    .role-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .role-description { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+    .role-card.liar   { border-color: var(--red-dim); background: var(--red-glow); }
+    .role-card.normal { border-color: var(--blue-dim); background: var(--blue-glow); }
+
+    /* ── Question section ── */
+    .question-section {}
+    .question-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .question-mode {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      background: var(--surface-2);
+      border-radius: 6px;
+      color: var(--text-3);
+    }
+    .question-title { font-size: 13px; color: var(--text-3); font-weight: 600; }
+
+    .question-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 20px;
+    }
+    .question-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.5;
+      text-wrap: pretty;
+    }
+
+    /* ── Answer input ── */
+    .input-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .submit-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .text-input-container {}
+    .answer-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .answer-input:focus { border-color: var(--border-2); }
+    .answer-input::placeholder { color: var(--text-3); }
+
+    .drawing-container { display: flex; flex-direction: column; gap: 12px; }
+    .drawing-container canvas {
+      width: 100%;
+      height: auto;
+      border-radius: var(--r);
+      background: #fff;
+      display: block;
+      touch-action: none;
+    }
+    .drawing-controls { display: flex; flex-direction: column; gap: 10px; }
+    .drawing-tools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .brush-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-2);
+      flex: 1;
+    }
+
+    .submit-section { display: flex; flex-direction: column; gap: 8px; }
+
+    .submit-btn, .edit-btn, .answer-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--r-lg);
+      font-size: 15px;
+      font-weight: 700;
+      transition: transform 0.15s, box-shadow 0.2s;
+      touch-action: manipulation;
+    }
+    .submit-btn:active, .edit-btn:active, .answer-btn:active { transform: scale(0.97); }
+
+    .submit-btn  { background: var(--gold); color: var(--bg); }
+    .submit-btn:hover { box-shadow: 0 0 24px var(--gold-glow); }
+    .edit-btn    { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
+    .answer-btn  { background: var(--red); color: #fff; }
+    .answer-btn:hover { box-shadow: 0 0 24px var(--red-glow); }
+
+    /* ── Score section ── */
+    .score-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 16px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    /* ── Game controls ── */
+    .game-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .control-row { display: flex; gap: 10px; }
+    .control-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: var(--r-lg);
+      font-size: 15px;
+      font-weight: 700;
+      transition: transform 0.15s, opacity 0.15s;
+      touch-action: manipulation;
+    }
+    .control-btn:active { transform: scale(0.97); }
+    .next-btn { background: var(--gold); color: var(--bg); }
+
+    /* ── Host-only controls ── */
+    .control-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 16px;
+    }
+
+    .host-control-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .host-btn {
+      padding: 12px 10px;
+      border-radius: var(--r);
+      font-size: 13px;
+      font-weight: 700;
+      transition: opacity 0.15s, transform 0.15s;
+      touch-action: manipulation;
+    }
+    .host-btn:active { transform: scale(0.97); }
+
+    .give-up-btn { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); grid-column: 1; }
+    .reveal-btn  { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); grid-column: 2; }
+    .end-btn     { background: var(--red); color: #fff; grid-column: 1 / -1; }
+
+    /* player info list in modal */
+    .player-info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    .final-scores {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="host.html" class="back-btn">← 뒤로</a>
+
+    <!-- Game header -->
+    <div class="game-header">
+      <div class="game-info">
+        <div class="game-number">게임 <span id="gameNumber">1</span></div>
+        <div class="round-info">
+          <span>라운드</span>
+          <span class="round-number" id="roundNumber">1</span>
+          <span class="round-total" id="roundTotal">/4</span>
+        </div>
+      </div>
+      <div class="host-info">
+        <div class="invite-code"><span id="gameCode">----</span></div>
+        <div>
+          <span class="host-role" id="hostRole">확인 중...</span>
+          <span id="playerNumber" style="display:none;"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Role card -->
+    <div class="role-section">
+      <div class="role-card" id="roleCard">
+        <div class="role-icon" id="roleIcon">👑</div>
+        <div>
+          <div class="role-name" id="roleName">호스트</div>
+          <div class="role-description">게임을 진행하고 관리합니다</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Question -->
+    <div class="question-section" id="questionSection">
+      <div class="question-header">
+        <span class="question-mode" id="questionMode">입력형</span>
+        <span class="question-title">현재 질문</span>
+      </div>
+      <div class="question-content">
+        <div class="question-text" id="hostQuestion">질문을 불러오는 중...</div>
+      </div>
+    </div>
+
+    <!-- Answer input -->
+    <div class="input-section" id="answerInputSection">
+      <div class="submit-title">답변 제출</div>
+
+      <div class="text-input-container" id="textInputContainer">
+        <input type="text" id="answerInput" placeholder="답변을 입력하세요..." class="answer-input">
+      </div>
+
+      <div class="drawing-container" id="drawingContainer" style="display:none;">
+        <canvas id="drawingCanvas" width="350" height="250"></canvas>
+        <div class="drawing-controls">
+          <div class="color-palette">
+            <button class="color-btn active" data-color="#000000" style="background:#000000;"></button>
+            <button class="color-btn" data-color="#ef4444" style="background:#ef4444;"></button>
+            <button class="color-btn" data-color="#22c55e" style="background:#22c55e;"></button>
+            <button class="color-btn" data-color="#3b82f6" style="background:#3b82f6;"></button>
+            <button class="color-btn" data-color="#eab308" style="background:#eab308;"></button>
+            <button class="color-btn" data-color="#a855f7" style="background:#a855f7;"></button>
+            <button class="color-btn" data-color="#06b6d4" style="background:#06b6d4;"></button>
+            <button class="color-btn" data-color="#ffffff" style="background:#ffffff;border:1px solid #555;"></button>
+          </div>
+          <div class="drawing-tools">
+            <button id="clearCanvas" class="tool-btn">지우기</button>
+            <label class="brush-control">
+              <span>굵기</span>
+              <input type="range" id="brushSize" min="1" max="20" value="3" class="brush-slider">
+              <span id="brushSizeValue">3</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="submit-section">
+        <button id="submitBtn" class="submit-btn">답변 제출</button>
+        <button id="editAnswerBtn" class="edit-btn" style="display:none;">답변 수정</button>
+        <button id="goToAnswerBtn" class="answer-btn" style="display:none;">답변 공개하기</button>
+      </div>
+
+      <div class="answer-status" id="answerStatus" style="display:none;">
+        <div class="status-header">답변 제출 완료</div>
+        <div class="submitted-content">
+          <div id="submittedText" class="submitted-text"></div>
+          <canvas id="submittedDrawing" style="display:none; border-radius:8px; max-width:100%;" width="300" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scores -->
+    <div class="score-section">
+      <div class="section-title">점수 관리</div>
+      <div class="score-grid" id="scoreGrid"></div>
+    </div>
+
+    <!-- Round/game controls -->
+    <div class="game-controls">
+      <div class="control-row">
+        <button id="next-round-btn" class="control-btn next-btn" style="display:none;">다음 라운드</button>
+        <button id="next-game-btn" class="control-btn next-btn" style="display:none;">다음 게임</button>
+      </div>
+    </div>
+
+    <!-- Host-only controls -->
+    <div class="control-section">
+      <div class="section-title">호스트 전용</div>
+      <div class="host-control-grid">
+        <button id="faker-give-up-btn" class="host-btn give-up-btn">라이어 포기</button>
+        <button id="reveal-faker-btn" class="host-btn reveal-btn">라이어 공개</button>
+        <button id="end-game-btn" class="host-btn end-btn">게임 종료</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main question reveal (for liar) -->
+  <div id="mainQuestionReveal" class="main-question-reveal" style="display:none;">
+    <div class="reveal-overlay">
+      <div class="reveal-content">
+        <p class="reveal-title">실제 질문 (라이어 전용)</p>
+        <div class="reveal-question" id="mainQuestionText">질문이 로드 중입니다...</div>
+        <div class="reveal-timer" id="revealTimer">5</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div id="giveUpModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <h3 class="modal-title">라이어 포기</h3>
+      <p class="modal-message">라이어가 포기했나요?</p>
+      <div class="modal-buttons">
+        <button id="cancelGiveUp" class="modal-btn cancel-btn">취소</button>
+        <button id="confirmGiveUp" class="modal-btn confirm-btn">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="nextRoundModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <h3 class="modal-title">다음 라운드</h3>
+      <p class="modal-message">다음 라운드로 진행하시겠습니까?</p>
+      <div class="modal-buttons">
+        <button id="cancelNextRound" class="modal-btn cancel-btn">취소</button>
+        <button id="confirmNextRound" class="modal-btn confirm-btn">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="nextGameModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <h3 class="modal-title">다음 게임</h3>
+      <p class="modal-message">다음 게임으로 진행하시겠습니까?</p>
+      <div class="modal-buttons">
+        <button id="cancelNextGame" class="modal-btn cancel-btn">취소</button>
+        <button id="confirmNextGame" class="modal-btn confirm-btn">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="revealModal1" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <h3 class="modal-title">라이어 공개 (1차)</h3>
+      <p class="modal-message">정말로 라이어를 공개하시겠습니까?<br><strong style="color:var(--red);">비상용 기능입니다!</strong></p>
+      <div class="modal-buttons">
+        <button id="cancelReveal1" class="modal-btn cancel-btn">취소</button>
+        <button id="confirmReveal1" class="modal-btn confirm-btn">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="revealModal2" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <h3 class="modal-title">라이어 공개 (최종)</h3>
+      <p class="modal-message">정말 확실하신가요?<br><strong style="color:var(--red);">게임이 망가질 수 있습니다!</strong></p>
+      <div class="modal-buttons">
+        <button id="cancelReveal2" class="modal-btn cancel-btn">취소</button>
+        <button id="confirmReveal2" class="modal-btn danger-btn">공개하기</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="playerInfoModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content large-modal">
+      <h3 class="modal-title">모든 플레이어 정보</h3>
+      <div id="playerInfoList" class="player-info-list"></div>
+      <div class="modal-buttons">
+        <button id="closePlayerInfo" class="modal-btn confirm-btn">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="endGameModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <h3 class="modal-title">게임 종료</h3>
+      <div class="final-scores" id="finalScores"></div>
+      <div class="modal-buttons">
+        <button class="modal-btn gameover-btn" onclick="endGame()">확실하시나요?</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="endGameConfirmModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <h3 class="modal-title">게임 종료</h3>
+      <p class="modal-message">정말로 게임을 종료하시겠습니까?</p>
+      <div class="modal-buttons">
+        <button id="cancelEndGame" class="modal-btn cancel-btn">취소</button>
+        <button id="confirmEndGame" class="modal-btn danger-btn">종료</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="toast.js"></script>
+  <script src="gameData.js"></script>
+  <script src="questions.js"></script>
+  <script src="host-game.js"></script>
+</body>
+</html>

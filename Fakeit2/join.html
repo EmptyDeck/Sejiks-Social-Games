@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>라이어 헌트 — 방 참여</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    body { padding-top: 56px; }
+
+    .page { gap: 0; }
+
+    .page-header {
+      width: 100%;
+      margin-bottom: 24px;
+    }
+    .page-header h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .page-header p { font-size: 14px; color: var(--text-2); }
+
+    /* ── Nickname ── */
+    .field-block {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .nickname-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 14px 16px;
+    }
+
+    .nickname-value {
+      flex: 1;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .nickname-reroll-btn {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: var(--r);
+      font-size: 20px;
+      flex-shrink: 0;
+      color: var(--text);
+      transition: background 0.15s, transform 0.2s;
+    }
+    .nickname-reroll-btn:hover { background: var(--surface-3); transform: rotate(30deg); }
+
+    /* ── Wheel picker ── */
+    .player-selector-section {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .wheel-picker-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 16px;
+    }
+
+    .wheel-picker-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Drum-roll wheel — taller, wider */
+    .wheel-picker {
+      width: 100px;
+      height: 150px;
+      overflow: hidden;
+      position: relative;
+      cursor: grab;
+      flex-shrink: 0;
+      border-radius: var(--r);
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
+    .wheel-picker:active { cursor: grabbing; }
+
+    .wheel-highlight {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 50px;
+      transform: translateY(-50%);
+      border-top: 1px solid var(--gold);
+      border-bottom: 1px solid var(--gold);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .wheel-items {
+      display: flex;
+      flex-direction: column;
+      padding-top: 50px;
+    }
+
+    .wheel-item {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 30px;
+      letter-spacing: 0.04em;
+      color: var(--text-3);
+      position: relative;
+      z-index: 1;
+      user-select: none;
+      transition: color 0.1s;
+    }
+    .wheel-item.selected { color: var(--gold); }
+
+    .wheel-fade-top,
+    .wheel-fade-bottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 56px;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .wheel-fade-top {
+      top: 0;
+      background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
+    }
+    .wheel-fade-bottom {
+      bottom: 0;
+      background: linear-gradient(to top, var(--bg) 0%, transparent 100%);
+    }
+
+    .selected-player {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .selected-text {
+      font-size: 11px;
+      color: var(--text-3);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .selected-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 64px;
+      color: var(--gold);
+      line-height: 1;
+      letter-spacing: 0.04em;
+    }
+    .wheel-hint {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 8px;
+    }
+
+    /* ── Code inputs ── */
+    .code-input-section {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .code-input-container {
+      display: flex;
+      gap: 8px;
+    }
+
+    .code-input {
+      flex: 1;
+      min-width: 0;
+      aspect-ratio: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      text-align: center;
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(20px, 6vw, 28px);
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      caret-color: var(--gold);
+      padding: 0;
+    }
+    .code-input::placeholder { color: var(--text-3); }
+    .code-input:focus { border-color: var(--border-2); background: var(--surface-2); }
+    .code-input.filled { border-color: var(--gold); color: var(--gold); }
+    .code-input.error { border-color: var(--red); animation: shake 0.3s; }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    /* ── Game info ── */
+    .game-info {
+      display: none;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--blue);
+      border-radius: var(--r);
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: 8px;
+    }
+    .info-item {
+      margin-top: 4px;
+      color: var(--text-2);
+    }
+
+    /* ── Messages ── */
+    .error-message {
+      display: none;
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--red-glow);
+      border: 1px solid var(--red-dim);
+      border-radius: var(--r);
+      color: var(--red);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .success-message {
+      display: none;
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--gold-glow);
+      border: 1px solid var(--gold-dim);
+      border-radius: var(--r);
+      color: var(--gold);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    /* ── Join btn ── */
+    .join-btn {
+      width: 100%;
+      padding: 18px;
+      border-radius: var(--r-xl);
+      font-size: 17px;
+      font-weight: 700;
+      background: var(--red);
+      color: #fff;
+      transition: box-shadow 0.2s, transform 0.15s, opacity 0.2s;
+      touch-action: manipulation;
+      margin-bottom: 16px;
+    }
+    .join-btn:hover { box-shadow: 0 0 32px var(--red-glow); }
+    .join-btn:active { transform: scale(0.97); }
+    .join-btn:disabled { opacity: 0.35; pointer-events: none; }
+
+    .help-text {
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    body.loading .join-btn { opacity: 0.5; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-btn">← 뒤로</a>
+
+  <div class="page">
+    <div class="page-header">
+      <h1>방 참여</h1>
+      <p>초대코드를 입력하고 번호를 선택하세요</p>
+    </div>
+
+    <!-- Nickname -->
+    <div class="field-block">
+      <p class="section-label">닉네임</p>
+      <div class="nickname-row">
+        <span class="nickname-value" id="nicknameValue">로딩 중...</span>
+        <button type="button" class="nickname-reroll-btn" id="nicknameRerollBtn" title="다시 뽑기">↺</button>
+      </div>
+    </div>
+
+    <!-- Player number -->
+    <div class="player-selector-section">
+      <p class="section-label">플레이어 번호</p>
+      <div class="wheel-picker-wrap">
+        <div class="wheel-picker-container">
+          <div class="wheel-picker" id="playerWheelPicker">
+            <div class="wheel-highlight"></div>
+            <div class="wheel-items" id="wheelItems"></div>
+            <div class="wheel-fade-top"></div>
+            <div class="wheel-fade-bottom"></div>
+          </div>
+          <div class="selected-player">
+            <span class="selected-text">플레이어</span>
+            <span class="selected-number" id="selectedPlayerNumber">1</span>
+            <span class="wheel-hint">↕ 드래그하여 선택</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code input -->
+    <div class="code-input-section">
+      <p class="section-label">초대 코드 (4자리)</p>
+      <div class="code-input-container">
+        <input type="text" class="code-input" id="code1" maxlength="1" placeholder="•" autocomplete="off">
+        <input type="text" class="code-input" id="code2" maxlength="1" placeholder="•" autocomplete="off">
+        <input type="text" class="code-input" id="code3" maxlength="1" placeholder="•" autocomplete="off">
+        <input type="text" class="code-input" id="code4" maxlength="1" placeholder="•" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="game-info" id="gameInfo"></div>
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+
+    <button class="join-btn" id="joinBtn">게임 참여하기</button>
+
+    <p class="help-text">
+      플레이어 번호는 겹치지 않게 선택하세요<br>
+      코드는 i, l을 제외한 영문 4자리입니다
+    </p>
+  </div>
+
+  <script src="gameData.js"></script>
+  <script src="questions.js"></script>
+  <script src="join.js"></script>
+</body>
+</html>

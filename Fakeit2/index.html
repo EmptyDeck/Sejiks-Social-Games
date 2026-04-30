@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>라이어 헌트</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    body { overflow: hidden; }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(oklch(26% 0.012 255 / 0.4) 1px, transparent 1px),
+        linear-gradient(90deg, oklch(26% 0.012 255 / 0.4) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 0%, oklch(62% 0.24 15 / 0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 80% 100%, oklch(76% 0.16 82 / 0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      padding: 40px 24px;
+      max-width: 400px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .logo-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .logo-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(64px, 18vw, 96px);
+      line-height: 0.9;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .logo-accent {
+      color: var(--red);
+    }
+
+    .logo-sub {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(28px, 8vw, 40px);
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .logo-tagline {
+      font-size: 14px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+      line-height: 1.6;
+      margin-bottom: 48px;
+    }
+
+    .main-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .main-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-radius: var(--r-xl);
+      font-size: 17px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.2s;
+      touch-action: manipulation;
+    }
+    .main-btn:active { transform: scale(0.97); }
+
+    .main-btn-host {
+      background: var(--gold);
+      color: var(--bg);
+    }
+    .main-btn-host:hover { box-shadow: 0 0 32px var(--gold-glow); }
+
+    .main-btn-join {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border-2);
+    }
+    .main-btn-join:hover { border-color: var(--red); box-shadow: 0 0 24px var(--red-glow); }
+
+    .btn-label { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+    .btn-sub { font-size: 12px; font-weight: 500; opacity: 0.7; }
+    .btn-arrow { font-size: 20px; opacity: 0.6; }
+
+    .footer-note {
+      margin-top: 40px;
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.6;
+    }
+
+    /* Decorative line accent */
+    .line-accent {
+      width: 40px;
+      height: 2px;
+      background: var(--red);
+      margin: 0 auto 28px;
+      border-radius: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <div class="hero">
+    <p class="logo-eyebrow">Party Game</p>
+    <h1 class="logo-title">라이어<span class="logo-accent">.</span></h1>
+    <p class="logo-sub">HUNT</p>
+    <div class="line-accent"></div>
+    <p class="logo-tagline">서버 없는 오프라인 추리 파티게임<br>라이어를 찾아내거나, 완벽하게 속여라</p>
+
+    <div class="main-actions">
+      <a href="host.html" class="main-btn main-btn-host" id="hostBtn">
+        <span class="btn-label">
+          <span>방 만들기</span>
+          <span class="btn-sub">인원 설정 후 초대코드 생성</span>
+        </span>
+        <span class="btn-arrow">→</span>
+      </a>
+      <a href="join.html" class="main-btn main-btn-join" id="joinBtn">
+        <span class="btn-label">
+          <span>방 참여하기</span>
+          <span class="btn-sub">4자리 초대코드로 입장</span>
+        </span>
+        <span class="btn-arrow">→</span>
+      </a>
+    </div>
+
+    <p class="footer-note">인터넷 불필요 · 3–17명 · 같은 기기 공유 가능</p>
+  </div>
+
+  <script>
+    localStorage.clear();
+  </script>
+</body>
+</html>

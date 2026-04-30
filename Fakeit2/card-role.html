@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>라이어 헌트 — 역할 확인</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    body {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 20px 40px;
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── Header ── */
+    .header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .header h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .header p {
+      font-size: 14px;
+      color: var(--text-2);
+      margin-bottom: 14px;
+    }
+
+    .game-info {
+      display: inline-flex;
+      gap: 16px;
+      padding: 8px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+    }
+    .game-info span {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      color: var(--text-2);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Cards grid ── */
+    .cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 28px;
+    }
+
+    /* ── Individual card (JS creates these) ── */
+    .card {
+      aspect-ratio: 2/3;
+      cursor: pointer;
+      perspective: 800px;
+      animation: card-enter 0.4s ease both;
+    }
+
+    @keyframes card-enter {
+      from { opacity: 0; transform: translateY(20px) scale(0.9); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+      border-radius: var(--r);
+    }
+
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card.disabled {
+      opacity: 0.4;
+      cursor: default;
+      filter: saturate(0.3);
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--r);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* Card back — face down */
+    .card-back {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      background-image:
+        repeating-linear-gradient(
+          45deg,
+          oklch(26% 0.012 255 / 0.5) 0px,
+          oklch(26% 0.012 255 / 0.5) 1px,
+          transparent 1px,
+          transparent 8px
+        );
+    }
+    .card-back::after {
+      content: '?';
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+    }
+
+    /* Card front — face up */
+    .card-front {
+      transform: rotateY(180deg);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+    }
+
+    .card-front.liar {
+      background: var(--red-glow);
+      border-color: var(--red-dim);
+    }
+
+    .card-front.normal {
+      background: var(--blue-glow);
+      border-color: var(--blue-dim);
+    }
+
+    .card-emoji {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .card-text {
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.04em;
+      color: var(--text-2);
+      line-height: 1.2;
+      padding: 0 4px;
+    }
+
+    .card-front.liar .card-text  { color: var(--red); }
+    .card-front.normal .card-text { color: var(--blue); }
+
+    /* Hover effect on unflipped */
+    .card:not(.flipped):not(.disabled):hover .card-back {
+      border-color: var(--border-2);
+      background-color: var(--surface-2);
+    }
+    .card:not(.flipped):not(.disabled):hover .card-back::after {
+      color: var(--text-2);
+    }
+
+    /* ── Instructions ── */
+    .instructions {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .instructions p {
+      font-size: 13px;
+      color: var(--text-3);
+      line-height: 1.7;
+    }
+    .warning {
+      color: var(--red) !important;
+      margin-top: 4px;
+    }
+
+    /* ── Result overlay ── */
+    .result-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      backdrop-filter: blur(8px);
+    }
+    .result-overlay.show {
+      display: flex;
+      animation: overlay-in 0.3s ease;
+    }
+
+    @keyframes overlay-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .result-card {
+      width: 100%;
+      max-width: 340px;
+      background: var(--surface);
+      border: 1px solid var(--border-2);
+      border-radius: var(--r-xl);
+      padding: 36px 28px 28px;
+      text-align: center;
+      animation: card-up 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
+    }
+
+    @keyframes card-up {
+      from { transform: translateY(30px) scale(0.95); opacity: 0; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .role-reveal { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+    .role-icon {
+      font-size: 52px;
+      line-height: 1;
+    }
+
+    .role-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px;
+      letter-spacing: 0.06em;
+      line-height: 1;
+    }
+
+    .role-description {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.6;
+      margin-bottom: 8px;
+      text-wrap: pretty;
+    }
+
+    .continue-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: var(--r-lg);
+      font-size: 16px;
+      font-weight: 700;
+      background: var(--gold);
+      color: var(--bg);
+      transition: box-shadow 0.2s, transform 0.15s;
+      touch-action: manipulation;
+    }
+    .continue-btn:hover { box-shadow: 0 0 28px var(--gold-glow); }
+    .continue-btn:active { transform: scale(0.97); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>역할 확인</h1>
+      <p>카드 하나를 선택하세요</p>
+      <div class="game-info">
+        <span id="gameCode">코드: ----</span>
+        <span id="playerInfo">플레이어 -/-</span>
+      </div>
+    </div>
+
+    <div class="cards-container" id="cardsContainer"></div>
+
+    <div class="instructions">
+      <p>아무 카드나 터치하여 뒤집으세요</p>
+      <p class="warning">한 번 뒤집으면 다른 카드를 선택할 수 없습니다</p>
+    </div>
+  </div>
+
+  <!-- Result overlay -->
+  <div class="result-overlay" id="resultOverlay">
+    <div class="result-card">
+      <div class="role-reveal" id="roleReveal">
+        <div class="role-icon" id="roleIcon"></div>
+        <h2 class="role-title" id="roleTitle"></h2>
+        <p class="role-description" id="roleDescription"></p>
+        <button class="continue-btn" id="continueBtn">게임 시작하기</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="toast.js"></script>
+  <script src="gameData.js"></script>
+  <script src="questions.js"></script>
+  <script src="card-role.js"></script>
+</body>
+</html>
