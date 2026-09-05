@@ -14,7 +14,7 @@ no account, no install. Everything runs in the browser.*
 
 | 게임 · Game | 한국어 | English |
 |---|---|---|
-| 📊 **인간 통계 보고서** · Human Stats Report | [플레이](https://your-machine.example.net:8443/games/03Statistics_ko/) | [Play](https://your-machine.example.net:8443/games/03Statistics_en/) |
+| 📡 **SIGNAL** · 인간 통계 맞히기 | — | [Play](https://your-machine.example.net:8443/games/03Signal/) |
 | 🎭 **라이어 헌트** · Liar Hunt | [플레이](https://your-machine.example.net:8443/games/05LiarHunt_ko/) | [Play](https://your-machine.example.net:8443/games/05LiarHunt_en/) |
 | 🌟 **너의 평점은** · What's Your Rating | [플레이](https://your-machine.example.net:8443/games/06Rating_ko/) | [Play](https://your-machine.example.net:8443/games/06Rating_en/) |
 
@@ -23,13 +23,17 @@ no account, no install. Everything runs in the browser.*
 
 ## 게임 소개 · The games
 
-### 📊 인간 통계 보고서 · Human Stats Report
+### 📡 SIGNAL · 인간 통계 맞히기
 
-실제 설문 통계를 보고 "몇 퍼센트일까?" 를 맞히는 게임. **절대 모드**는 정확한 수치를 요구합니다.
-문항은 한국어 100개, 영어 106개. (상대 모드는 아직 준비 중입니다.)
+실제 설문 통계를 보고 "몇 퍼센트일까?" 를 맞히는 게임. 문항 138개이고 **문항마다 출처가
+붙어 있습니다** (YouGov, Gallup 등). 현재 영어판만 있습니다.
 
-*Guess the real survey percentage. **Absolute Mode** wants the exact number.
-100 questions in Korean, 106 in English. (Relative Mode is not finished yet.)*
+*Guess the real survey percentage. 138 questions, each citing its source (YouGov, Gallup, …).
+English only for now.*
+
+> 옛 "인간 통계 보고서"(v1)를 대체한 v2 입니다. v1 은 4글자 코드를 글자 코드의 **합**으로
+> 시드를 만들어서, 순서가 다른 같은 글자(`ABCD` 와 `DCBA`)가 같은 게임이 되고 실제로는
+> 101가지 게임밖에 없었습니다. SIGNAL 은 24진수 자리값을 써서 331,776가지가 전부 다릅니다.
 
 ### 🎭 라이어 헌트 · Liar Hunt
 
@@ -68,11 +72,10 @@ Folder names become URLs, so no spaces and no non-ASCII.*
 | 경로 | 내용 |
 |---|---|
 | `index.html` | 게임 목록 페이지 (배포 루트) |
-| `03Statistics_ko/`, `03Statistics_en/` | 인간 통계 보고서 |
+| `03Signal/` | SIGNAL — 통계 맞히기 (단일 HTML + 문항 파일) |
 | `04GRE_AWA/`, `04GRE_Voca/` | GRE 공부 도구 (게임 아님, 미배포) |
 | `05LiarHunt_ko/`, `05LiarHunt_en/` | 라이어 헌트 v2 |
 | `06Rating_ko/`, `06Rating_en/` | 너의 평점은 v2 |
-| `07Signal_wip/` | 통계 게임 재작성 실험판 — **미완성** |
 | `08Memorise/` | 영단어 암기 도구 (게임 아님, 미배포) |
 | `99archive/` | 구버전과 작성용 프롬프트 보관 |
 | `99tools/` | githack URL 변환기 등 잡도구 |

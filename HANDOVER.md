@@ -29,10 +29,9 @@ GAMES_PORT=9999 python3 deploy/serve.py
 | 경로 | 역할 |
 |---|---|
 | `index.html` | 게임 목록 페이지. 배포 루트이자 GitHub Pages 를 켜면 그대로 쓸 수 있다 |
-| `03Statistics_ko/`, `03Statistics_en/` | 인간 통계 보고서. 문항은 `statistics.js`, 시드 난수는 `abs-gen-game.js` |
+| `03Signal/` | SIGNAL — 통계 맞히기. 화면 6개가 든 단일 React 페이지 `index.html` + 문항 `Questions.js`. 옛 인간 통계 보고서(v1)를 대체한다 |
 | `05LiarHunt_ko/`, `05LiarHunt_en/` | 라이어 헌트 v2. 문항 `questions.js`, 역할 배정 `gameData.js` |
 | `06Rating_ko/`, `06Rating_en/` | 너의 평점은 v2. **단일 HTML 파일**이고 QR 은 jsDelivr CDN 의 qrcode 를 쓴다 |
-| `07Signal_wip/` | 통계 게임 재작성 실험판. **미완성** — React+Babel 을 CDN 에서 받아 브라우저에서 컴파일한다 |
 | `04GRE_AWA/`, `04GRE_Voca/`, `08Memorise/` | 공부 도구. 게임이 아니고 목록 페이지에도 없다 |
 | `99archive/` | 구버전(`05LiarHunt_v1`, `06Rating_v1_en.html`)과 생성용 프롬프트 |
 | `99tools/githack-url-converter.html` | GitHub 경로를 githack URL 로 바꿔 주는 잡도구 |
@@ -44,7 +43,7 @@ GAMES_PORT=9999 python3 deploy/serve.py
 | 무엇 | 경로 | 재생성 가능? |
 |---|---|---|
 | 게임 진행 상태 | 각 플레이어 브라우저의 `sessionStorage` | 해당 없음 — 탭을 닫으면 사라지는 것이 정상 |
-| 문항 | 저장소 안 `statistics.js` / `questions.js` | 아니오. 손으로 쓴 것이다 (생성 프롬프트는 `99archive/prompts/`) |
+| 문항 | 저장소 안 `Questions.js` / `questions.js` | 아니오. 손으로 쓴 것이다 (생성 프롬프트는 `99archive/prompts/`) |
 
 서버는 아무것도 저장하지 않는다. 읽기 전용 정적 서빙뿐이라 유닛에 `ProtectSystem=strict` 가 걸려 있다.
 
@@ -72,16 +71,19 @@ Funnel 이 `/games` 접두사를 떼고 넘기므로 서버는 저장소 루트�
 - **폴더 이름을 바꾸지 마라.** 폴더 이름이 곧 공개 URL 이고 README·`index.html`·각 게임
   `readme.md` 가 그 이름을 박아 두고 있다. 바꾸면 이미 뿌린 링크가 죽는다.
 - `06Rating_*/index.html` 이 v2 다. `99archive/06Rating_v1_en.html` 은 옛 1.0 이니 되돌리지 마라.
+- **옛 인간 통계 보고서(v1)를 되살리지 마라.** 4글자 코드를 글자 코드의 *합*으로 시드를 만들어서
+  `ABCD` 와 `DCBA` 가 같은 게임이 되고, 가능한 시드가 101가지뿐이었다. SIGNAL 이 이걸 고쳤다.
+  정말 필요하면 커밋 87cd454 에 남아 있다.
 
 ## 지금 아는 문제
 - **Funnel 공개 포트는 3개(443·8443·10000)뿐이다.** 8443 에는 이미 6개 경로가 붙어 있다.
   더 붙이려면 경로를 쓰거나 다른 포트를 비워야 한다.
-- 통계 게임의 **상대 모드는 미구현**이다. 화면에 "🚧 곧 출시" 로 막혀 있다.
 - 한국어판 코드에 `console.log` 디버그 출력이 많이 남아 있다 (영어판에는 없다). 동작에는
   지장이 없어 그대로 뒀다.
-- `03Statistics_en/abs-gen-game.js` 의 JSDoc 주석이 아직 한국어다. 플레이어에게는 안 보인다.
-- 한국어판 문항 100개, 영어판 106개로 개수가 다르다. 각자 독립된 데이터라 문제는 아니다.
-- `07Signal_wip` 은 미완성이고 CDN 에서 Babel 을 받아 브라우저에서 컴파일하므로 느리다.
+- **SIGNAL 은 한국어판이 없다.** 옛 v1 에는 한국어판이 있었지만 v1 을 버리면서 같이 사라졌다.
+  번역하려면 `03Signal/Questions.js` 의 138문항과 `index.html` 안의 UI 문자열을 옮겨야 한다.
+- SIGNAL 은 unpkg 에서 React **개발 빌드**와 Babel standalone 을 받아 브라우저에서 컴파일한다.
+  첫 로딩이 눈에 띄게 느리다. 급하면 프로덕션 빌드로 바꾸고 JSX 를 미리 컴파일하면 된다.
 
 ## 최근 변경
 <!-- AUTO:GIT -->
