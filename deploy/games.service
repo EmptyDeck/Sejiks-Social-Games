@@ -1,0 +1,41 @@
+# Sejik's Social Games — 정적 게임 서버
+#
+# 설치:  sudo cp deploy/games.service /etc/systemd/system/games.service
+#        sudo systemctl daemon-reload && sudo systemctl enable --now games
+# 로그:  journalctl -u games -f
+#
+# Tailscale Funnel 의 8443 /games 경로가 이 포트로 들어온다.
+# Funnel 이 /games 접두사를 떼고 넘기므로 서버는 저장소 루트를 그대로 서빙한다.
+#   tailscale serve --bg --https 8443 --set-path /games http://127.0.0.1:8410
+#
+# 포트 8410 은 이 기계에서 비어 있어서 골랐다. 이미 쓰는 번호:
+#   7761 stt, 8000 mailsuite, 8391, 8900 monitor, 8901 usage-tracker,
+#   11434 ollama, 17747~17750 send-email/life
+
+[Unit]
+Description=Sejik's Social Games - 파티 게임 정적 서버 (인터넷 공개)
+Documentation=https://github.com/EmptyDeck/Sejiks-Social-Games
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=youruser
+Group=youruser
+WorkingDirectory=/home/user/projects/Sejiks-Social-Games
+Environment=GAMES_PORT=8410
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /home/user/projects/Sejiks-Social-Games/deploy/serve.py
+
+# 읽기 전용 정적 서빙이라 쓰기 권한이 필요 없다.
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+NoNewPrivileges=true
+
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

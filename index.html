@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>세직이의 파티 게임 · Sejik's Social Games</title>
+  <meta name="description" content="서버도 계정도 없이, 한 방에 모여 휴대폰만으로 하는 파티 게임 모음. Offline party games — no server, no account, just phones in one room.">
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surf: #191c26;
+      --surf2: #222634;
+      --line: #2e3342;
+      --text: #eef0f6;
+      --dim: #99a0b5;
+      --accent: #7fe3a1;
+      --accent2: #f5a6d0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", Roboto, sans-serif;
+      line-height: 1.55;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 56px 20px 80px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 44px;
+    }
+
+    h1 {
+      font-size: clamp(28px, 6vw, 42px);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    h1 .en {
+      display: block;
+      font-size: 0.5em;
+      color: var(--dim);
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      margin-top: 8px;
+    }
+
+    .lede {
+      color: var(--dim);
+      margin-top: 18px;
+      font-size: 15px;
+    }
+
+    .lede b {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .card {
+      background: var(--surf);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card h2 {
+      font-size: 19px;
+      letter-spacing: -0.01em;
+    }
+
+    .card h2 .en {
+      display: block;
+      font-size: 13px;
+      color: var(--dim);
+      font-weight: 500;
+      margin-top: 3px;
+    }
+
+    .emoji {
+      font-size: 30px;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      color: var(--dim);
+      font-size: 14px;
+      margin: 12px 0 4px;
+      flex: 1;
+    }
+
+    .card p .en {
+      display: block;
+      margin-top: 6px;
+      opacity: 0.8;
+    }
+
+    .meta {
+      font-size: 12px;
+      color: var(--dim);
+      margin: 14px 0 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      text-align: center;
+      text-decoration: none;
+      background: var(--surf2);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 10px 8px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background .15s, border-color .15s, transform .1s;
+    }
+
+    .btn:hover {
+      background: #2b3040;
+      border-color: var(--accent);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn .sub {
+      display: block;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--dim);
+      margin-top: 1px;
+    }
+
+    .wip {
+      opacity: 0.55;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      background: var(--accent2);
+      color: #21121b;
+      border-radius: 4px;
+      padding: 1px 6px;
+      vertical-align: 3px;
+      margin-left: 6px;
+    }
+
+    footer {
+      margin-top: 48px;
+      text-align: center;
+      color: var(--dim);
+      font-size: 13px;
+    }
+
+    footer a {
+      color: var(--accent);
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f7f8fa;
+        --surf: #fff;
+        --surf2: #f0f2f6;
+        --line: #dfe3ec;
+        --text: #171a22;
+        --dim: #616a80;
+        --accent: #1a7f4b;
+        --accent2: #b23c7e;
+      }
+
+      .btn:hover {
+        background: #e6e9f0;
+      }
+
+      .tag {
+        color: #fff;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <h1>세직이의 파티 게임
+        <span class="en">Sejik's Social Games</span>
+      </h1>
+      <p class="lede">
+        서버도, 계정도, 설치도 없습니다. 한 방에 모여 <b>각자 휴대폰으로</b> 같은 4글자 코드를 넣으면 시작합니다.<br>
+        <span class="en">No server, no account, no install. Everyone in one room enters the same 4-letter code on their own
+          phone.</span>
+      </p>
+    </header>
+
+    <div class="grid">
+
+      <div class="card">
+        <div class="emoji">📊</div>
+        <h2>인간 통계 보고서<span class="en">Human Stats Report</span></h2>
+        <p>실제 설문 통계를 몇 퍼센트일지 맞히는 게임. 절대 모드로 정확한 수치까지 노려보세요.
+          <span class="en">Guess the real survey percentages. Absolute Mode asks for the exact number.</span>
+        </p>
+        <div class="meta">문항 한국어 100개 · 영어 106개 &nbsp;/&nbsp; 100 questions (KO) · 106 (EN)</div>
+        <div class="btns">
+          <a class="btn" href="03Statistics_ko/">한국어<span class="sub">Korean</span></a>
+          <a class="btn" href="03Statistics_en/">English<span class="sub">영어</span></a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="emoji">🎭</div>
+        <h2>라이어 헌트<span class="en">Liar Hunt</span></h2>
+        <p>모두가 같은 질문을 받지만 라이어만 다른 질문을 받습니다. 대화만으로 라이어를 찾아내세요.
+          <span class="en">Everyone gets the same question — except the liar. Find them through conversation alone.</span>
+        </p>
+        <div class="meta">3–17명 · 라이어 1–15명 · 질문 80개 &nbsp;/&nbsp; 3–17 players · 1–15 liars · 80 questions</div>
+        <div class="btns">
+          <a class="btn" href="05LiarHunt_ko/">한국어<span class="sub">Korean</span></a>
+          <a class="btn" href="05LiarHunt_en/">English<span class="sub">영어</span></a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="emoji">🌟</div>
+        <h2>너의 평점은<span class="en">What's Your Rating</span></h2>
+        <p>1~10 중 비밀 점수를 하나 받고, 그 점수에 어울리는 답을 말합니다. 남들이 내 숫자를 맞히면 안 되지만, 아무도 못 맞혀도 안 됩니다.
+          <span class="en">Get a secret 1–10, then answer as if you'd rate it that. Don't be too obvious — but don't be
+            unguessable either.</span>
+        </p>
+        <div class="meta">호스트 + 최대 50명 &nbsp;/&nbsp; host + up to 50 players</div>
+        <div class="btns">
+          <a class="btn" href="06Rating_ko/">한국어<span class="sub">Korean</span></a>
+          <a class="btn" href="06Rating_en/">English<span class="sub">영어</span></a>
+        </div>
+      </div>
+
+      <div class="card wip">
+        <div class="emoji">📡</div>
+        <h2>SIGNAL<span class="tag">WIP</span><span class="en">만드는 중 · in progress</span></h2>
+        <p>통계 게임을 다시 만들고 있는 실험판입니다. 아직 완성되지 않았습니다.
+          <span class="en">An experimental rebuild of the stats game. Not finished yet.</span>
+        </p>
+        <div class="meta">미완성 &nbsp;/&nbsp; unfinished</div>
+        <div class="btns">
+          <a class="btn" href="07Signal_wip/">열어보기<span class="sub">Take a look</span></a>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      만든이 <a href="https://github.com/EmptyDeck">EmptyDeck</a> ·
+      소스 <a href="https://github.com/EmptyDeck/Sejiks-Social-Games">GitHub</a>
+    </footer>
+  </div>
+</body>
+
+</html>

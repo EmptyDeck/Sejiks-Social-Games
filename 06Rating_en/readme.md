@@ -1,6 +1,6 @@
 # 🎲 What's Your Rating - Social Party Game
 
-# [Click here to play](https://rawcdn.githack.com/EmptyDeck/Sejiks-Social-Games/main/Whats%20your%20rating%3F/Rating_Ver2.0.html)
+# [Click here to play](https://your-machine.example.net:8443/games/06Rating_en/)
 
 ## What is it?
 

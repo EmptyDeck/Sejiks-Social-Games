@@ -31,7 +31,7 @@ function createSeededRandom(seed) {
  */
 function generateUniqueRandomNumbers(min, max, count, randomFunc) {
     if (count > (max - min + 1)) {
-        throw new Error(`생성할 고유 숫자의 개수 (${count})가 가능한 범위 (${max - min + 1})보다 큽니다.`);
+        throw new Error(`Requested ${count} unique numbers, but the range (${max - min + 1}) is too small.`);
     }
 
     const pool = [];
@@ -67,11 +67,11 @@ function generateSeededGameNumbers(inputAlphabets) {
     const processedAlphabets = inputAlphabets.trim().toUpperCase();
 
     if (processedAlphabets.length !== 4) {
-        throw new Error('입력은 정확히 4개의 알파벳이어야 합니다.');
+        throw new Error('Input must be exactly 4 letters.');
     }
 
     if (processedAlphabets.includes('I') || processedAlphabets.includes('L')) {
-        throw new Error("알파벳 'I'와 'L'은 사용할 수 없습니다.");
+        throw new Error("The letters 'I' and 'L' are not allowed.");
     }
 
     // 입력된 알파벳 문자열을 시드로 변환
