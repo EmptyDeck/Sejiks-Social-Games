@@ -29,7 +29,7 @@ GAMES_PORT=9999 python3 deploy/serve.py
 | 경로 | 역할 |
 |---|---|
 | `index.html` | 게임 목록 페이지. 배포 루트이자 GitHub Pages 를 켜면 그대로 쓸 수 있다 |
-| `03Signal/` | SIGNAL — 통계 맞히기. 화면 6개가 든 단일 React 페이지 `index.html` + 문항 `Questions.js`. 옛 인간 통계 보고서(v1)를 대체한다 |
+| `03Signal/index.html` | SIGNAL — 통계 맞히기. **이 파일 하나가 전부다.** 화면 6개와 문항 138개가 전부 안에 들어 있다. 옛 인간 통계 보고서(v1)를 대체한다 |
 | `05LiarHunt_ko/`, `05LiarHunt_en/` | 라이어 헌트 v2. 문항 `questions.js`, 역할 배정 `gameData.js` |
 | `06Rating_ko/`, `06Rating_en/` | 너의 평점은 v2. **단일 HTML 파일**이고 QR 은 jsDelivr CDN 의 qrcode 를 쓴다 |
 | `04GRE_AWA/`, `04GRE_Voca/`, `08Memorise/` | 공부 도구. 게임이 아니고 목록 페이지에도 없다 |
@@ -43,7 +43,7 @@ GAMES_PORT=9999 python3 deploy/serve.py
 | 무엇 | 경로 | 재생성 가능? |
 |---|---|---|
 | 게임 진행 상태 | 각 플레이어 브라우저의 `sessionStorage` | 해당 없음 — 탭을 닫으면 사라지는 것이 정상 |
-| 문항 | 저장소 안 `Questions.js` / `questions.js` | 아니오. 손으로 쓴 것이다 (생성 프롬프트는 `99archive/prompts/`) |
+| 문항 | `03Signal/index.html` 안 `QUESTIONS`, `05LiarHunt_*/questions.js` | 아니오. 손으로 쓴 것이다 (생성 프롬프트는 `99archive/prompts/`) |
 
 서버는 아무것도 저장하지 않는다. 읽기 전용 정적 서빙뿐이라 유닛에 `ProtectSystem=strict` 가 걸려 있다.
 

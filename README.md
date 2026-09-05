@@ -72,7 +72,7 @@ Folder names become URLs, so no spaces and no non-ASCII.*
 | 경로 | 내용 |
 |---|---|
 | `index.html` | 게임 목록 페이지 (배포 루트) |
-| `03Signal/` | SIGNAL — 통계 맞히기 (단일 HTML + 문항 파일) |
+| `03Signal/` | SIGNAL — 통계 맞히기 (HTML 파일 하나에 전부) |
 | `04GRE_AWA/`, `04GRE_Voca/` | GRE 공부 도구 (게임 아님, 미배포) |
 | `05LiarHunt_ko/`, `05LiarHunt_en/` | 라이어 헌트 v2 |
 | `06Rating_ko/`, `06Rating_en/` | 너의 평점은 v2 |
