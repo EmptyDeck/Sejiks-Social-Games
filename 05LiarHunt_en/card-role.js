@@ -71,7 +71,8 @@ function assignRoles() {
 
 function updateGameInfo() {
     document.getElementById('gameCode').textContent = `Code: ${inviteCode}`;
-    document.getElementById('playerInfo').textContent = `Player ${playerIndex + 1}/${totalPlayers}`;
+    document.getElementById('playerInfo').textContent =
+        playerIndex === 0 ? `Host/${totalPlayers}` : `Player ${playerIndex}/${totalPlayers}`;
 }
 
 function generateCards() {

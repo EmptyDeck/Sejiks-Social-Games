@@ -62,8 +62,8 @@ function loadHostData() {
 
     playerIndex = 0;
 
-    const savedAnswer = localStorage.getItem('hostAnswer');
-    const savedDrawing = localStorage.getItem('hostDrawing');
+    const savedAnswer = localStorage.getItem('submittedAnswer');
+    const savedDrawing = localStorage.getItem('submittedDrawing');
     const savedSubmitted = localStorage.getItem('answerSubmitted') === 'true';
     if (savedSubmitted && (savedAnswer || savedDrawing)) {
         answerSubmitted = true;
@@ -714,8 +714,8 @@ function changeColor(color) {
     currentColor = color;
     ctx.strokeStyle = color;
     document.querySelectorAll('.color-btn').forEach(btn => {
-        btn.classList.remove('selected');
-        if (btn.dataset.color === color) btn.classList.add('selected');
+        btn.classList.remove('active');
+        if (btn.dataset.color === color) btn.classList.add('active');
     });
 }
 

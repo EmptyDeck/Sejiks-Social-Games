@@ -199,6 +199,15 @@ function displayFakerPerformance() {
 function calculateScoresForLiar() {
     if (!inviteCode) return;
 
+    // 이 게임을 이미 정산했으면 다시 더하지 않는다.
+    // 예전에는 gameover 화면을 새로고침하거나 뒤로가기로 되돌아올 때마다
+    // 점수가 계속 누적됐다 (3번 열면 3배).
+    const settledKey = `scored_${inviteCode}_game_${currentGame}`;
+    if (localStorage.getItem(settledKey)) {
+        console.log('이미 정산된 게임이라 점수 계산을 건너뛴다:', settledKey);
+        return;
+    }
+
     let liarScore = 0;
     const voterScores = {};
 
@@ -227,6 +236,7 @@ function calculateScoresForLiar() {
     }
 
     localStorage.setItem('playerScores', JSON.stringify(playerScores));
+    localStorage.setItem(settledKey, '1');
 }
 
 function updateGameInfo() {

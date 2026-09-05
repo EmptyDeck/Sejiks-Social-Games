@@ -221,7 +221,7 @@ function displayFakerPerformance() {
     let totalVoters = totalPlayers - 1;
 
     for (let round = 1; round <= currentRound; round++) {
-        votesReceived += voteData[liarKey][round] === 1 ? 1 : 0;
+        votesReceived += (voteData[liarKey] && voteData[liarKey][round] === 1) ? 1 : 0;
     }
 
     const fooledCount = totalVoters - votesReceived;
@@ -254,6 +254,15 @@ function calculateScoresForLiar() {
         return;
     }
 
+    // 이 게임을 이미 정산했으면 다시 더하지 않는다.
+    // 예전에는 gameover 화면을 새로고침하거나 뒤로가기로 되돌아올 때마다
+    // 점수가 계속 누적됐다 (3번 열면 3배).
+    const settledKey = `scored_${inviteCode}_game_${currentGame}`;
+    if (localStorage.getItem(settledKey)) {
+        console.log('이미 정산된 게임이라 점수 계산을 건너뛴다:', settledKey);
+        return;
+    }
+
     let liarScore = 0;
     const voterScores = {};
 
@@ -266,7 +275,7 @@ function calculateScoresForLiar() {
     for (let round = 1; round <= currentRound; round++) {
         let votedCount = 0;
         for (let player = 0; player < totalPlayers; player++) {
-            if (voteData[player][round] === 1) {
+            if (voteData[player] && voteData[player][round] === 1) {
                 voterScores[player] += 1; // 투표한 플레이어에게 1점
                 votedCount++;
                 console.log(`✅ 플레이어 ${player}에게 1점 추가 (라운드 ${round})`);
@@ -290,6 +299,7 @@ function calculateScoresForLiar() {
     }
 
     localStorage.setItem('playerScores', JSON.stringify(playerScores));
+    localStorage.setItem(settledKey, '1');
     console.log('✅ 최종 점수 계산 완료:', playerScores);
 }
 

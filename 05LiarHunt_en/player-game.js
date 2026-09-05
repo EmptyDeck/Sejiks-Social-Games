@@ -82,6 +82,9 @@ function checkExistingGame() {
         totalPlayers = parseInt(localStorage.getItem('totalPlayers')) || 4;
         fakerCount = parseInt(localStorage.getItem('fakerCount')) || 1;
         currentGame = parseInt(localStorage.getItem('currentGame')) || 1;
+        // host-game 과 같은 범위로 맞춘다. 안 맞추면 호스트와 플레이어가
+        // 서로 다른 게임을 진행하게 된다.
+        if (currentGame < 1 || currentGame > maxGames) currentGame = 1;
         currentRound = parseInt(localStorage.getItem('currentRound')) || 1;
 
         const savedIndex = parseInt(localStorage.getItem('playerIndex'));

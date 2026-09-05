@@ -56,7 +56,7 @@ function initializePage() {
     document.getElementById('gameInfo').textContent = `게임 ${currentGame} - 라운드 ${currentRound}`;
 
     // 역할 표시
-    const roleText = fromPage === 'host' ? '호스트' : `플레이어 ${playerIndex}`;
+    const roleText = (fromPage === 'host' || fromPage === 'player0') ? '호스트' : `플레이어 ${playerIndex}`;
     document.getElementById('playerRole').textContent = roleText;
 
     // 라이어이면 이전 페이지 버튼 비활성화
@@ -343,7 +343,7 @@ function saveVotes() {
 function initializeRoundVotes() {
     console.log(`라운드 ${currentRound} 투표 초기화 시작`);
     for (let i = 0; i < totalPlayers; i++) {
-        if (voteData[i][currentRound] === -1) {
+        if (voteData[i] && voteData[i][currentRound] === -1) {
             voteData[i][currentRound] = 0;
         }
     }

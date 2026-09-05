@@ -96,8 +96,8 @@ function loadHostData() {
     playerIndex = 0; // 호스트는 항상 0번 인덱스
 
     // 답변 상태 복원
-    const savedAnswer = localStorage.getItem('hostAnswer');
-    const savedDrawing = localStorage.getItem('hostDrawing');
+    const savedAnswer = localStorage.getItem('submittedAnswer');
+    const savedDrawing = localStorage.getItem('submittedDrawing');
     const savedSubmitted = localStorage.getItem('answerSubmitted') === 'true';
     if (savedSubmitted && (savedAnswer || savedDrawing)) {
         answerSubmitted = true;
@@ -1238,9 +1238,9 @@ function changeColor(color) {
 
     // 버튼 스타일 업데이트
     document.querySelectorAll('.color-btn').forEach(btn => {
-        btn.classList.remove('selected');
+        btn.classList.remove('active');
         if (btn.dataset.color === color) {
-            btn.classList.add('selected');
+            btn.classList.add('active');
         }
     });
 }

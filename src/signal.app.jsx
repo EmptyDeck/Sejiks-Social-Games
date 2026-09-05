@@ -119,11 +119,13 @@ function CircularSlider({ value, onChange, size = 268 }) {
     window.addEventListener('mouseup', onEnd);
     window.addEventListener('touchmove', onMove, { passive: false });
     window.addEventListener('touchend', onEnd);
+    window.addEventListener('touchcancel', onEnd);
     return () => {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onEnd);
       window.removeEventListener('touchmove', onMove);
       window.removeEventListener('touchend', onEnd);
+      window.removeEventListener('touchcancel', onEnd);
     };
   }, []);
 
@@ -183,18 +185,49 @@ function CodeInput({ value, onChange }) {
   const refs = [React.useRef(), React.useRef(), React.useRef(), React.useRef()];
   const chars = (value + '    ').slice(0, 4).split('');
 
-  const handleKey = (i, e) => {
-    const key = e.key.toUpperCase();
-    if (ALPHA.includes(key)) {
-      const next = chars.map((c, idx) => idx === i ? key : c).join('').trimEnd();
-      onChange(next);
-      if (i < 3) refs[i + 1].current?.focus();
-    } else if (e.key === 'Backspace') {
-      const next = chars.map((c, idx) => idx === i ? ' ' : c).join('').trimEnd();
-      onChange(next);
-      if (i > 0) refs[i - 1].current?.focus();
+  const setChar = (i, ch) => chars.map((c, idx) => idx === i ? ch : c).join('').trimEnd();
+
+  // 한 칸에 글자를 넣는다. 폰에서는 keydown 이 아니라 이 onChange 로 들어온다.
+  // (예전에는 readOnly + inputMode="none" 이라 가상 키보드가 아예 안 떴다.)
+  const handleInput = (i, e) => {
+    const typed = e.target.value.toUpperCase().replace(/[^A-Z]/g, '');
+    if (!typed) return;
+    // 붙여넣기나 자동완성으로 여러 글자가 한 번에 들어올 수 있다.
+    let next = value;
+    let last = i;
+    for (const ch of typed) {
+      if (last > 3) break;
+      if (!ALPHA.includes(ch)) continue;   // I, L 은 쓰지 않는다
+      next = (next + '    ').slice(0, 4).split('')
+        .map((c, idx) => idx === last ? ch : c).join('').trimEnd();
+      last += 1;
     }
+    onChange(next);
+    refs[Math.min(last, 3)].current?.focus();
+  };
+
+  const handleKey = (i, e) => {
+    if (e.key === 'Backspace') {
+      e.preventDefault();
+      if (chars[i].trim()) {
+        onChange(setChar(i, ' '));
+      } else if (i > 0) {
+        onChange(setChar(i - 1, ' '));
+        refs[i - 1].current?.focus();
+      }
+    } else if (e.key === 'ArrowLeft' && i > 0) {
+      e.preventDefault(); refs[i - 1].current?.focus();
+    } else if (e.key === 'ArrowRight' && i < 3) {
+      e.preventDefault(); refs[i + 1].current?.focus();
+    }
+    // Tab 은 그대로 흘려보낸다. 막으면 키보드로 다음 버튼에 갈 수 없다.
+  };
+
+  const handlePaste = (i, e) => {
+    const text = (e.clipboardData || window.clipboardData)?.getData('text') || '';
+    if (!text) return;
     e.preventDefault();
+    handleInput(i, { target: { value: text } });
   };
 
   return (
@@ -204,11 +237,19 @@ function CodeInput({ value, onChange }) {
           key={i}
           ref={refs[i]}
           className="code-box"
-          readOnly
+          type="text"
           value={chars[i].trim()}
+          maxLength={1}
+          inputMode="text"
+          autoCapitalize="characters"
+          autoCorrect="off"
+          autoComplete="off"
+          spellCheck="false"
+          aria-label={`${i + 1}`}
+          onChange={(e) => handleInput(i, e)}
           onKeyDown={(e) => handleKey(i, e)}
-          onClick={() => refs[i].current?.focus()}
-          inputMode="none"
+          onPaste={(e) => handlePaste(i, e)}
+          onFocus={(e) => e.target.select()}
         />
       ))}
     </div>
@@ -294,7 +335,7 @@ function HomeScreen({ go }) {
           </button>
         </div>
 
-        <p style={{ color:'var(--border)', fontSize:12, marginTop:28, letterSpacing:'0.08em' }}>
+        <p style={{ color:'var(--muted)', fontSize:12, marginTop:28, letterSpacing:'0.08em' }}>
           {T.homeFoot}
         </p>
       </div>
@@ -305,14 +346,22 @@ function HomeScreen({ go }) {
 /* ─────────────────────────────────────────────────────────────
    HOST SCREEN
 ───────────────────────────────────────────────────────────── */
-function HostScreen({ go, goBack, startGame }) {
-  const [code] = React.useState(() => generateCode());
+function HostScreen({ go, goBack, startGame, hostCode, setHostCode }) {
+  // 코드는 앱 state(=localStorage)에 둔다. 컴포넌트 안에만 두면 새로고침 때
+  // 새 코드가 뽑혀 방장 혼자 다른 문항을 풀게 된다.
+  const code = hostCode;
   const [copied, setCopied] = React.useState(false);
+  React.useEffect(() => { if (!code) setHostCode(generateCode()); }, [code]);
+  // 훅은 전부 위에서 선언하고 나서 빠져나간다 (조건부 return 뒤에 훅을 두면 안 된다).
+  if (!code) return null;
 
   const handleCopy = () => {
-    navigator.clipboard?.writeText(code).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    // file:// 로 열면 secure context 가 아니라 clipboard API 자체가 없다.
+    // 그때 "복사됨"을 띄우면 방장이 복사된 줄 알고 엉뚱한 걸 붙여넣는다.
+    const ok = () => { setCopied(true); setTimeout(() => setCopied(false), 2000); };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(code).then(ok).catch(() => {});
+    }
   };
 
   return (
@@ -385,7 +434,7 @@ function JoinScreen({ go, goBack, startGame }) {
   return (
     <div className="screen-wrap fade-in" style={{ justifyContent:'center' }}>
       <button className="btn btn-ghost" style={{ position:'fixed', top:16, left:16, zIndex:10 }} onClick={goBack}>
-        ← Back
+        {T.back}
       </button>
 
       <div style={{ textAlign:'center', width:'100%', maxWidth:440, padding:'0 24px' }}>
@@ -398,7 +447,7 @@ function JoinScreen({ go, goBack, startGame }) {
         <div style={{ display:'flex', justifyContent:'center', marginBottom:12 }}>
           <CodeInput value={code} onChange={setCode} />
         </div>
-        <p style={{ color:'var(--border)', fontSize:12, marginBottom:48, letterSpacing:'0.1em' }}>
+        <p style={{ color:'var(--muted)', fontSize:12, marginBottom:48, letterSpacing:'0.1em' }}>
           {T.lettersOnly}
         </p>
 
@@ -456,7 +505,7 @@ function PlayScreen({ state, setGuess, onSubmit }) {
           color:'var(--text)',
           textWrap:'pretty',
         }}>{q.text}</p>
-        <p style={{ fontSize:11, color:'var(--border)', marginTop:8, letterSpacing:'0.1em', textTransform:'uppercase' }}>
+        <p style={{ fontSize:11, color:'var(--muted)', marginTop:8, letterSpacing:'0.1em', textTransform:'uppercase' }}>
           {q.source}
         </p>
       </div>
@@ -504,8 +553,9 @@ function StandbyScreen({ state, onReveal, onNext }) {
   const { questions, round, guess, revealed } = state;
   const q = questions[round];
   const { accuracy, roundScore } = calcScore(guess, q.answer);
-  const [showScore, setShowScore] = React.useState(false);
-  const [displayScore, setDisplayScore] = React.useState(0);
+  const [showScore, setShowScore] = React.useState(revealed);
+  // 이미 공개된 상태로 복원됐다면 카운트업 없이 바로 실제 점수를 보여 준다.
+  const [displayScore, setDisplayScore] = React.useState(revealed ? roundScore : 0);
   const [overlayLeaving, setOverlayLeaving] = React.useState(false);
 
   const handleReveal = () => {
@@ -595,7 +645,7 @@ function StandbyScreen({ state, onReveal, onNext }) {
                 color:'var(--text)'
               }}>{T.tapReveal}</div>
             </div>
-            <p style={{ fontSize:12, color:'var(--border)', marginTop:4 }}>
+            <p style={{ fontSize:12, color:'var(--muted)', marginTop:4 }}>
               {T.waitAll}
             </p>
           </div>
@@ -691,7 +741,7 @@ function GameOverScreen({ state, onReplay, onHome }) {
                   color: s.accuracy >= 80 ? 'var(--accent)' : 'var(--text)'
                 }}>+{s.roundScore.toLocaleString()}</span>
               </div>
-              <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, color:'var(--border)', marginBottom:8 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, color:'var(--muted)', marginBottom:8 }}>
                 <span>{T.guessShort} <span style={{ color:'var(--text)', fontFamily:"'Space Mono', 'Noto Sans KR', monospace" }}>{guesses[i]}%</span></span>
                 <span>{T.answerShort} <span style={{ color:'var(--accent)', fontFamily:"'Space Mono', 'Noto Sans KR', monospace" }}>{questions[i].answer}%</span></span>
                 <span>{T.accShort} <span style={{ color:'var(--text)', fontFamily:"'Space Mono', 'Noto Sans KR', monospace" }}>{s.accuracy}%</span></span>
@@ -726,6 +776,7 @@ function GameOverScreen({ state, onReplay, onHome }) {
 const INIT = {
   screen: 'home',
   gameCode: '',
+  hostCode: '',
   questions: [],
   round: 0,
   pendingGuess: 50,
@@ -738,7 +789,13 @@ function App() {
   const [state, setState] = React.useState(() => {
     try {
       const s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
-      return s || INIT;
+      if (!s) return INIT;
+      // 문항이 없는데 게임 화면이면 렌더가 죽는다. 그런 state 는 버린다.
+      const needsQuestions = s.screen === 'play' || s.screen === 'standby' || s.screen === 'gameover';
+      const ok = !needsQuestions
+        || (Array.isArray(s.questions) && s.questions.length > 0
+            && typeof s.round === 'number' && s.round >= 0 && s.round < s.questions.length);
+      return ok ? s : INIT;
     } catch { return INIT; }
   });
   const [fading, setFading] = React.useState(false);
@@ -799,8 +856,10 @@ function App() {
         )}
         {screen === 'host' && (
           <HostScreen
-            goBack={() => go({ screen: 'home' })}
+            goBack={() => go({ screen: 'home', hostCode: '' })}
             startGame={startGame}
+            hostCode={state.hostCode}
+            setHostCode={(c) => save({ ...state, hostCode: c })}
           />
         )}
         {screen === 'join' && (

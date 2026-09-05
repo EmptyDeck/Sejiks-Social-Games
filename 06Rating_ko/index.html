@@ -59,7 +59,7 @@
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
             padding: 15px 30px;
-            margin: 10px;
+            margin: 10px 0;
             border-radius: 10px;
             font-size: 1.1em;
             cursor: pointer;
@@ -107,7 +107,7 @@
             font-size: 1.1em;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin: 10px;
+            margin: 10px 0;
             width: 100%;
             font-weight: 400;
         }
@@ -832,12 +832,14 @@
         function generateCodes() {
             const playerCount = parseInt(document.getElementById('playerCount').value);
             
-            if (playerCount < 1 || playerCount > 50) {
+            if (!Number.isInteger(playerCount) || playerCount < 1 || playerCount > 50) {
                 alert('1명에서 50명 사이의 숫자를 입력해주세요.');
                 return;
             }
 
             playerTokens = {};
+            gameState.currentRound = 1;
+            gameState.currentTurn = 1;
             gameState.maxPlayers = playerCount;
             gameState.scores = { '호스트': 0 };
 
@@ -849,7 +851,9 @@
 
             // 다른 플레이어들을 위한 토큰 생성
             for (let i = 1; i <= playerCount; i++) {
-                const token = generateSimpleToken();
+                let token = generateSimpleToken();
+                // 겹치면 앞 플레이어를 덮어써 버리므로 안 겹칠 때까지 다시 뽑는다.
+                while (playerTokens[token]) token = generateSimpleToken();
                 const secretNumbers = generateSecretNumbers(token, gameState.maxRounds);
                 
                 playerTokens[token] = {

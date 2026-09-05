@@ -45,7 +45,7 @@ function loadGameData() {
 function initializePage() {
     document.getElementById('gameInfo').textContent = `Game ${currentGame} - Round ${currentRound}`;
 
-    const roleText = fromPage === 'host' ? 'Host' : `Player ${playerIndex}`;
+    const roleText = (fromPage === 'host' || fromPage === 'player0') ? 'Host' : `Player ${playerIndex}`;
     document.getElementById('playerRole').textContent = roleText;
 
     const amILiar = inviteCode

@@ -118,7 +118,8 @@ function assignRoles() {
 // 게임 정보 UI 업데이트
 function updateGameInfo() {
     document.getElementById('gameCode').textContent = `코드: ${inviteCode}`;
-    document.getElementById('playerInfo').textContent = `플레이어 ${playerIndex + 1}/${totalPlayers}`;
+    document.getElementById('playerInfo').textContent =
+        playerIndex === 0 ? `호스트/${totalPlayers}` : `플레이어 ${playerIndex}/${totalPlayers}`;
 }
 
 // 카드 생성
