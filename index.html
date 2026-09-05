@@ -160,8 +160,37 @@
       margin-top: 1px;
     }
 
+    .offline {
+      margin-top: 36px;
+      padding: 16px 18px;
+      background: var(--surf);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--dim);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .offline a {
+      color: var(--accent);
+    }
+
+    .offline code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      background: var(--surf2);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+
+    .offline .en {
+      display: block;
+      margin-top: 6px;
+      opacity: 0.75;
+    }
+
     footer {
-      margin-top: 48px;
+      margin-top: 28px;
       text-align: center;
       color: var(--dim);
       font-size: 13px;
@@ -212,9 +241,10 @@
           <span class="en">Guess the real survey percentage. Every question cites its source, so the arguments afterwards
             are half the fun.</span>
         </p>
-        <div class="meta">문항 138개 · 영어만 &nbsp;/&nbsp; 138 questions · English only</div>
+        <div class="meta">문항 138개 &nbsp;/&nbsp; 138 questions</div>
         <div class="btns">
-          <a class="btn" href="03Signal/">플레이<span class="sub">Play</span></a>
+          <a class="btn" href="03Signal_ko/">한국어<span class="sub">Korean</span></a>
+          <a class="btn" href="03Signal_en/">English<span class="sub">영어</span></a>
         </div>
       </div>
 
@@ -246,6 +276,15 @@
       </div>
 
     </div>
+
+    <p class="offline">
+      서버가 꺼져 있어도 됩니다 — <a href="https://github.com/EmptyDeck/Sejiks-Social-Games">저장소를 받아</a>
+      게임 폴더의 <code>index.html</code> 을 그냥 열면 그대로 돌아갑니다.
+      SIGNAL 은 <a href="03Signal_ko/standalone.html">한국어</a> ·
+      <a href="03Signal_en/standalone.html">English</a> 단일 파일도 있어서, 그 파일 하나만 주고받아도 됩니다.
+      <span class="en">No server needed — download the repo and just open a game's <code>index.html</code>.
+        SIGNAL also ships as one self-contained file you can send to a friend.</span>
+    </p>
 
     <footer>
       만든이 <a href="https://github.com/EmptyDeck">EmptyDeck</a> ·

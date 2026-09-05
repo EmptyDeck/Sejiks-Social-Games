@@ -22,14 +22,18 @@ journalctl -u games -f              # 로그
 cd /home/user/projects/Sejiks-Social-Games && python3 deploy/serve.py
 GAMES_PORT=9999 python3 deploy/serve.py
 ```
-- 필요한 것: **Python 3 표준 라이브러리만.** 외부 패키지 없음. GPU 불필요. 빌드 단계 없음.
+- 서버에 필요한 것: **Python 3 표준 라이브러리만.** 외부 패키지 없음. GPU 불필요.
+- SIGNAL 을 고칠 때만 **node + npx** 가 필요하다 (`deploy/build.sh`). 나머지 게임은 빌드 없음.
 - 포트: **8410**, 바인딩 **`0.0.0.0` (IPv4)**. 다른 프로젝트와 같은 이유로 `"::"` 로 바꾸지 마라.
 
 ## 파일 구조
 | 경로 | 역할 |
 |---|---|
 | `index.html` | 게임 목록 페이지. 배포 루트이자 GitHub Pages 를 켜면 그대로 쓸 수 있다 |
-| `03Signal/index.html` | SIGNAL — 통계 맞히기. **이 파일 하나가 전부다.** 화면 6개와 문항 138개가 전부 안에 들어 있다. 옛 인간 통계 보고서(v1)를 대체한다 |
+| `03Signal_ko/`, `03Signal_en/` | SIGNAL 언어별 폴더. 각각 `index.html`(껍데기) · `data.js`(문장+문항 138개) · `standalone.html`(빌드 결과, 단일 파일판) |
+| `src/signal.app.jsx` | SIGNAL 공용 로직 **원본**. 언어 문자열이 하나도 없다 — 전부 `data.js` 에서 온다 |
+| `99shared/` | 두 언어 공용. React 프로덕션 빌드, `signal.css`, 빌드된 `signal.app.js` |
+| `deploy/build.sh` | JSX 컴파일 + `standalone.html` 생성 |
 | `05LiarHunt_ko/`, `05LiarHunt_en/` | 라이어 헌트 v2. 문항 `questions.js`, 역할 배정 `gameData.js` |
 | `06Rating_ko/`, `06Rating_en/` | 너의 평점은 v2. **단일 HTML 파일**이고 QR 은 jsDelivr CDN 의 qrcode 를 쓴다 |
 | `04GRE_AWA/`, `04GRE_Voca/`, `08Memorise/` | 공부 도구. 게임이 아니고 목록 페이지에도 없다 |
@@ -43,7 +47,7 @@ GAMES_PORT=9999 python3 deploy/serve.py
 | 무엇 | 경로 | 재생성 가능? |
 |---|---|---|
 | 게임 진행 상태 | 각 플레이어 브라우저의 `sessionStorage` | 해당 없음 — 탭을 닫으면 사라지는 것이 정상 |
-| 문항 | `03Signal/index.html` 안 `QUESTIONS`, `05LiarHunt_*/questions.js` | 아니오. 손으로 쓴 것이다 (생성 프롬프트는 `99archive/prompts/`) |
+| 문항 | `03Signal_*/data.js`, `05LiarHunt_*/questions.js` | 아니오. 손으로 쓴 것이다 (생성 프롬프트는 `99archive/prompts/`) |
 
 서버는 아무것도 저장하지 않는다. 읽기 전용 정적 서빙뿐이라 유닛에 `ProtectSystem=strict` 가 걸려 있다.
 
@@ -61,6 +65,15 @@ Funnel 이 `/games` 접두사를 떼고 넘기므로 서버는 저장소 루트�
    날아간다. `deploy/serve.py` 의 `send_header()` 가 이걸 `05LiarHunt_ko/` 로 낮춘다.
    **이 부분을 지우면 슬래시 없는 주소가 전부 깨진다.**
 
+## 서버 없이도 되어야 한다 — 깨뜨리지 마라
+게임은 **파일을 그냥 열어도(`file://`) 돌아가야 한다.** 서버는 편의일 뿐이다. 그래서:
+
+- `fetch`, `XMLHttpRequest`, `<script type="module">`, `import` 를 **쓰지 마라.**
+  `file://` 에서 전부 막힌다. 지금 저장소에는 하나도 없다 (검사해서 확인했다).
+- 데이터가 필요하면 `data.js` 처럼 전역에 담아 평범한 `<script src>` 로 읽어라.
+- SIGNAL 은 `standalone.html` 로도 나간다. 한 파일에 전부 들어 있어 남에게 그것만 줘도 된다.
+  `deploy/build.sh` 가 만든다. 구조를 바꾸면 이것도 같이 확인해라.
+
 ## 만지면 안 되는 것
 - **`tailscale serve` 를 8443 에 쓰지 마라. 반드시 `tailscale funnel` 을 써라.**
   `serve` 를 쓰면 그 포트의 Funnel 이 꺼지면서 `/mail` `/life` `/usage` `/monitor` 까지
@@ -70,6 +83,7 @@ Funnel 이 `/games` 접두사를 떼고 넘기므로 서버는 저장소 루트�
   ```
 - **폴더 이름을 바꾸지 마라.** 폴더 이름이 곧 공개 URL 이고 README·`index.html`·각 게임
   `readme.md` 가 그 이름을 박아 두고 있다. 바꾸면 이미 뿌린 링크가 죽는다.
+- `99shared/signal.app.js` 와 `03Signal_*/standalone.html` 은 **빌드 결과물**이다. 직접 고치지 마라 — `deploy/build.sh` 를 다시 돌려라.
 - `06Rating_*/index.html` 이 v2 다. `99archive/06Rating_v1_en.html` 은 옛 1.0 이니 되돌리지 마라.
 - **옛 인간 통계 보고서(v1)를 되살리지 마라.** 4글자 코드를 글자 코드의 *합*으로 시드를 만들어서
   `ABCD` 와 `DCBA` 가 같은 게임이 되고, 가능한 시드가 101가지뿐이었다. SIGNAL 이 이걸 고쳤다.
@@ -80,10 +94,10 @@ Funnel 이 `/games` 접두사를 떼고 넘기므로 서버는 저장소 루트�
   더 붙이려면 경로를 쓰거나 다른 포트를 비워야 한다.
 - 한국어판 코드에 `console.log` 디버그 출력이 많이 남아 있다 (영어판에는 없다). 동작에는
   지장이 없어 그대로 뒀다.
-- **SIGNAL 은 한국어판이 없다.** 옛 v1 에는 한국어판이 있었지만 v1 을 버리면서 같이 사라졌다.
-  번역하려면 `03Signal/Questions.js` 의 138문항과 `index.html` 안의 UI 문자열을 옮겨야 한다.
-- SIGNAL 은 unpkg 에서 React **개발 빌드**와 Babel standalone 을 받아 브라우저에서 컴파일한다.
-  첫 로딩이 눈에 띄게 느리다. 급하면 프로덕션 빌드로 바꾸고 JSX 를 미리 컴파일하면 된다.
+- 한국어 문항은 미국 조사 결과를 옮긴 것이라 "미국인은 몇 퍼센트" 로 못 박아 둔 것이 많다.
+  그냥 "사람들"로 고치면 수치가 거짓이 되니 건드리지 마라.
+- `06Rating_*` 는 QR 라이브러리를 jsDelivr 에서 받는다. 인터넷이 없으면 QR 버튼만 죽는다.
+  나머지 기능과 다른 게임은 전부 오프라인에서 돈다.
 
 ## 최근 변경
 <!-- AUTO:GIT -->
