@@ -759,13 +759,34 @@
          * Smart Algorithm: Convert 4-letter code to seed for deterministic random number generation
          */
         
-        function generateSimpleToken() {
-            // Generate 4 random letters only
-            let code = '';
-            for (let i = 0; i < 4; i++) {
-                code += AVAILABLE_LETTERS[Math.floor(Math.random() * AVAILABLE_LETTERS.length)];
+
+        // ── 플레이어 번호를 코드 자체에 담는다 ──────────────────────────────
+        // 서버가 없어서 플레이어 폰에는 호스트가 만든 명단(playerTokens)이 없다.
+        // 예전에는 그래서 누가 들어와도 "플레이어 1" 로 보였다. 이제 코드의 앞 두
+        // 글자가 번호를 담고(24*24=576 까지) 뒤 두 글자가 무작위라, 어느 기기에서든
+        // 코드만 보고 자기 번호를 복원할 수 있다.
+        // 비밀 숫자는 예전처럼 코드 네 글자 전체에서 나온다.
+        const MAX_PLAYER_NUMBER = 50;
+
+        function makePlayerToken(playerNumber) {
+            const idx = playerNumber - 1;
+            const a = AVAILABLE_LETTERS[Math.floor(idx / 24)];
+            const b = AVAILABLE_LETTERS[idx % 24];
+            let tail = '';
+            for (let i = 0; i < 2; i++) {
+                tail += AVAILABLE_LETTERS[Math.floor(Math.random() * AVAILABLE_LETTERS.length)];
             }
-            return code;
+            return a + b + tail;
+        }
+
+        function playerNumberFromToken(token) {
+            if (!token || token.length !== 4) return null;
+            for (const letter of token) {
+                if (!AVAILABLE_LETTERS.includes(letter)) return null;
+            }
+            const n = AVAILABLE_LETTERS.indexOf(token[0]) * 24
+                    + AVAILABLE_LETTERS.indexOf(token[1]) + 1;
+            return (n >= 1 && n <= MAX_PLAYER_NUMBER) ? n : null;
         }
 
         function codeToSeed(fourLetterCode) {
@@ -851,9 +872,9 @@
 
             // Generate tokens for other players
             for (let i = 1; i <= playerCount; i++) {
-                let token = generateSimpleToken();
-                // 겹치면 앞 플레이어를 덮어써 버리므로 안 겹칠 때까지 다시 뽑는다.
-                while (playerTokens[token]) token = generateSimpleToken();
+                // 코드 앞 두 글자에 플레이어 번호를 담는다.
+                let token = makePlayerToken(i);
+                while (playerTokens[token]) token = makePlayerToken(i);
                 const secretNumbers = generateSecretNumbers(token, gameState.maxRounds);
                 
                 playerTokens[token] = {
@@ -1181,8 +1202,14 @@
             }
             
             if (validCode) {
-                // Use a default player number for demo
-                currentPlayerNumber = 1;
+                // 다른 기기에서 들어온 경우. 호스트 명단이 없으므로 코드에 담긴
+                // 번호를 복원해서 쓴다. (예전에는 무조건 1 이었다.)
+                const decodedNumber = playerNumberFromToken(token);
+                if (!decodedNumber) {
+                    alert('That is not a player code for this game. Please check the code your host gave you.');
+                    return;
+                }
+                currentPlayerNumber = decodedNumber;
                 currentPlayerToken = token;
                 showRules();
             } else {
