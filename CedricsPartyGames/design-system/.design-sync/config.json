@@ -1,0 +1,21 @@
+{
+  "projectId": "3ceb309a-c004-4913-bf48-c675aed5906a",
+  "shape": "package",
+  "pkg": "@cedrics/party-ui",
+  "globalName": "PartyUI",
+  "buildCmd": "npm run build",
+  "cssEntry": "dist/styles.css",
+  "docsDir": "docs",
+  "provider": {
+    "component": "PartyTheme",
+    "props": {
+      "theme": "cartoon-party"
+    }
+  },
+  "overrides": {
+    "WordGrid": {
+      "cardMode": "column"
+    }
+  },
+  "readmeHeader": ".design-sync/conventions.md"
+}

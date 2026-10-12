@@ -1,0 +1,121 @@
+/* THEME BRIEF
+ * Theme name:    80s ARCADE — neon cabinet at midnight
+ * Era/vibe:      1984 arcade, CRT glow, INSERT COIN, hi-score
+ * Palette:       bg #0d0221, bg2 #2a0a5e, fg #f5f0ff, accent hot pink #ff2fb3, accent2 cyan #19f0ff, + yellow #ffe14a
+ *                player colours --pc0..--pc11 are saturated neons (all readable on dark)
+ * Fonts:         display 'Press Start 2P' ; body 'VT323' ; Korean fallback 'Noto Sans KR' / 'Apple SD Gothic Neo'
+ * Shapes:        radius 0, 3px neon outlines, glow box-shadows, perspective grid horizon + scanlines
+ * Motion:        hard steps(): --ease steps(4,end), --dur .24s, --anim-in nb-in (blink-in drop); NOW! flashes in 2 steps
+ * Sound voice:   retro (square chips). screenSfx ready=whoosh wait=tick go=ding result=reveal final=fanfare
+ * Avatars:       👾🕹️🎮👻🍒⭐💎🔥🚀🛸👽🤖💥⚡🎯🏆🪙🍄🐸🦖🧨🎲🔮🌈
+ * Copy tone:     "INSERT COIN: PLAY AGAIN" / "WAIT FOR IT..." / 한국어 "코인 투입: 한 판 더" "기다려..."
+ */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Noto+Sans+KR:wght@500;800&display=swap');
+
+body[data-game="neon-buzz"] {
+  --bg: #0d0221; --bg2: #2a0a5e;
+  --fg: #f5f0ff; --muted: rgba(245,240,255,.65);
+  --accent: #ff2fb3; --accent-fg: #0d0221; --accent2: #19f0ff;
+  --card: rgba(25,240,255,.07); --line: rgba(25,240,255,.45);
+  --good: #3dff8a; --bad: #ff4466;
+  --radius: 0px;
+  --font-display: 'Press Start 2P', 'Noto Sans KR', 'Apple SD Gothic Neo', monospace;
+  --font-body: 'VT323', 'Noto Sans KR', 'Apple SD Gothic Neo', monospace;
+  --ease: steps(4, end);
+  --dur: .24s;
+  --anim-in: nb-in;
+  --letter: .02;
+  --pc0:#ff2fb3; --pc1:#19f0ff; --pc2:#ffe14a; --pc3:#3dff8a; --pc4:#ff7a1a; --pc5:#7a5cff;
+  --pc6:#ff4466; --pc7:#c04bff; --pc8:#4aa8ff; --pc9:#b6ff3a; --pc10:#ff8fd8; --pc11:#e8f6ff;
+  font-size: 22px;
+  background:
+    linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,.18) 50%) 0 0 / 100% 4px,
+    radial-gradient(120% 90% at 50% 0%, var(--bg2), var(--bg) 70%) fixed;
+}
+body[data-game="neon-buzz"] h1, body[data-game="neon-buzz"] h2, body[data-game="neon-buzz"] h3 { text-transform: uppercase; line-height: 1.35; }
+body[data-game="neon-buzz"] .btn {
+  font-family: var(--font-display); font-weight: 400; font-size: .62em; text-transform: uppercase; letter-spacing: .04em;
+  border: 3px solid #fff; box-shadow: 0 0 0 3px var(--accent), 0 0 18px var(--accent), 4px 4px 0 3px #000; line-height: 1.5;
+}
+body[data-game="neon-buzz"] .btn:active:not(:disabled) { transform: translate(3px,3px); }
+body[data-game="neon-buzz"] .btn.secondary { box-shadow: 0 0 0 2px var(--accent2); border-color: transparent; }
+body[data-game="neon-buzz"] .card { border-width: 2px; box-shadow: 0 0 10px rgba(25,240,255,.25) inset; }
+body[data-game="neon-buzz"] .avatar { box-shadow: 0 0 0 2px #fff, 0 0 10px var(--accent2); border-radius: 0; }
+body[data-game="neon-buzz"] .roomcode { color: var(--accent2); font-family: var(--font-display); text-shadow: 0 0 10px var(--accent2); }
+body[data-game="neon-buzz"] .timer-num { font-weight: 400; font-size: 1.1em; color: var(--accent2); }
+body[data-game="neon-buzz"] .timer-bar { border-radius: 0; height: 14px; border: 2px solid var(--accent2); background: transparent; }
+body[data-game="neon-buzz"] .timer-bar i { background: repeating-linear-gradient(90deg, var(--accent) 0 8px, transparent 8px 11px); }
+body[data-game="neon-buzz"] p { font-size: 1.15em; margin: .3em 0; }
+
+/* headings with neon glow */
+body[data-game="neon-buzz"] .nb-big { font-size: 1.5em; color: var(--accent2); text-shadow: 0 0 14px var(--accent2), 3px 3px 0 var(--accent); }
+body[data-game="neon-buzz"] .nb-title { color: var(--accent); text-shadow: 0 0 14px var(--accent), 3px 3px 0 var(--accent2); font-size: 1.2em; }
+body[data-game="neon-buzz"] .nb-round { font-family: var(--font-display); font-size: .6em; color: var(--accent); letter-spacing: .1em; text-shadow: 0 0 8px var(--accent); }
+body[data-game="neon-buzz"].host .nb-big { font-size: 2.4em; }
+body[data-game="neon-buzz"] .nb-thumb { font-size: 4em; animation: nb-nudge .5s steps(2, end) infinite; }
+body[data-game="neon-buzz"] .nb-blink { animation: nb-blink 1.1s steps(2, end) infinite; }
+
+/* full-bleed state layers: behind the screen content, above the page background */
+body[data-game="neon-buzz"] .nb-layer { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+body[data-game="neon-buzz"] .nb-wait, body[data-game="neon-buzz"] .nb-nowwrap, body[data-game="neon-buzz"] .nb-ready { position: relative; z-index: 2; }
+body[data-game="neon-buzz"] .nb-dark { background: #000; box-shadow: inset 0 0 0 6px #1a0a3a; }
+body[data-game="neon-buzz"] .nb-wait .nb-big { color: #6b4fa8; text-shadow: none; }
+body[data-game="neon-buzz"] .nb-wait p, body[data-game="neon-buzz"] .nb-wait .nb-round { color: #6b4fa8; text-shadow: none; }
+body[data-game="neon-buzz"] .nb-go { background: repeating-linear-gradient(45deg, #ff2fb3 0 40px, #ff7ad0 40px 80px); animation: nb-flash .16s steps(2, end) infinite; }
+body[data-game="neon-buzz"] .nb-locked { background: #0b3d2e; }
+body[data-game="neon-buzz"] .nb-early { background: #4a0618; animation: nb-flash2 .3s steps(2, end) 3; }
+body[data-game="neon-buzz"] .nb-now { font-size: 3.4em; color: #fff; text-shadow: 5px 5px 0 #000, 0 0 30px #fff; margin: 0; }
+body[data-game="neon-buzz"].host .nb-now { font-size: 7em; }
+body[data-game="neon-buzz"] .nb-ms { font-family: var(--font-display); font-size: 1.6em; color: var(--good); text-shadow: 0 0 14px var(--good); margin: 10px 0; }
+/* the whole phone is the button */
+body[data-game="neon-buzz"] .nb-zone { position: fixed; inset: 0; z-index: 3; width: 100%; height: 100%; background: transparent; border: 0; padding: 0; touch-action: manipulation; cursor: pointer; }
+body[data-game="neon-buzz"] .nb-zone-go { display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12vh; font-family: var(--font-display); font-size: 1.3em; color: #fff; text-shadow: 3px 3px 0 #000; }
+body[data-game="neon-buzz"] .nb-zone-go span { animation: nb-blink .3s steps(2, end) infinite; }
+
+/* chips on big screen */
+body[data-game="neon-buzz"] .nb-chips { display: flex; flex-wrap: wrap; gap: 22px; justify-content: center; margin-top: 18px; }
+body[data-game="neon-buzz"] .nb-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: .5; font-size: .9em; }
+body[data-game="neon-buzz"] .nb-chip.in { opacity: 1; }
+body[data-game="neon-buzz"] .nb-chip.in .avatar { box-shadow: 0 0 0 3px var(--good), 0 0 16px var(--good); }
+body[data-game="neon-buzz"] .nb-chip.false { opacity: 1; }
+body[data-game="neon-buzz"] .nb-chip.false .avatar { box-shadow: 0 0 0 3px var(--bad), 0 0 16px var(--bad); filter: grayscale(.6); }
+body[data-game="neon-buzz"] .nb-go ~ .screen .nb-chip b, body[data-game="neon-buzz"] .nb-go ~ .screen .nb-chip { color: #fff; text-shadow: 2px 2px 0 #000; }
+
+/* results */
+body[data-game="neon-buzz"] .nb-cols { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; width: 100%; align-items: start; }
+body[data-game="neon-buzz"].host .nb-cols { text-align: left; }
+@media (max-width: 800px) { body[data-game="neon-buzz"] .nb-cols { grid-template-columns: 1fr; } }
+body[data-game="neon-buzz"] .nb-row { position: relative; overflow: hidden; padding: 10px 12px; }
+body[data-game="neon-buzz"] .nb-row .row, body[data-game="neon-buzz"] .nb-row .nb-bar { position: relative; }
+body[data-game="neon-buzz"] .nb-row.first { border-color: var(--accent); box-shadow: 0 0 18px var(--accent), 0 0 10px rgba(255,47,179,.4) inset; }
+body[data-game="neon-buzz"] .nb-bar { display: block; height: 6px; margin-top: 8px; background: linear-gradient(90deg, var(--accent2), var(--accent)); box-shadow: 0 0 8px var(--accent2); }
+body[data-game="neon-buzz"] .nb-rank { font-family: var(--font-display); font-size: .7em; color: var(--accent); width: 1.6em; }
+body[data-game="neon-buzz"] .nb-time { font-family: var(--font-display); font-size: .65em; color: var(--accent2); }
+body[data-game="neon-buzz"] .nb-time.bad, body[data-game="neon-buzz"] .nb-pts.bad { color: var(--bad); }
+body[data-game="neon-buzz"] .nb-time.dim, body[data-game="neon-buzz"] .nb-pts.dim { color: var(--muted); }
+body[data-game="neon-buzz"] .nb-pts { font-style: normal; font-family: var(--font-display); font-size: .65em; color: #ffe14a; min-width: 3.2em; text-align: right; }
+body[data-game="neon-buzz"] .nb-mine { display: flex; align-items: baseline; gap: 12px; justify-content: space-between; padding: 14px; border: 3px solid var(--good); box-shadow: 0 0 16px var(--good); font-family: var(--font-display); font-size: .7em; line-height: 1.5; }
+body[data-game="neon-buzz"] .nb-mine.bad { border-color: var(--bad); box-shadow: 0 0 16px var(--bad); }
+body[data-game="neon-buzz"] .nb-mine em { font-style: normal; color: #ffe14a; }
+body[data-game="neon-buzz"] .nb-score { display: flex; align-items: center; gap: 10px; padding: 8px 12px; }
+body[data-game="neon-buzz"] .nb-pos { font-family: var(--font-display); font-size: .7em; color: var(--accent); width: 1.6em; }
+body[data-game="neon-buzz"] .nb-total { font-family: var(--font-display); font-size: .75em; color: #ffe14a; text-shadow: 0 0 8px #ffe14a; }
+body[data-game="neon-buzz"] .nb-board.big .nb-score:first-child { border-color: var(--accent); box-shadow: 0 0 18px var(--accent); }
+body[data-game="neon-buzz"] .nb-champ { text-align: center; }
+body[data-game="neon-buzz"] .nb-champ .avatar { animation: nb-nudge .5s steps(2, end) infinite; }
+body[data-game="neon-buzz"] .nb-skip { width: auto; margin-top: 8px; }
+
+/* sunset grid horizon on ready screens */
+body[data-game="neon-buzz"] .nb-ready::after {
+  content: ''; position: fixed; left: 0; right: 0; bottom: 0; height: 28vh; z-index: -1; pointer-events: none; opacity: .5;
+  background: linear-gradient(var(--accent2) 1px, transparent 1px) 0 0 / 100% 22px, linear-gradient(90deg, var(--accent2) 1px, transparent 1px) 0 0 / 44px 100%;
+  -webkit-mask-image: linear-gradient(transparent, #000); mask-image: linear-gradient(transparent, #000);
+}
+
+@keyframes nb-in { 0% { opacity: 0; transform: translateY(-24px); } 50% { opacity: 1; transform: translateY(6px); } 100% { opacity: 1; transform: none; } }
+@keyframes nb-blink { 50% { opacity: .25; } }
+@keyframes nb-nudge { 50% { transform: translateY(-8px); } }
+@keyframes nb-flash { 50% { filter: brightness(1.7) hue-rotate(40deg); } }
+@keyframes nb-flash2 { 50% { background: #8a0c2e; } }
+body[data-game="neon-buzz"] .nb-row .row { flex-wrap: nowrap; }
+body[data-game="neon-buzz"] .nb-row .nb-time { white-space: nowrap; }

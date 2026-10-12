@@ -1,0 +1,102 @@
+/* Theme Brief — HAUNTED MANSION
+ * Theme name:  Haunted Quiz.   Vibe: candlelit, gothic, playful Halloween, drifting fog, spooky-silly.
+ * Palette:     bg #0d0616 (black-violet), bg2 #2a1245 (deep purple), fg #f6ecff (moonlit lilac-white),
+ *              accent #ff8a1f (pumpkin orange), accent2 #7cff6b (slime green, used sparingly) + 12 player colours --pc0..11
+ * Fonts:       display 'Creepster' fallback 'Noto Sans KR' (gothic cartoon, headings/timers only);
+ *              body 'Nunito' / 'Noto Sans KR' for readable questions and answers.
+ * Shapes:      --radius 16px, orange candle-glow borders, torn-vignette radial background, fog layers.
+ * Motion:      --ease soft ease-out, --dur .55s, --anim-in = haunt-in (rises out of the fog with a wobble);
+ *              fog drifts slowly, ghosts bob, the right answer pulses on reveal.
+ * Sound voice: cartoon + lobbySounds boing/toot/aha/honk/pop; screenSfx whoosh/boing/reveal/ding/fanfare.
+ * Avatars:     ghost, pumpkin, bat, spider, skull, vampire, zombie, witch, web, candle, grave, owl, black cat, potion...
+ * Copy tone:   "The candles flicker…" / "촛불이 깜빡거린다…" · "Locked in. The ghosts are watching…" / "선택 완료. 유령들이 지켜보는 중…" · "Haunt again?" / "한 번 더 홀릴까요?"
+ * Every rule is scoped to body[data-game="haunted-quiz"]. */
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nunito:wght@600;800&family=Noto+Sans+KR:wght@500;800&display=swap');
+
+body[data-game="haunted-quiz"] {
+  --bg: #0d0616; --bg2: #2a1245;
+  --fg: #f6ecff; --muted: rgba(246,236,255,.66);
+  --accent: #ff8a1f; --accent-fg: #1a0a00; --accent2: #7cff6b;
+  --card: rgba(255,255,255,.08); --line: rgba(255,138,31,.38);
+  --good: #7cff6b; --bad: #ff5d6c;
+  --radius: 16px;
+  --font-display: 'Creepster', 'Noto Sans KR', 'Apple SD Gothic Neo', cursive, system-ui;
+  --font-body: 'Nunito', 'Noto Sans KR', 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --ease: cubic-bezier(.2,.8,.3,1);
+  --dur: .55s;
+  --anim-in: haunt-in;
+  --letter: .04;
+  --pc0:#ff5d6c; --pc1:#ff8a1f; --pc2:#ffd23f; --pc3:#7cff6b; --pc4:#3fd6c0; --pc5:#4fa8ff;
+  --pc6:#8b7bff; --pc7:#c06bff; --pc8:#ff6bd6; --pc9:#c9a27b; --pc10:#9aa7b5; --pc11:#efe6ff;
+  background: radial-gradient(110% 80% at 50% 0%, #3a1a5e 0%, var(--bg2) 25%, var(--bg) 75%) fixed;
+}
+/* fog: two soft blurry layers drifting at different speeds, behind everything */
+body[data-game="haunted-quiz"]::before, body[data-game="haunted-quiz"]::after {
+  content: ''; position: fixed; left: -50%; width: 200%; height: 45%; pointer-events: none; z-index: 0; opacity: .5;
+  background: radial-gradient(40% 60% at 20% 50%, rgba(190,160,255,.22), transparent 70%),
+              radial-gradient(35% 55% at 60% 40%, rgba(255,255,255,.14), transparent 70%),
+              radial-gradient(30% 60% at 90% 60%, rgba(160,120,255,.2), transparent 70%);
+  filter: blur(18px);
+}
+body[data-game="haunted-quiz"]::before { bottom: 0; animation: fog-drift 38s linear infinite; }
+body[data-game="haunted-quiz"]::after { top: 20%; opacity: .3; animation: fog-drift 60s linear infinite reverse; }
+body[data-game="haunted-quiz"] #screen, body[data-game="haunted-quiz"] #chrome { position: relative; z-index: 2; }
+body[data-game="haunted-quiz"] #chrome { position: fixed; }
+
+body[data-game="haunted-quiz"] h1, body[data-game="haunted-quiz"] h2, body[data-game="haunted-quiz"] h3 { font-weight: 400; text-shadow: 0 0 18px rgba(255,138,31,.45); }
+body[data-game="haunted-quiz"] h1 { font-size: 2.2em; }
+body[data-game="haunted-quiz"] .qtext { font-family: var(--font-body); font-weight: 800; font-size: 1.35em; line-height: 1.25; text-shadow: none; letter-spacing: 0; }
+body[data-game="haunted-quiz"] h1.qtext { font-size: 1.9em; }
+body[data-game="haunted-quiz"] .qtext.sm { font-size: 1.1em; }
+body[data-game="haunted-quiz"] .center-t { text-align: center; }
+body[data-game="haunted-quiz"] .roomcode { text-shadow: 0 0 24px rgba(255,138,31,.7); }
+
+body[data-game="haunted-quiz"] .btn { border: 2px solid #ffb25f; box-shadow: 0 0 16px rgba(255,138,31,.35); font-weight: 800; }
+body[data-game="haunted-quiz"] .btn.ans, body[data-game="haunted-quiz"] .card.ans {
+  display: flex; align-items: center; gap: 12px; text-align: left; min-height: 56px; padding: 12px 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.04)); color: var(--fg);
+  border: 2px solid var(--line); box-shadow: inset 0 0 22px rgba(124,70,200,.25);
+}
+body[data-game="haunted-quiz"] .btn.ans { font-family: var(--font-body); font-size: 1.05em; }
+body[data-game="haunted-quiz"] .btn.ans .lt, body[data-game="haunted-quiz"] .card.ans .lt { font-size: 1.5em; flex: none; width: 1.4em; text-align: center; }
+body[data-game="haunted-quiz"] .btn.ans.picked { background: var(--accent); color: var(--accent-fg); border-color: #fff; opacity: 1; animation: candle 1.6s ease-in-out infinite; }
+body[data-game="haunted-quiz"] .btn.ans:disabled:not(.picked) { opacity: .4; }
+body[data-game="haunted-quiz"] .card.ans.big { font-size: 1.05em; min-height: 84px; }
+body[data-game="haunted-quiz"] .card.rev { flex-direction: column; align-items: stretch; gap: 8px; }
+body[data-game="haunted-quiz"] .card.rev.right { border-color: var(--good); background: rgba(124,255,107,.15); box-shadow: 0 0 26px rgba(124,255,107,.45); animation: pulse-right 1.2s ease-in-out infinite .5s; }
+body[data-game="haunted-quiz"] .card.rev.wrongopt { opacity: .8; }
+body[data-game="haunted-quiz"] .card.rev.mine { outline: 3px solid var(--accent); opacity: 1; }
+body[data-game="haunted-quiz"] .pickers { min-height: 1.6em; gap: 6px; }
+body[data-game="haunted-quiz"] .pickers .avatar { width: 1.8em; height: 1.8em; font-size: .9em; }
+body[data-game="haunted-quiz"] .optgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; max-width: 1100px; }
+
+body[data-game="haunted-quiz"] .timer-num { color: var(--accent); text-shadow: 0 0 12px rgba(255,138,31,.6); }
+body[data-game="haunted-quiz"] .timer-bar i { background: linear-gradient(90deg, #7a2fd0, var(--accent)); box-shadow: 0 0 10px var(--accent); }
+
+body[data-game="haunted-quiz"] .who-sub { display: flex; flex-direction: column; align-items: center; gap: 2px; opacity: .4; transition: opacity .4s; font-size: .6em; }
+body[data-game="haunted-quiz"] .who-sub.done { opacity: 1; }
+body[data-game="haunted-quiz"] .who-sub.done .avatar { box-shadow: 0 0 0 3px var(--accent2), 0 0 16px var(--accent2); }
+body[data-game="haunted-quiz"] .whorow { justify-content: center; gap: 22px; }
+
+body[data-game="haunted-quiz"] .banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; padding: 14px; border-radius: var(--radius); font-size: 1.5em; border: 2px solid; }
+body[data-game="haunted-quiz"] .banner b { font-family: var(--font-display); font-weight: 400; font-size: 1.3em; }
+body[data-game="haunted-quiz"] .banner.good { background: rgba(124,255,107,.14); border-color: var(--good); color: var(--good); animation: haunt-in .5s var(--ease) both; }
+body[data-game="haunted-quiz"] .banner.bad { background: rgba(255,93,108,.14); border-color: var(--bad); color: var(--bad); animation: shake .5s; }
+body[data-game="haunted-quiz"] .pts { color: var(--accent); font-weight: 800; }
+body[data-game="haunted-quiz"] .chipx { font-size: .6em; background: rgba(255,138,31,.2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; color: var(--fg); }
+
+body[data-game="haunted-quiz"] .rank { display: flex; align-items: center; gap: 12px; padding: 10px 16px; }
+body[data-game="haunted-quiz"] .rank .pos { font-family: var(--font-display); font-weight: 400; color: var(--accent); width: 1.5em; font-size: 1.3em; }
+body[data-game="haunted-quiz"] .rank.me { border-color: var(--accent); }
+body[data-game="haunted-quiz"] .bigboard .rank:first-child { border-color: var(--accent); background: rgba(255,138,31,.16); font-size: 1.2em; box-shadow: 0 0 28px rgba(255,138,31,.4); }
+body[data-game="haunted-quiz"] .board { max-width: 760px; margin: 8px auto 0; }
+body[data-game="haunted-quiz"] .score { font-family: var(--font-display); font-weight: 400; font-size: 1.3em; color: var(--accent); }
+body[data-game="haunted-quiz"] .ghost-big { font-size: 5em; animation: bob 3s ease-in-out infinite; filter: drop-shadow(0 0 20px rgba(255,138,31,.6)); }
+body[data-game="haunted-quiz"] .avatar { box-shadow: 0 0 0 2px var(--line); }
+
+@keyframes haunt-in { 0% { opacity: 0; transform: translateY(26px) rotate(-1.5deg) scale(.96); } 60% { opacity: 1; transform: translateY(-3px) rotate(.8deg); } 100% { opacity: 1; transform: none; } }
+@keyframes fog-drift { from { transform: translateX(0); } to { transform: translateX(25%); } }
+@keyframes bob { 50% { transform: translateY(-14px) rotate(3deg); } }
+@keyframes candle { 50% { box-shadow: 0 0 30px rgba(255,138,31,.9); } }
+@keyframes pulse-right { 50% { transform: scale(1.025); } }
+@media (prefers-reduced-motion: reduce) { body[data-game="haunted-quiz"]::before, body[data-game="haunted-quiz"]::after { animation: none; } }

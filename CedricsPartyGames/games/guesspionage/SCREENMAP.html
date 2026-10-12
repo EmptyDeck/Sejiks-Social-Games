@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guesspionage — Screen Map</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Barlow:wght@500;700&display=swap');
+
+/* ── layout ── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #07111a; color: #e8f4fc; font-family: 'Barlow', sans-serif; font-size: 14px; padding: 24px; }
+
+h1 { font-family: 'Orbitron', monospace; font-size: 1.4em; color: #00aaff; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 4px; }
+.sub { color: rgba(232,244,252,.5); font-size: .85em; margin-bottom: 28px; }
+
+.flow-label { font-family: 'Orbitron', monospace; font-size: .7em; letter-spacing: .18em; text-transform: uppercase; color: rgba(0,170,255,.5); margin: 32px 0 10px; border-bottom: 1px solid rgba(0,170,255,.15); padding-bottom: 6px; }
+
+.row { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 8px; }
+
+/* ── screen frame ── */
+.frame {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: none;
+}
+.frame-label {
+  font-family: 'Orbitron', monospace;
+  font-size: .65em;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 3px 3px 0 0;
+  font-weight: 700;
+}
+.frame-label.host { background: #00aaff; color: #001a2e; }
+.frame-label.player { background: #ffb300; color: #1a0a00; }
+.frame-label.player2 { background: #ff6b5b; color: #fff; }
+
+/* HOST = 16:9 landscape */
+.mock.host {
+  width: 420px; height: 236px;
+  background: #0d1b2a;
+  border: 2px solid #00aaff;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  font-size: 9px;
+}
+
+/* PHONE = 9:19 portrait */
+.mock.phone {
+  width: 140px; height: 260px;
+  background: #0d1b2a;
+  border: 2px solid #ffb300;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  font-size: 8px;
+}
+.mock.phone2 { border-color: #ff6b5b; }
+
+/* scanline */
+.mock::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.08) 0 1px, transparent 1px 3px);
+  pointer-events: none; z-index: 10;
+}
+/* border overlay */
+.mock::before {
+  content: '';
+  position: absolute; inset: 4px;
+  border: 1px solid rgba(0,170,255,.12);
+  pointer-events: none; z-index: 10;
+}
+
+/* ── shared game styles (miniature) ── */
+.m-bg { background: #0d1b2a; width: 100%; height: 100%; }
+
+.m-head {
+  background: rgba(0,150,220,.1);
+  border-bottom: 1px solid rgba(0,170,255,.2);
+  padding: 4px 6px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: 'Orbitron', monospace;
+  font-size: .85em;
+  color: #00aaff;
+  flex: none;
+}
+.m-timer { width: 60px; height: 5px; background: rgba(255,255,255,.1); border-radius: 2px; }
+.m-timer i { display: block; height: 100%; background: linear-gradient(90deg, #ffb300, #00aaff); border-radius: 2px; }
+
+.m-body { padding: 5px 7px; display: flex; flex-direction: column; gap: 5px; flex: 1; overflow: hidden; }
+
+/* dossier card */
+.m-dossier {
+  background: linear-gradient(#d8ecf8, #bcd8ed);
+  color: #082038;
+  border-radius: 2px;
+  padding: 5px 7px 5px;
+  position: relative;
+  box-shadow: 0 2px 0 rgba(0,0,0,.4);
+}
+.m-dossier-tab { position: absolute; top: -4px; left: 8px; width: 20px; height: 4px; background: #bcd8ed; border-radius: 2px 2px 0 0; }
+.m-stamp { position: absolute; top: -4px; right: 6px; font-family: 'Orbitron', monospace; font-size: .65em; letter-spacing: .1em; color: #cc1f1f; border: 1px solid #cc1f1f; padding: 0 3px; transform: rotate(-3deg); background: #d8ecf8; text-transform: uppercase; }
+.m-cat { font-family: 'Orbitron', monospace; font-size: .65em; letter-spacing: .1em; text-transform: uppercase; color: #336699; margin-bottom: 2px; }
+.m-q { font-family: 'Orbitron', monospace; font-size: .85em; line-height: 1.3; font-weight: 500; color: #082038; }
+
+/* scale */
+.m-scale { position: relative; margin: 0 6px; }
+.m-track { height: 10px; border-radius: 1px; background: linear-gradient(90deg, #003d82, #0066cc 50%, #0099ff); border: 1px solid rgba(0,170,255,.3); position: relative; }
+.m-ticks { display: flex; justify-content: space-between; padding: 0 1px; font-size: .7em; color: rgba(255,255,255,.5); margin-top: 1px; }
+.m-mk { position: absolute; bottom: 100%; transform: translateX(-50%); }
+.m-mk-guess { bottom: 100%; }
+.m-mk-real  { top: 100%; }
+.m-mk span { font-family: 'Orbitron', monospace; font-size: .75em; padding: 1px 3px; border-radius: 1px; white-space: nowrap; display: block; }
+.m-mk.guess span { background: #ffb300; color: #1a0a00; }
+.m-mk.real  span { background: #00aaff; color: #001a2e; margin-top: 2px; }
+.m-arrow-d { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; margin: 0 auto; }
+.m-arrow-d.guess { border-top: 5px solid #ffb300; }
+.m-arrow-d.real  { border-bottom: 5px solid #00aaff; }
+.m-scale-wrap { position: relative; padding-bottom: 10px; padding-top: 14px; }
+
+/* buttons */
+.m-btn {
+  border-radius: 2px; text-align: center; font-family: 'Orbitron', monospace;
+  font-size: .8em; letter-spacing: .08em; text-transform: uppercase;
+  padding: 4px 6px; border: 1px solid #00aaff; background: #0a4d8c;
+  color: #e8f4fc; cursor: pointer;
+}
+.m-btn.big { padding: 5px 8px; font-size: .9em; }
+.m-btn.sec { background: transparent; border-color: rgba(0,170,255,.3); }
+.m-btn.danger { background: #5c1a0f; border-color: #ff9d8f; }
+.m-btn.gold { background: #4a3000; border-color: #ffb300; color: #ffb300; }
+.m-btn.up-hi { background: #0a4d8c; border-color: #4da6ff; color: #fff; }
+.m-btn.dn-lo { background: #5c1a0f; border-color: #ff9d8f; color: #fff; }
+.m-btns { display: flex; gap: 4px; }
+.m-btns .m-btn { flex: 1; }
+
+/* chips */
+.m-chip { display: inline-flex; align-items: center; gap: 3px; }
+.m-av { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; background: #3fb8ff; font-size: 7px; }
+.m-av.p2 { background: #ff5d6c; }
+.m-av.p3 { background: #ffd93d; }
+.m-name { font-size: .8em; font-weight: 700; }
+
+/* ranking */
+.m-rank { background: rgba(0,150,220,.08); border: 1px solid rgba(0,170,255,.2); border-radius: 2px; padding: 3px 5px; }
+.m-rk-title { font-family: 'Orbitron', monospace; font-size: .6em; letter-spacing: .12em; text-transform: uppercase; color: #00aaff; margin-bottom: 2px; }
+.m-rk { display: flex; align-items: center; gap: 3px; font-size: .75em; padding: 1px 2px; }
+.m-rk .pos { font-family: 'Orbitron', monospace; width: 12px; color: #00aaff; font-size: .85em; }
+.m-rk .sc { margin-left: auto; font-family: 'Orbitron', monospace; }
+.m-rk .dl { color: #4cdc8c; font-size: .8em; margin-left: 3px; }
+.m-rk.top .pos::after { content: '★'; }
+
+/* slider */
+.m-slider-box { background: rgba(0,150,220,.08); border: 1px solid rgba(0,170,255,.25); border-radius: 2px; padding: 4px 5px; text-align: center; }
+.m-slider-val { font-family: 'Orbitron', monospace; font-size: 2em; color: #00aaff; line-height: 1; }
+.m-slider-track { height: 8px; background: linear-gradient(90deg, #003d82, #0066cc 50%, #0099ff); border-radius: 1px; border: 1px solid rgba(0,170,255,.3); margin: 3px 0; position: relative; }
+.m-slider-thumb { position: absolute; top: -4px; left: 48%; width: 10px; height: 16px; background: #ffb300; border-radius: 1px; transform: translateX(-50%); }
+
+/* locked call */
+.m-locked { border: 1px solid #00aaff; border-radius: 2px; background: rgba(0,170,255,.08); padding: 4px 6px; text-align: center; font-size: .8em; }
+
+/* lock indicators */
+.m-lks { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+.m-lk { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.15); }
+.m-lk.done { background: #4cdc8c; box-shadow: 0 0 0 2px #4cdc8c40; }
+
+/* call rows */
+.m-cl { display: flex; align-items: center; gap: 3px; font-size: .8em; padding: 1px 0; }
+.m-cl .dir { color: rgba(232,244,252,.5); font-size: .75em; }
+.m-cl .pts.g { color: #4cdc8c; }
+.m-cl .pts.b { color: #ff6b5b; }
+
+/* bonus answers */
+.m-bon { background: rgba(0,150,220,.08); border: 1px solid rgba(0,170,255,.2); border-radius: 2px; padding: 3px 6px; font-size: .8em; margin-bottom: 2px; }
+.m-bon.sel { background: rgba(0,170,255,.2); border-color: #00aaff; }
+.m-bon.winner { border-color: #ffb300; background: rgba(255,179,0,.1); color: #ffb300; }
+
+/* bonus reveal bar */
+.m-br { display: flex; align-items: center; gap: 4px; font-size: .8em; margin-bottom: 2px; }
+.m-br-bar { flex: 1; height: 6px; background: rgba(0,0,0,.3); border-radius: 1px; overflow: hidden; }
+.m-br-bar i { display: block; height: 100%; background: rgba(232,244,252,.4); }
+.m-br-bar.winner i { background: #ffb300; }
+.m-br-pct { font-family: 'Orbitron', monospace; min-width: 22px; text-align: right; }
+
+/* category grid */
+.m-catgrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; }
+.m-catbtn { background: rgba(0,150,220,.1); border: 1px solid rgba(0,170,255,.25); border-radius: 2px; padding: 2px 3px; font-size: .7em; text-align: center; color: #e8f4fc; }
+
+/* podium */
+.m-podium { background: linear-gradient(#d8ecf8, #bcd8ed); color: #082038; border-radius: 2px; padding: 5px; text-align: center; }
+.m-podium-score { font-family: 'Orbitron', monospace; font-size: 1.6em; color: #00aaff; }
+
+/* searching */
+.m-search { text-align: center; font-family: 'Orbitron', monospace; font-size: .85em; letter-spacing: .18em; color: #00aaff; padding: 6px 0; }
+
+/* mine banner */
+.m-mine { border: 1px dashed #4cdc8c; border-radius: 2px; padding: 3px 6px; text-align: center; font-size: .8em; color: #4cdc8c; }
+.m-mine.b { border-color: #ff6b5b; color: #ff6b5b; }
+
+/* opts */
+.m-opt { display: flex; justify-content: space-between; align-items: center; background: rgba(0,150,220,.08); border: 1px solid rgba(0,170,255,.2); border-radius: 2px; padding: 3px 5px; font-size: .8em; margin-bottom: 3px; }
+.m-tog { font-family: 'Orbitron', monospace; font-size: .8em; padding: 2px 6px; background: #00aaff; color: #001a2e; border-radius: 1px; }
+.m-tog.off { background: transparent; border: 1px solid rgba(0,170,255,.3); color: rgba(232,244,252,.5); }
+
+/* arrow connector */
+.arrow { display: flex; align-items: center; color: rgba(0,170,255,.4); font-size: 1.4em; padding: 0 4px; align-self: flex-end; margin-bottom: 60px; user-select: none; }
+.arrow.down { transform: rotate(90deg); margin-bottom: 0; margin-right: 60px; align-self: center; }
+
+/* note */
+.note { font-size: .75em; color: rgba(232,244,252,.45); margin-top: 4px; max-width: 420px; line-height: 1.5; }
+
+/* flow section with background */
+.section { background: rgba(0,80,120,.06); border: 1px solid rgba(0,170,255,.08); border-radius: 4px; padding: 14px 16px 10px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<h1>🕵️ Guesspionage — Full Screen Map</h1>
+<p class="sub">Every screen · host (landscape) left, player phone(s) right · actual pixel proportions</p>
+
+<!-- ═══════════ SETUP ═══════════ -->
+<div class="flow-label">① Setup — before game starts</div>
+<div class="section">
+<div class="row">
+
+  <!-- HOST -->
+  <div class="frame">
+    <div class="frame-label host">HOST SCREEN (laptop/TV)</div>
+    <div class="mock host">
+      <div class="m-body" style="justify-content:center; align-items:center; gap:8px;">
+        <div style="font-family:'Orbitron',monospace; color:#00aaff; font-size:1.3em; letter-spacing:.1em; text-transform:uppercase;">🕵️ MISSION BRIEFING</div>
+        <div style="width:100%; max-width:260px; display:flex; flex-direction:column; gap:4px;">
+          <div class="m-opt"><span>Countdown timers</span><span class="m-tog">ON</span></div>
+          <div class="m-opt"><span>Family-Friendly Filter</span><span class="m-tog">ON</span></div>
+        </div>
+        <div style="background:rgba(0,150,220,.1); border:1px solid rgba(0,170,255,.2); border-radius:2px; padding:5px 10px; width:100%; max-width:260px;">
+          <div style="font-size:.75em; opacity:.6; margin-bottom:3px; font-family:'Orbitron',monospace;">WHO GUESSES FIRST?</div>
+          <div style="display:flex; gap:5px; flex-wrap:wrap;">
+            <div style="background:rgba(0,170,255,.2); border:1px solid #00aaff; border-radius:999px; padding:2px 8px 2px 4px; display:flex; align-items:center; gap:3px; font-size:.8em;">
+              <span class="m-av">🕵️</span><span>Alice</span>
+            </div>
+            <div style="background:rgba(0,150,220,.08); border:1px solid rgba(0,170,255,.2); border-radius:999px; padding:2px 8px 2px 4px; display:flex; align-items:center; gap:3px; font-size:.8em;">
+              <span class="m-av p2">🕶️</span><span>Bob</span>
+            </div>
+            <div style="background:rgba(0,150,220,.08); border:1px solid rgba(0,170,255,.2); border-radius:999px; padding:2px 8px 2px 4px; display:flex; align-items:center; gap:3px; font-size:.8em;">
+              <span class="m-av p3">🎩</span><span>Carol</span>
+            </div>
+          </div>
+        </div>
+        <div class="m-btn big" style="max-width:200px;">BEGIN THE OPERATION</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEADER PHONE -->
+  <div class="frame">
+    <div class="frame-label player">LEADER PHONE (same controls)</div>
+    <div class="mock phone">
+      <div class="m-body" style="gap:4px;">
+        <div style="font-family:'Orbitron',monospace; color:#00aaff; font-size:.9em; text-transform:uppercase; letter-spacing:.1em;">🕵️ MISSION BRIEFING</div>
+        <div class="m-opt"><span style="font-size:.85em;">Timers</span><span class="m-tog" style="font-size:.75em;">ON</span></div>
+        <div class="m-opt"><span style="font-size:.85em;">Family</span><span class="m-tog" style="font-size:.75em;">ON</span></div>
+        <div style="font-size:.8em; opacity:.6; margin-top:2px;">Who goes first?</div>
+        <div style="display:flex; flex-wrap:wrap; gap:3px;">
+          <div style="background:rgba(0,170,255,.2); border:1px solid #00aaff; border-radius:999px; padding:2px 6px 2px 3px; display:flex; align-items:center; gap:2px; font-size:.75em;"><span class="m-av">🕵️</span>Alice</div>
+          <div style="background:rgba(0,150,220,.08); border:1px solid rgba(0,170,255,.2); border-radius:999px; padding:2px 6px 2px 3px; display:flex; align-items:center; gap:2px; font-size:.75em;"><span class="m-av p2">🕶️</span>Bob</div>
+        </div>
+        <div style="margin-top:auto;"><div class="m-btn">BEGIN</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTHER PHONE -->
+  <div class="frame">
+    <div class="frame-label player2">NON-LEADER PHONE</div>
+    <div class="mock phone phone2">
+      <div class="m-body" style="justify-content:center; align-items:center; text-align:center; gap:6px;">
+        <div style="font-family:'Orbitron',monospace; color:#00aaff; font-size:.9em; text-transform:uppercase; letter-spacing:.1em;">🕵️ MISSION BRIEFING</div>
+        <div style="font-size:.85em; opacity:.6; line-height:1.4;">The handler is<br>preparing the mission…</div>
+        <div style="font-size:.75em; opacity:.4; margin-top:4px;">Alice guesses first</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<p class="note">Only the leader (PIN holder) and the host screen see the toggle buttons and Begin. Everyone else sees a "waiting" message.</p>
+</div>
+
+<!-- ═══════════ CATEGORY ═══════════ -->
+<div class="flow-label">② Category Select — current player picks a category</div>
+<div class="section">
+<div class="row">
+
+  <div class="frame">
+    <div class="frame-label host">HOST</div>
+    <div class="mock host">
+      <div class="m-head">🕵️ ROUND 1 · TURN 1 OF 2 <div class="m-timer"><i style="width:70%"></i></div></div>
+      <div class="m-body" style="gap:4px;">
+        <div style="font-family:'Orbitron',monospace; font-size:.75em; letter-spacing:.14em; text-transform:uppercase; color:#00aaff; border-bottom:1px solid rgba(0,170,255,.15); padding-bottom:3px;">DATA ACQUISITION MODE</div>
+        <div class="m-chip" style="font-size:.9em; gap:4px;"><span class="m-av">🕵️</span><span class="m-name">Alice</span><span style="opacity:.6; margin-left:2px;">is picking a category…</span></div>
+        <div class="m-search">SEARCHING…</div>
+        <div class="m-btns" style="margin-top:auto;"><div class="m-btn sec">SKIP</div><div class="m-btn sec danger" style="flex:.5">END</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-label player">ALICE'S PHONE (picker)</div>
+    <div class="mock phone">
+      <div class="m-head" style="font-size:.7em;">🕵️ R1 T1/2 <div class="m-timer" style="width:30px;"><i style="width:70%"></i></div></div>
+      <div class="m-body" style="gap:3px;">
+        <div style="font-family:'Orbitron',monospace; font-size:.75em; color:#00aaff; text-transform:uppercase;">PICK A CATEGORY</div>
+        <div class="m-catgrid">
+          <div class="m-catbtn">Bowling</div>
+          <div class="m-catbtn">Movies</div>
+          <div class="m-catbtn">Food</div>
+          <div class="m-catbtn">Sports</div>
+          <div class="m-catbtn">Travel</div>
+          <div class="m-catbtn">Music</div>
+          <div class="m-catbtn">Tech</div>
+          <div class="m-catbtn">Pets</div>
+          <div class="m-catbtn">Health</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-label player2">BOB'S PHONE (waiting)</div>
+    <div class="mock phone phone2">
+      <div class="m-head" style="font-size:.7em;">🕵️ R1 T1/2</div>
+      <div class="m-body" style="justify-content:center; align-items:center; text-align:center; gap:5px;">
+        <div class="m-chip" style="font-size:.9em;"><span class="m-av">🕵️</span><span class="m-name">Alice</span></div>
+        <div style="font-size:.8em; opacity:.6;">is picking a category…</div>
+        <div class="m-search" style="font-size:.8em;">SEARCHING…</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<p class="note">The current player (in turn order) sees all available categories as tap buttons. Everyone else — and the host — shows the "SEARCHING…" animation. Timer counts down; leader can Skip.</p>
+</div>
+
+<!-- ═══════════ GUESS ═══════════ -->
+<div class="flow-label">③ Guess — the current player sets a % estimate</div>
+<div class="section">
+<div class="row">
+
+  <div class="frame">
+    <div class="frame-label host">HOST</div>
+    <div class="mock host">
+      <div class="m-head">🕵️ ROUND 1 · TURN 1 OF 2 <div class="m-timer"><i style="width:55%"></i></div></div>
+      <div class="m-body" style="gap:4px;">
+        <div class="m-dossier">
+          <div class="m-dossier-tab"></div>
+          <div class="m-stamp">CASE FILE</div>
+          <div class="m-cat">Bowling</div>
+          <div class="m-q">What percentage of people own bowling balls?</div>
+        </div>
+        <div class="m-scale-wrap">
+          <div style="position:relative;">
+            <div class="m-mk guess" style="position:absolute; left:48%; transform:translateX(-50%); bottom:12px;">
+              <span>…%</span>
+              <div class="m-arrow-d guess"></div>
+            </div>
+            <div class="m-track">
+              <div style="position:absolute; inset:0; background:linear-gradient(90deg,transparent 0 40%,rgba(0,200,255,.5) 50%,transparent 60% 100%) 0 0/250% 100%; animation:none; opacity:.6;"></div>
+            </div>
+            <div class="m-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          </div>
+        </div>
+        <div class="m-chip" style="font-size:.95em; justify-content:center;"><span class="m-av">🕵️</span><span class="m-name">Alice is locking in an estimate…</span></div>
+        <div class="m-btns" style="margin-top:auto;"><div class="m-btn sec">SKIP</div><div class="m-btn sec danger" style="flex:.5">END</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-label player">ALICE (guesser)</div>
+    <div class="mock phone">
+      <div class="m-head" style="font-size:.7em;">🕵️ R1 T1/2 <div class="m-timer" style="width:30px;"><i style="width:55%"></i></div></div>
+      <div class="m-body" style="gap:3px;">
+        <div class="m-dossier" style="padding:3px 5px;">
+          <div class="m-dossier-tab"></div>
+          <div class="m-stamp" style="font-size:.55em;">CASE FILE</div>
+          <div class="m-cat" style="font-size:.6em;">Bowling</div>
+          <div class="m-q" style="font-size:.78em;">What % of people own bowling balls?</div>
+        </div>
+        <div style="font-family:'Orbitron',monospace; color:#00aaff; font-size:.8em; text-align:center; text-transform:uppercase;">YOUR TURN, AGENT</div>
+        <div class="m-slider-box">
+          <div class="m-slider-val">50%</div>
+          <div class="m-slider-track"><div class="m-slider-thumb"></div></div>
+          <div style="display:flex; justify-content:space-between; font-size:.7em; opacity:.5; padding:0 4px; font-family:'Orbitron',monospace;">
+            <span>0%</span><span>100%</span>
+          </div>
+        </div>
+        <div style="margin-top:auto;"><div class="m-btn gold">LOCK IN MY ESTIMATE</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-label player2">BOB (waiting)</div>
+    <div class="mock phone phone2">
+      <div class="m-head" style="font-size:.7em;">🕵️ R1 T1/2</div>
+      <div class="m-body" style="gap:3px;">
+        <div class="m-dossier" style="padding:3px 5px;">
+          <div class="m-dossier-tab"></div>
+          <div class="m-stamp" style="font-size:.55em;">CASE FILE</div>
+          <div class="m-cat" style="font-size:.6em;">Bowling</div>
+          <div class="m-q" style="font-size:.78em;">What % of people own bowling balls?</div>
+        </div>
+        <div style="text-align:center; font-size:.8em; opacity:.6; margin-top:4px;">Will the guess be too<br>high or too low?</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<p class="note">The guesser sees a big slider (0–100). Everyone else sees the question + a scanning scale with a "?" marker. Host shows the scale animating. Timer on.</p>
+</div>
+
+<!-- ═══════════ CALL ═══════════ -->
+<div class="flow-label">④ Call — everyone else bets HIGHER or LOWER (round 2: MUCH HIGHER/LOWER too)</div>
+<div class="section">
+<div class="row">
+
+  <div class="frame">
+    <div class="frame-label host">HOST</div>
+    <div class="mock host">
+      <div class="m-head">🕵️ ROUND 1 · TURN 1 OF 2 <div class="m-timer"><i style="width:40%"></i></div></div>
+      <div class="m-body" style="gap:4px;">
+        <div class="m-dossier">
+          <div class="m-dossier-tab"></div>
+          <div class="m-stamp">CASE FILE</div>
+          <div class="m-cat">Bowling</div>
+          <div class="m-q">What percentage of people own bowling balls?</div>
+        </div>
+        <div class="m-scale-wrap" style="padding-top:10px;">
+          <div style="position:relative;">
+            <div style="position:absolute; left:25%; transform:translateX(-50%); bottom:12px; text-align:center;">
+              <div style="font-family:'Orbitron',monospace; font-size:.8em; background:#ffb300; color:#1a0a00; padding:1px 4px; border-radius:1px; white-space:nowrap;">25%</div>
+              <div class="m-arrow-d guess"></div>
+            </div>
+            <div class="m-track"></div>
+            <div class="m-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap; font-size:.9em; justify-content:center;">
+          <div class="m-chip"><span class="m-av">🕵️</span><span class="m-name">Alice says</span></div>
+          <span style="font-family:'Orbitron',monospace; font-size:1.3em; color:#ffb300;">25%</span>
+        </div>
+        <div style="display:flex; gap:3px; justify-content:center;">
+          <div class="m-lk done"></div><div class="m-lk"></div><div class="m-lk"></div>
+          <span style="font-size:.75em; opacity:.5; margin-left:3px;">1 of 3 locked</span>
+        </div>
+        <div class="m-btns" style="margin-top:auto;"><div class="m-btn sec">SKIP</div><div class="m-btn sec danger" style="flex:.5">END</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-label player">ALICE (guesser — waiting)</div>
+    <div class="mock phone">
+      <div class="m-head" style="font-size:.7em;">🕵️ R1 T1/2</div>
+      <div class="m-body" style="gap:3px; justify-content:center; align-items:center; text-align:center;">
+        <div style="font-size:.85em; opacity:.6; line-height:1.5;">Your estimate is out there.<br>Others are calling…</div>
+        <div style="display:flex; gap:3px; justify-content:center; margin-top:4px;">
+          <div class="m-lk done"></div><div class="m-lk"></div><div class="m-lk"></div>
+          <span style="font-size:.7em; opacity:.5; margin-left:2px;">1/3</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-label player2">BOB (making call)</div>
+    <div class="mock phone phone2">
+      <div class="m-head" style="font-size:.7em;">🕵️ R1 T1/2</div>
+      <div class="m-body" style="gap:3px;">
+        <div style="font-size:.8em; opacity:.6; text-align:center;">Is the real number higher or lower?</div>
+        <div style="display:flex; gap:3px; height:50px;">
+          <div class="m-btn up-hi" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; font-size:.85em;">▲<br>HIGHER</div>
+          <div class="m-btn dn-lo" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; font-size:.85em;">▼<br>LOWER</div>
+        </div>
+        <div style="display:flex; gap:3px; justify-content:center; margin-top:2px;">
+          <div class="m-lk done"></div><div class="m-lk"></div><div class="m-lk"></div>
+          <span style="font-size:.7em; opacity:.5; margin-left:2px;">1/3</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame" style="margin-left:10px;">
+    <div class="frame-label player">ROUND 2 ONLY (≤5 players): MUCH buttons appear</div>
+    <div class="mock phone" style="border-color:#b87aff;">
+      <div class="m-head" style="font-size:.7em; color:#b87aff;">🕵️ R2 T1/2</div>
+      <div class="m-body" style="gap:3px;">
+        <div style="font-size:.8em; opacity:.6; text-align:center;">Higher or lower?</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:3px; height:70px;">
+          <div style="background:#1a0a3a; border:1px solid #b87aff; border-radius:2px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:.7em; color:#b87aff; gap:1px;">▲▲<br>MUCH HIGHER</div>
+          <div style="background:#2a1a5a; border:1px solid #7a86ff; border-radius:2px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:.7em; color:#7a86ff; gap:1px;">▼▼<br>MUCH LOWER</div>
+          <div class="m-btn up-hi" style="font-size:.7em; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;">▲<br>HIGHER</div>
+          <div class="m-btn dn-lo" style="font-size:.7em; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;">▼<br>LOWER</div>
+        </div>
+        <div style="font-size:.65em; opacity:.5; text-align:center;">MUCH = direction correct + gap &gt;15%</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<p class="note">After locking in, the player sees a 🔒 "Locked in" card. Auto-advances when everyone connected has called (or leader skips).</p>
+</div>
+
+<!-- ═══════════ REVEAL ═══════════ -->
+<div class="flow-label">⑤ Reveal — real answer slides in, points awarded</div>
+<div class="section">
+<div class="row">
+
+  <div class="frame">
+    <div class="frame-label host">HOST</div>
+    <div class="mock host">
+      <div class="m-head">🕵️ ROUND 1 · TURN 1 OF 2</div>
+      <div class="m-body" style="gap:3px;">
+        <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:8px; flex:1;">
+          <div style="display:flex; flex-direction:column; gap:3px;">
+            <div class="m-dossier" style="padding:3px 5px;">
+              <div class="m-dossier-tab"></div>
+              <div class="m-cat" style="font-size:.65em;">Bowling</div>
+              <div class="m-q" style="font-size:.78em;">What percentage of people own bowling balls?</div>
+            </div>
+            <!-- scale with both markers -->
+            <div style="position:relative; padding:10px 6px 16px;">
+              <div style="position:absolute; left:25%; transform:translateX(-50%); top:0; text-align:center;">
+                <div style="font-family:'Orbitron',monospace; font-size:.75em; background:#ffb300; color:#1a0a00; padding:1px 3px; border-radius:1px;">25%</div>
+                <div class="m-arrow-d guess"></div>
+              </div>
+              <div class="m-track" style="margin-top:6px;"></div>
+              <div style="position:absolute; left:20%; transform:translateX(-50%); bottom:3px; text-align:center;">
+                <div class="m-arrow-d real" style="margin-bottom:1px;"></div>
+                <div style="font-family:'Orbitron',monospace; font-size:.75em; background:#00aaff; color:#001a2e; padding:1px 3px; border-radius:1px;">20%</div>
+              </div>
+              <div class="m-ticks" style="position:absolute; bottom:3px; left:6px; right:6px; display:flex; justify-content:space-between;"><span style="font-size:.65em;opacity:.4;">0</span><span style="font-size:.65em;opacity:.4;">25</span><span style="font-size:.65em;opacity:.4;">50</span><span style="font-size:.65em;opacity:.4;">75</span><span style="font-size:.65em;opacity:.4;">100</span></div>
+            </div>
+            <!-- verdict -->
+            <div style="text-align:center; font-family:'Orbitron',monospace; font-size:.8em;">
+              <div style="display:flex; align-items:center; justify-content:center; gap:4px;"><div class="m-chip"><span class="m-av">🕵️</span></div><span style="opacity:.7;">· Off by 5%</span></div>
+              <div style="font-size:1.4em; color:#4cdc8c;">+1500</div>
+            </div>
+            <!-- call results -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:3px;">
+              <div style="background:rgba(0,150,220,.08); border:1px solid rgba(0,170,255,.2); border-radius:2px; padding:2px 4px;">
+                <div style="font-family:'Orbitron',monospace; font-size:.55em; letter-spacing:.1em; text-transform:uppercase; color:#4cdc8c; margin-bottom:1px;">✔ SHARP</div>
+                <div class="m-cl"><div class="m-chip"><span class="m-av p2">🕶️</span><span style="font-size:.8em;">Bob</span></div><span class="dir">Lower</span><span class="pts g">+1000</span></div>
+              </div>
+              <div style="background:rgba(0,150,220,.08); border:1px solid rgba(0,170,255,.2); border-radius:2px; padding:2px 4px;">
+                <div style="font-family:'Orbitron',monospace; font-size:.55em; letter-spacing:.1em; text-transform:uppercase; color:#ff6b5b; margin-bottom:1px;">✘ MISSED</div>
+                <div class="m-cl"><div class="m-chip"><span class="m-av p3">🎩</span><span style="font-size:.8em;">Carol</span></div><span class="dir">Higher</span><span class="pts b">0</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- rankings -->
+          <div class="m-rank">
+            <div class="m-rk-title">STANDINGS</div>
+            <div class="m-rk top"><span class="pos">1</span><div class="m-chip"><span class="m-av p2">🕶️</span><span style="font-size:.8em;">Bob</span></div><span class="sc">2500</span><span class="dl">+1000</span></div>
+            <div class="m-rk"><span class="pos">2</span><div class="m-chip"><span class="m-av">🕵️</span><span style="font-size:.8em;">Alice</span></div><span class="sc">1500</span><span class="dl">+1500</span></div>
+            <div class="m-rk"><span class="pos">3</span><div class="m-chip"><span class="m-av p3">🎩</span><span style="font-size:.8em;">Carol</span></div><span class="sc">0</span><span class="dl"></span></div>
+          </div>
+        </div>
+        <div class="m-btn" style="margin-top:auto; max-width:120px; align-self:flex-end;">NEXT →</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-label player">ANY PHONE</div>
+    <div class="mock phone">
+      <div class="m-head" style="font-size:.7em;">🕵️ R1 T1/2</div>
+      <div class="m-body" style="gap:3px;">
+        <div class="m-dossier" style="padding:3px 5px;">
+          <div class="m-dossier-tab"></div>
+          <div class="m-cat" style="font-size:.6em;">Bowling</div>
+          <div class="m-q" style="font-size:.75em;">What % of people own bowling balls?</div>
+        </div>
+        <!-- compact scale -->
+        <div style="position:relative; padding:8px 4px 14px; margin:0 4px;">
+          <div style="position:absolute; left:25%; bottom:15px; transform:translateX(-50%); text-align:center;">
+            <div style="font-family:'Orbitron',monospace; font-size:.7em; background:#ffb300; color:#1a0a00; padding:1px 2px; border-radius:1px;">25%</div>
+            <div class="m-arrow-d guess"></div>
+          </div>
+          <div class="m-track" style="margin-top:5px;"></div>
+          <div style="position:absolute; left:20%; bottom:1px; transform:translateX(-50%); text-align:center;">
+            <div class="m-arrow-d real" style="margin-bottom:0;"></div>
+            <div style="font-family:'Orbitron',monospace; font-size:.7em; background:#00aaff; color:#001a2e; padding:1px 2px; border-radius:1px;">20%</div>
+          </div>
+        </div>
+        <!-- verdict -->
+        <div style="text-align:center; font-family:'Orbitron',monospace; font-size:.75em;">
+          <span style="opacity:.7;">Off by 5%</span>
+          <div style="font-size:1.3em; color:#4cdc8c;">+1500</div>
+        </div>
+        <!-- my banner -->
+        <div class="m-mine">Your call earned <b>+1000</b></div>
+        <!-- small ranking -->
+        <div class="m-rank" style="font-size:.85em;">
+          <div class="m-rk-title">STANDINGS</div>
+          <div class="m-rk top"><span class="pos">1</span><div class="m-chip"><span class="m-av p2">🕶️</span></div><span class="sc">2500</span></div>
+          <div class="m-rk me" style="background:rgba(0,170,255,.12);"><span class="pos">2</span><div class="m-chip"><span class="m-av">🕵️</span></div><span class="sc">1500</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<p class="note">Real marker animates from left → real position (1.4s CSS). Rows rise in one by one with staggered delays. Leader taps Next; nothing auto-advances from reveal.</p>
+</div>
+
+<!-- ═══════════ BONUS ═══════════ -->
+<div class="flow-label">⑥ Bonus Round — pick the most popular answer (after all regular turns)</div>
+<div class="section">
+<div class="row">
+
+  <div class="frame">
+    <div class="frame-label host">HOST</div>
+    <div class="mock host">
+      <div class="m-head">🕵️ BONUS ROUND</div>
+      <div class="m-body" style="gap:4px;">
+        <div class="m-dossier">
+          <div class="m-dossier-tab"></div>
+          <div class="m-stamp">BONUS QUESTION</div>
+          <div class="m-cat">Appetizers</div>
+          <div class="m-q">What restaurant appetizer do people order most frequently?</div>
+        </div>
+        <div style="font-size:.8em; opacity:.6;">Pick the answer you think most people chose. Correct = 2,000 pts</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px;">
+          <div class="m-bon">Cheese sticks</div>
+          <div class="m-bon">Chicken wings</div>
+          <div class="m-bon">Nachos</div>
+          <div class="m-bon">Spinach dip</div>
+          <div class="m-bon">Calamari</div>
+          <div class="m-bon">Potato skins</div>
+          <div class="m-bon">Onion rings</div>
+          <div class="m-bon">Cheese fries</div>
+          <div class="m-bon">Chips &amp; salsa</div>
+        </div>
+        <div style="display:flex; gap:3px; justify-content:center;">
+          <div class="m-lk done"></div><div class="m-lk done"></div><div class="m-lk"></div>
+          <span style="font-size:.7em; opacity:.5; margin-left:3px;">2 of 3 locked</span>
+        </div>
+        <div class="m-btn sec" style="margin-top:auto;">NEXT</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-label player">PHONE (picking)</div>
+    <div class="mock phone">
+      <div class="m-head" style="font-size:.7em;">🕵️ BONUS</div>
+      <div class="m-body" style="gap:3px;">
+        <div class="m-dossier" style="padding:3px 5px;">
+          <div class="m-dossier-tab"></div>
+          <div class="m-stamp" style="font-size:.5em;">BONUS</div>
+          <div class="m-q" style="font-size:.72em;">Most popular restaurant appetizer?</div>
+        </div>
+        <div style="font-size:.7em; opacity:.6;">Pick the most popular one.</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:3px;">
+          <div class="m-bon sel">★ Cheese sticks</div>
+          <div class="m-bon">Chicken wings</div>
+          <div class="m-bon">Nachos</div>
+          <div class="m-bon">Spinach dip</div>
+          <div class="m-bon">Calamari</div>
+          <div class="m-bon">Potato skins</div>
+          <div class="m-bon">Onion rings</div>
+          <div class="m-bon">Cheese fries</div>
+          <div class="m-bon" style="grid-column:span 2;">Chips &amp; salsa</div>
+        </div>
+        <div style="margin-top:auto;"><div class="m-btn gold">LOCK IN MY PICK</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-label player2">PHONE (locked)</div>
+    <div class="mock phone phone2">
+      <div class="m-head" style="font-size:.7em;">🕵️ BONUS</div>
+      <div class="m-body" style="gap:4px;">
+        <div class="m-dossier" style="padding:3px 5px;">
+          <div class="m-dossier-tab"></div>
+          <div class="m-q" style="font-size:.72em;">Most popular restaurant appetizer?</div>
+        </div>
+        <div class="m-locked">🔒 Locked in.<br><span style="opacity:.6; font-size:.85em;">Waiting for others…</span></div>
+        <div style="display:flex; gap:3px; justify-content:center; margin-top:4px;">
+          <div class="m-lk done"></div><div class="m-lk"></div><div class="m-lk"></div>
+          <span style="font-size:.7em; opacity:.5; margin-left:2px;">1/3</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<p class="note">Everyone picks one answer. Auto-reveals when all connected players lock in. Leader can force reveal anytime with Next.</p>
+</div>
+
+<!-- ═══════════ BONUS REVEAL ═══════════ -->
+<div class="flow-label">⑦ Bonus Reveal — bars animate in, winner highlighted in gold</div>
+<div class="section">
+<div class="row">
+
+  <div class="frame">
+    <div class="frame-label host">HOST</div>
+    <div class="mock host">
+      <div class="m-head">🕵️ BONUS ROUND</div>
+      <div class="m-body" style="gap:3px;">
+        <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:8px; flex:1;">
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <div class="m-dossier" style="padding:3px 5px; margin-bottom:3px;">
+              <div class="m-dossier-tab"></div>
+              <div class="m-stamp" style="font-size:.5em;">SURVEY RESULTS</div>
+              <div class="m-cat" style="font-size:.6em;">Appetizers</div>
+              <div class="m-q" style="font-size:.75em;">Most popular restaurant appetizer?</div>
+            </div>
+            <div class="m-br winner-row" style="border:1px solid #ffb300; background:rgba(255,179,0,.1); padding:2px 4px;">
+              <div class="m-br-bar winner"><i style="width:100%"></i></div>
+              <span style="color:#ffb300; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:80px;">★ Cheese sticks</span>
+              <span class="m-br-pct" style="color:#ffb300;">24%</span>
+            </div>
+            <div class="m-br"><div class="m-br-bar"><i style="width:35%"></i></div><span style="max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Chicken wings</span><span class="m-br-pct">8%</span></div>
+            <div class="m-br"><div class="m-br-bar"><i style="width:35%"></i></div><span>Nachos</span><span class="m-br-pct">8%</span></div>
+            <div class="m-br"><div class="m-br-bar"><i style="width:22%"></i></div><span>Spinach dip</span><span class="m-br-pct">5%</span></div>
+            <div class="m-br"><div class="m-br-bar"><i style="width:22%"></i></div><span>Calamari</span><span class="m-br-pct">5%</span></div>
+            <div class="m-br"><div class="m-br-bar"><i style="width:17%"></i></div><span>Potato skins</span><span class="m-br-pct">4%</span></div>
+            <div class="m-mine" style="margin-top:3px; font-size:.8em;">Your pick: <b>+2,000</b></div>
+          </div>
+          <div class="m-rank">
+            <div class="m-rk-title">STANDINGS</div>
+            <div class="m-rk top"><span class="pos">1</span><div class="m-chip"><span class="m-av">🕵️</span><span style="font-size:.8em;">Alice</span></div><span class="sc">5500</span><span class="dl">+2000</span></div>
+            <div class="m-rk"><span class="pos">2</span><div class="m-chip"><span class="m-av p2">🕶️</span><span style="font-size:.8em;">Bob</span></div><span class="sc">3500</span><span class="dl">+0</span></div>
+            <div class="m-rk"><span class="pos">3</span><div class="m-chip"><span class="m-av p3">🎩</span><span style="font-size:.8em;">Carol</span></div><span class="sc">1000</span><span class="dl">+0</span></div>
+          </div>
+        </div>
+        <div class="m-btn" style="margin-top:auto; max-width:120px; align-self:flex-end;">NEXT →</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-label player">PHONE (winner pick)</div>
+    <div class="mock phone">
+      <div class="m-head" style="font-size:.7em;">🕵️ BONUS</div>
+      <div class="m-body" style="gap:2px;">
+        <div class="m-dossier" style="padding:3px 5px; margin-bottom:2px;">
+          <div class="m-dossier-tab"></div>
+          <div class="m-stamp" style="font-size:.5em;">RESULTS</div>
+          <div class="m-q" style="font-size:.72em;">Most popular restaurant appetizer?</div>
+        </div>
+        <div class="m-br" style="border:1px solid #ffb300; background:rgba(255,179,0,.1); padding:2px 4px; border-radius:2px;">
+          <div class="m-br-bar winner" style="flex:1;"><i style="width:100%"></i></div>
+          <span style="color:#ffb300; font-size:.85em; white-space:nowrap;">★ Cheese sticks ✓</span>
+          <span class="m-br-pct" style="color:#ffb300; font-size:.8em;">24%</span>
+        </div>
+        <div class="m-br"><div class="m-br-bar" style="flex:1;"><i style="width:35%"></i></div><span style="font-size:.8em;">Chicken wings</span><span class="m-br-pct" style="font-size:.8em;">8%</span></div>
+        <div class="m-br"><div class="m-br-bar" style="flex:1;"><i style="width:35%"></i></div><span style="font-size:.8em;">Nachos</span><span class="m-br-pct" style="font-size:.8em;">8%</span></div>
+        <div class="m-mine" style="margin-top:auto;">Your pick: <b>+2,000</b></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<p class="note">Bars animate in staggered. Winner row highlighted in gold. ✓ marks the player's pick. Then leader taps Next → End screen.</p>
+</div>
+
+<!-- ═══════════ END ═══════════ -->
+<div class="flow-label">⑧ End — final standings, play again or back to lobby</div>
+<div class="section">
+<div class="row">
+
+  <div class="frame">
+    <div class="frame-label host">HOST</div>
+    <div class="mock host">
+      <div class="m-body" style="justify-content:center; align-items:center; gap:8px;">
+        <div style="font-family:'Orbitron',monospace; color:#00aaff; font-size:1.3em; letter-spacing:.1em; text-transform:uppercase;">🏁 MISSION COMPLETE</div>
+        <div class="m-podium" style="width:260px;">
+          <div style="font-family:'Orbitron',monospace; font-size:.65em; letter-spacing:.1em; text-transform:uppercase; color:#336699; margin-bottom:3px;">TOP AGENT</div>
+          <div class="m-chip" style="justify-content:center; font-size:1.1em; gap:5px;"><span class="m-av" style="width:20px;height:20px;font-size:.9em;">🕵️</span><span class="m-name">Alice</span></div>
+          <div class="m-podium-score">5,500</div>
+        </div>
+        <div class="m-rank" style="width:260px;">
+          <div class="m-rk-title">FINAL STANDINGS</div>
+          <div class="m-rk top"><span class="pos">1</span><div class="m-chip"><span class="m-av">🕵️</span><span style="font-size:.8em;">Alice</span></div><span class="sc">5,500</span></div>
+          <div class="m-rk"><span class="pos">2</span><div class="m-chip"><span class="m-av p2">🕶️</span><span style="font-size:.8em;">Bob</span></div><span class="sc">3,500</span></div>
+          <div class="m-rk"><span class="pos">3</span><div class="m-chip"><span class="m-av p3">🎩</span><span style="font-size:.8em;">Carol</span></div><span class="sc">1,000</span></div>
+        </div>
+        <div class="m-btns" style="max-width:260px; width:100%;">
+          <div class="m-btn">PLAY AGAIN</div>
+          <div class="m-btn sec">BACK TO LOBBY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-label player">LEADER PHONE</div>
+    <div class="mock phone">
+      <div class="m-body" style="justify-content:center; align-items:center; gap:5px; text-align:center;">
+        <div style="font-family:'Orbitron',monospace; color:#00aaff; font-size:.9em; text-transform:uppercase;">🏁 MISSION COMPLETE</div>
+        <div class="m-podium" style="width:110px; padding:4px;">
+          <div style="font-size:.65em; color:#336699; font-family:'Orbitron',monospace;">TOP AGENT</div>
+          <div class="m-chip" style="justify-content:center; margin:2px 0; font-size:.9em;"><span class="m-av">🕵️</span><span>Alice</span></div>
+          <div style="font-family:'Orbitron',monospace; font-size:1.3em; color:#00aaff;">5,500</div>
+        </div>
+        <div class="m-rank" style="width:110px; font-size:.85em;">
+          <div class="m-rk top"><span class="pos">1</span><div class="m-chip"><span class="m-av">🕵️</span></div><span class="sc">5,500</span></div>
+          <div class="m-rk"><span class="pos">2</span><div class="m-chip"><span class="m-av p2">🕶️</span></div><span class="sc">3,500</span></div>
+        </div>
+        <div class="m-btn" style="width:110px;">PLAY AGAIN</div>
+        <div class="m-btn sec" style="width:110px;">BACK TO LOBBY</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════ FLOW OVERVIEW ═══════════ -->
+<div class="flow-label">Full game flow</div>
+<div style="background:rgba(0,80,120,.06); border:1px solid rgba(0,170,255,.1); border-radius:4px; padding:14px 18px; font-family:'Orbitron',monospace; font-size:.75em; letter-spacing:.1em; line-height:2; color:rgba(232,244,252,.7);">
+  SETUP
+  → <span style="color:#00aaff;">CATEGORY</span> (current player picks)
+  → <span style="color:#ffb300;">GUESS</span> (slider 0–100)
+  → <span style="color:#ff9d8f;">CALL</span> (Higher / Lower)
+  → <span style="color:#4cdc8c;">REVEAL</span>
+  → repeat × <i>per_round</i> turns (= min(players, 6)) for Round 1
+  → repeat × <i>per_round</i> turns for Round 2 (+ Much Higher/Lower if ≤5 players)
+  → <span style="color:#ffb300;">BONUS QUESTION</span> (pick #1 answer)
+  → <span style="color:#4cdc8c;">BONUS REVEAL</span>
+  → END
+</div>
+
+<!-- ═══════════ SCORING ═══════════ -->
+<div class="flow-label" style="margin-top:20px;">Scoring quick reference</div>
+<div style="background:rgba(0,80,120,.06); border:1px solid rgba(0,170,255,.1); border-radius:4px; padding:12px 18px; display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; font-size:.82em;">
+  <div><b style="color:#ffb300;">Guesser</b><br>Exact = 3,000 pts<br>Linear decay to 0 at 30% off<br>Shrug (50%) = 0 pts</div>
+  <div><b style="color:#00aaff;">Caller (Higher/Lower)</b><br>Correct direction = 1,000 pts<br>Wrong = 0 pts</div>
+  <div><b style="color:#b87aff;">Caller (Much — Round 2 only, ≤5p)</b><br>Correct + gap &gt;15% = 2,000 pts<br>Otherwise = 0 pts</div>
+  <div><b style="color:#4cdc8c;">Bonus</b><br>Picked the #1 answer = 2,000 pts<br>Any other answer = 0 pts</div>
+</div>
+
+<p style="margin-top:24px; font-size:.72em; color:rgba(232,244,252,.3); font-family:'Orbitron',monospace; letter-spacing:.1em;">
+  GUESSPIONAGE SCREEN MAP · 528 questions · 137 bonus questions · 1,191 audio files
+</p>
+
+</body>
+</html>

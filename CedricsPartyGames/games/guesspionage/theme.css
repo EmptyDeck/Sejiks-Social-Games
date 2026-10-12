@@ -1,0 +1,229 @@
+/* THEME BRIEF
+ * Theme name:   GUESSPIONAGE (Jackbox Poll Position faithful recreation)
+ * Vibe:         Cold-war intelligence briefing room; deep navy + electric cyan + amber warning
+ * Palette:      bg #0d1b2a / bg2 #122030 (deep navy), fg #e8f4fc (cold white),
+ *               accent #00aaff (electric blue), accent2 #ffb300 (amber warning),
+ *               good #4cdc8c, bad #ff6b5b; paper #ddeeff for case-file cards
+ * Fonts:        display 'Orbitron' (mission-readout) + body 'Barlow'; KO: 'Noto Sans KR'
+ * Shapes:       --radius 2px, hard corners, scanline overlay, HUD-style bars
+ *               dossier card = pale blue paper with a folder tab + red CLASSIFIED stamp
+ * Motion:       gp-scan on the scale, gp-rise for staged reveal rows, gp-slide for real marker
+ * Sound voice:  digital
+ * Avatars:      24 emoji spy-themed
+ */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Barlow:wght@500;700&family=Noto+Sans+KR:wght@400;700&display=swap');
+
+body[data-game="guesspionage"] {
+  --bg: #0d1b2a; --bg2: #122030;
+  --fg: #e8f4fc; --muted: rgba(232,244,252,.78);
+  --accent: #00aaff; --accent-fg: #001a2e; --accent2: #ffb300;
+  --card: rgba(0,150,220,.08); --line: rgba(0,170,255,.28);
+  --good: #4cdc8c; --bad: #ff6b5b;
+  --paper: #d8ecf8; --paper2: #bcd8ed; --ink: #082038; --stampred: #cc1f1f;
+  --radius: 2px;
+  --font-display: 'Orbitron', 'Noto Sans KR', 'Apple SD Gothic Neo', monospace;
+  --font-body: 'Barlow', 'Noto Sans KR', 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --ease: cubic-bezier(.18,.82,.22,1);
+  --dur: .28s;
+  --anim-in: gp-stamp;
+  --pc0:#ff5d5d; --pc1:#ff9f43; --pc2:#ffd93d; --pc3:#8be04b; --pc4:#2fd6a0; --pc5:#3fb8ff;
+  --pc6:#7a86ff; --pc7:#b87aff; --pc8:#ff77c8; --pc9:#d2b48c; --pc10:#9db0bd; --pc11:#e8f4fc;
+  background:
+    repeating-linear-gradient(0deg, rgba(0,170,255,.022) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(90deg, rgba(0,170,255,.022) 0 1px, transparent 1px 40px),
+    radial-gradient(130% 80% at 50% -10%, #0d2a46, var(--bg) 65%) fixed;
+}
+body[data-game="guesspionage"]::before {
+  content: ''; position: fixed; inset: 6px;
+  border: 1px solid rgba(0,170,255,.2); pointer-events: none; z-index: 5;
+}
+
+/* ── generic ── */
+body[data-game="guesspionage"] h1, body[data-game="guesspionage"] h2 {
+  text-transform: uppercase; letter-spacing: .08em;
+}
+body[data-game="guesspionage"] h1 { font-size: 1.6em; color: var(--accent); font-family: var(--font-display); }
+body[data-game="guesspionage"] .btn { text-transform: uppercase; letter-spacing: .08em; border: 1px solid var(--accent); box-shadow: 0 .15em 0 rgba(0,0,0,.5); }
+body[data-game="guesspionage"] .btn:active:not(:disabled) { transform: translateY(.1em); box-shadow: none; }
+body[data-game="guesspionage"] .btn.secondary { border-color: var(--line); background: transparent; }
+body[data-game="guesspionage"] .btn.ghost { background: transparent; box-shadow: none; opacity: .8; }
+body[data-game="guesspionage"] .btn.big { font-size: 1.2em; padding: 16px 22px; }
+body[data-game="guesspionage"] .btn.tiny { width: auto; font-size: .75em; padding: 8px 12px; }
+body[data-game="guesspionage"] .btn.danger { background: var(--bad); color: #fff; border-color: #ff9d8f; }
+body[data-game="guesspionage"] .good { color: var(--good); }
+body[data-game="guesspionage"] .bad { color: var(--bad); }
+body[data-game="guesspionage"] .avatar { box-shadow: 0 0 0 2px rgba(0,0,0,.4); }
+body[data-game="guesspionage"] .avatar.bot { background: #1a3a5c; }
+body[data-game="guesspionage"] .roomcode { color: var(--accent); }
+body[data-game="guesspionage"] .timer-bar i { background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+body[data-game="guesspionage"] .timer-num { font-family: var(--font-display); }
+body[data-game="guesspionage"] .leadbar { display: flex; flex-wrap: wrap; gap: 10px; width: 100%; }
+body[data-game="guesspionage"] .leadbar .btn { flex: 1 1 10em; width: auto; }
+body[data-game="guesspionage"] .status { text-align: center; font-weight: 700; font-size: 1.05em; margin: 0; }
+body[data-game="guesspionage"] .gp-leaderonly { text-align: center; margin: 0; }
+body[data-game="guesspionage"] .pulse { animation: gp-pulse 1.4s ease-in-out infinite; }
+body[data-game="guesspionage"] .row.between { justify-content: space-between; width: 100%; }
+body[data-game="guesspionage"] .stickyact { position: sticky; bottom: 0; z-index: 6; width: 100%; padding: 10px 0 6px; background: linear-gradient(transparent, var(--bg) 28%); }
+
+/* ── HUD header ── */
+body[data-game="guesspionage"] .gp-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+body[data-game="guesspionage"] .gp-tag { font-family: var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-size: .88em; }
+body[data-game="guesspionage"] .gp-timer { flex: 1 1 8em; max-width: 20em; }
+body[data-game="guesspionage"] .gp-confirm { background: rgba(255,107,91,.14); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 10px; text-align: center; width: 100%; }
+body[data-game="guesspionage"] .gp-yourturn { color: var(--accent); margin: 0; text-align: center; font-family: var(--font-display); font-size: 1.1em; }
+
+/* ── dossier card ── */
+body[data-game="guesspionage"] .dossier { position: relative; background: linear-gradient(var(--paper), var(--paper2)); color: var(--ink); border-radius: 3px; padding: 1.2em 1em 1em; margin-top: .6em; box-shadow: 0 .3em 0 rgba(0,0,0,.5); width: 100%; }
+body[data-game="guesspionage"] .dossier::before { content: ''; position: absolute; top: -.5em; left: 1em; width: 4em; height: .55em; background: var(--paper2); border-radius: 3px 3px 0 0; }
+body[data-game="guesspionage"] .stamp { position: absolute; top: -.65em; right: .8em; font-family: var(--font-display); font-size: .62em; letter-spacing: .14em; color: var(--stampred); border: 2px solid var(--stampred); padding: .1em .5em; transform: rotate(-3deg); background: var(--paper); text-transform: uppercase; }
+body[data-game="guesspionage"] .cat-label { font-family: var(--font-display); font-size: .72em; letter-spacing: .12em; text-transform: uppercase; color: #336699; margin-bottom: .15em; }
+body[data-game="guesspionage"] .qtext { font-family: var(--font-display); font-size: 1.25em; line-height: 1.3; margin: .1em 0 0; font-weight: 500; }
+body[data-game="guesspionage"].host .qtext { font-size: 1.5em; }
+body[data-game="guesspionage"] .dossier.compact { padding-top: .9em; }
+body[data-game="guesspionage"] .dossier.compact .qtext { font-size: 1.0em; }
+
+/* ── category screen ── */
+body[data-game="guesspionage"] .cat-header { font-family: var(--font-display); font-size: .8em; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); border-bottom: 1px solid var(--line); padding-bottom: .4em; margin-bottom: .6em; }
+body[data-game="guesspionage"] .cat-picking { display: flex; align-items: center; gap: .8em; font-size: 1.05em; margin: .5em 0; }
+body[data-game="guesspionage"] .cat-search { text-align: center; font-family: var(--font-display); font-size: 1.1em; letter-spacing: .18em; color: var(--accent); padding: 1em 0; }
+body[data-game="guesspionage"] .search-blink { animation: gp-blink .9s step-end infinite; }
+body[data-game="guesspionage"] .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(7em, 1fr)); gap: 8px; width: 100%; overflow-y: auto; max-height: 55vh; }
+body[data-game="guesspionage"] .cat-btn { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); color: var(--fg); padding: 10px 8px; font-size: .82em; font-family: var(--font-body); cursor: pointer; text-align: center; transition: background .12s, border-color .12s; }
+body[data-game="guesspionage"] .cat-btn:hover, body[data-game="guesspionage"] .cat-btn:focus { background: rgba(0,170,255,.18); border-color: var(--accent); outline: none; }
+body[data-game="guesspionage"] .cat-btn:active { transform: scale(.96); }
+
+/* ── 0-100 scale ── */
+body[data-game="guesspionage"] .scale { position: relative; height: 6em; margin: .4em 2em 0; width: auto; align-self: stretch; }
+body[data-game="guesspionage"] .scale:not(.has-real) { height: 4.4em; }
+body[data-game="guesspionage"] .scale .track { position: absolute; left: 0; right: 0; top: 2.1em; height: 1.4em; border-radius: 1px; border: 1px solid var(--line);
+  background: linear-gradient(90deg, #003d82 0%, #0066cc 50%, #0099ff 100%); overflow: visible; }
+body[data-game="guesspionage"] .scale .tk { position: absolute; top: 50%; transform: translate(-50%,-50%); font-size: .6em; color: #fff; text-shadow: 0 0 3px #000; font-family: var(--font-display); }
+body[data-game="guesspionage"] .scale .tk:first-of-type { transform: translate(.5em,-50%); }
+body[data-game="guesspionage"] .scale .tk:last-of-type { transform: translate(calc(-100% - .5em),-50%); }
+body[data-game="guesspionage"] .scale .scan { position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0 40%, rgba(0,200,255,.6) 50%, transparent 60% 100%) 0 0 / 250% 100%; animation: gp-scan 1.8s linear infinite; mix-blend-mode: overlay; }
+body[data-game="guesspionage"] .mk { position: absolute; left: var(--pos); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
+body[data-game="guesspionage"] .mk b { font-family: var(--font-display); font-size: 1em; padding: .06em .5em; border-radius: 1px; white-space: nowrap; }
+body[data-game="guesspionage"] .mk i { width: 0; height: 0; border-left: .42em solid transparent; border-right: .42em solid transparent; }
+body[data-game="guesspionage"] .mk-guess { top: 0; }
+body[data-game="guesspionage"] .mk-guess b { background: var(--accent2); color: #1a0a00; }
+body[data-game="guesspionage"] .mk-guess.shrug b { background: #8899aa; }
+body[data-game="guesspionage"] .mk-guess i { border-top: .55em solid var(--accent2); }
+body[data-game="guesspionage"] .mk-guess.shrug i { border-top-color: #8899aa; }
+body[data-game="guesspionage"] .mk-real { top: 3.4em; }
+body[data-game="guesspionage"] .mk-real b { background: var(--accent); color: var(--accent-fg); }
+body[data-game="guesspionage"] .mk-real i { border-bottom: .55em solid var(--accent); }
+body[data-game="guesspionage"] #screen[data-fresh="1"] .mk-real { animation: gp-slide 1.4s cubic-bezier(.12,.8,.18,1) .8s both; }
+
+/* ── guess screen ── */
+body[data-game="guesspionage"] .guesser { text-align: center; font-size: 1.2em; }
+body[data-game="guesspionage"] .sliderbox { width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 6px 8px; }
+body[data-game="guesspionage"] .gval { font-family: var(--font-display); font-size: 3.4em; text-align: center; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+body[data-game="guesspionage"] .sliderrow { display: flex; align-items: center; gap: 6px; }
+body[data-game="guesspionage"] .nudge { flex: none; width: 40px; height: 52px; font-size: 1.6em; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); cursor: pointer; color: var(--fg); }
+body[data-game="guesspionage"] .slider { flex: 1; height: 56px; -webkit-appearance: none; appearance: none; background: transparent; touch-action: pan-y; }
+body[data-game="guesspionage"] .slider::-webkit-slider-runnable-track { height: 14px; border-radius: 1px; background: linear-gradient(90deg, #003d82, #0066cc 50%, #0099ff); border: 1px solid var(--line); }
+body[data-game="guesspionage"] .slider::-moz-range-track { height: 14px; border-radius: 1px; background: linear-gradient(90deg, #003d82, #0066cc 50%, #0099ff); border: 1px solid var(--line); }
+body[data-game="guesspionage"] .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 32px; height: 44px; margin-top: -16px; border-radius: 2px; background: var(--accent2); border: 2px solid #ffe08a; box-shadow: 0 2px 0 rgba(0,0,0,.5); }
+body[data-game="guesspionage"] .slider::-moz-range-thumb { width: 28px; height: 40px; border-radius: 2px; background: var(--accent2); border: 2px solid #ffe08a; }
+body[data-game="guesspionage"] .sliderends { display: flex; justify-content: space-between; color: var(--muted); font-size: .8em; padding: 0 50px; font-family: var(--font-display); }
+
+/* ── call screen ── */
+body[data-game="guesspionage"] .says { display: flex; align-items: center; justify-content: center; gap: .5em; flex-wrap: wrap; text-align: center; }
+body[data-game="guesspionage"] .says .big { font-family: var(--font-display); font-size: 1.6em; color: var(--accent2); }
+body[data-game="guesspionage"] .callgrid { display: grid; gap: 10px; width: 100%; grid-template-columns: 1fr 1fr; }
+body[data-game="guesspionage"] .callgrid .btn.call { display: flex; flex-direction: column; align-items: center; gap: .1em; padding: 18px 8px; min-height: 5em; font-size: 1.1em; }
+body[data-game="guesspionage"] .callgrid .btn.call .ar { font-size: 1.3em; }
+body[data-game="guesspionage"] .callgrid .btn.up { background: #0a4d8c; color: #fff; border-color: #4da6ff; }
+body[data-game="guesspionage"] .callgrid .btn.down { background: #5c1a0f; color: #fff; border-color: #ff9d8f; }
+body[data-game="guesspionage"] .lockedcall { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px; border: 2px solid var(--accent); border-radius: var(--radius); background: rgba(0,170,255,.08); text-align: center; }
+body[data-game="guesspionage"] .lockrow { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+body[data-game="guesspionage"] .lks { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+body[data-game="guesspionage"] .lk { display: inline-flex; flex-direction: column; align-items: center; opacity: .3; transition: opacity .3s; font-size: .85em; }
+body[data-game="guesspionage"] .lk.done { opacity: 1; }
+body[data-game="guesspionage"] .lk.done .avatar { box-shadow: 0 0 0 3px var(--good); }
+body[data-game="guesspionage"] .lk small { font-size: .7em; }
+
+/* ── reveal ── */
+body[data-game="guesspionage"] .revealgrid { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+body[data-game="guesspionage"].host .revealgrid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 3vw; align-items: start; }
+body[data-game="guesspionage"] .rv-left { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+body[data-game="guesspionage"] .verdict { display: flex; flex-direction: column; align-items: center; gap: .1em; text-align: center; font-family: var(--font-display); font-size: 1.0em; }
+body[data-game="guesspionage"] .verdict .vl { display: flex; align-items: center; justify-content: center; gap: .6em; flex-wrap: wrap; }
+body[data-game="guesspionage"] .verdict .gpts { font-size: 1.6em; line-height: 1.1; }
+body[data-game="guesspionage"] .mine { text-align: center; font-family: var(--font-display); font-size: 1.1em; border: 2px dashed currentColor; border-radius: var(--radius); padding: 8px; }
+body[data-game="guesspionage"] .mine b { font-size: 1.4em; }
+body[data-game="guesspionage"] .callcols { display: grid; grid-template-columns: 1fr; gap: 10px; }
+body[data-game="guesspionage"].host .callcols { grid-template-columns: 1fr 1fr; }
+body[data-game="guesspionage"] .cg { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+body[data-game="guesspionage"] .cg-title { font-family: var(--font-display); text-transform: uppercase; font-size: .78em; letter-spacing: .1em; }
+body[data-game="guesspionage"] .cg-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(10em, 1fr)); gap: 3px 10px; }
+body[data-game="guesspionage"] .cl { display: flex; align-items: center; justify-content: space-between; gap: .5em; font-size: .85em; }
+body[data-game="guesspionage"] .cl .dir { color: var(--muted); font-size: .75em; margin-left: auto; }
+body[data-game="guesspionage"] .cl.right b { color: var(--good); }
+body[data-game="guesspionage"] .cl.wrong b { color: var(--bad); }
+body[data-game="guesspionage"] .ranking { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 12px; width: 100%; }
+body[data-game="guesspionage"] .rk-title { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .1em; color: var(--accent); font-size: .78em; margin-bottom: 4px; }
+body[data-game="guesspionage"] .rk-list { display: flex; flex-direction: column; gap: 3px; }
+body[data-game="guesspionage"] .rk { display: flex; align-items: center; gap: .5em; font-size: .9em; padding: 2px 4px; border-radius: 2px; }
+body[data-game="guesspionage"] .rk .pos { font-family: var(--font-display); width: 2.3em; white-space: nowrap; color: var(--accent); text-align: right; }
+body[data-game="guesspionage"] .rk .who { flex: 1; min-width: 0; overflow: hidden; }
+body[data-game="guesspionage"] .rk .who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body[data-game="guesspionage"] .rk .sc { font-family: var(--font-display); min-width: 4em; text-align: right; }
+body[data-game="guesspionage"] .rk .dl { font-style: normal; color: var(--good); font-size: .85em; min-width: 4em; text-align: right; }
+body[data-game="guesspionage"] .rk.me { background: rgba(0,170,255,.12); }
+body[data-game="guesspionage"] .rk.top .pos::after { content: ' ★'; }
+body[data-game="guesspionage"] .rk-more { text-align: center; }
+body[data-game="guesspionage"] #screen[data-fresh="1"] .r-step { animation: gp-rise .4s var(--ease) calc(var(--d,0) * 1s) both; }
+
+/* ── setup ── */
+body[data-game="guesspionage"] .opts { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+body[data-game="guesspionage"] .opt { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; text-align: left; }
+body[data-game="guesspionage"] .opt .tog { width: auto; min-width: 5.5em; padding: 10px 16px; }
+body[data-game="guesspionage"] .opt .tog.on { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+body[data-game="guesspionage"] .togview { padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--line); font-family: var(--font-display); }
+body[data-game="guesspionage"] .togview.on { background: var(--accent); color: var(--accent-fg); }
+body[data-game="guesspionage"] .firstbox { width: 100%; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+body[data-game="guesspionage"] .firstbanner { font-family: var(--font-display); color: var(--accent); font-size: 1.0em; }
+body[data-game="guesspionage"] .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+body[data-game="guesspionage"] .pill { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px 4px 6px; cursor: pointer; font-size: .85em; }
+body[data-game="guesspionage"] .pill.sel { border-color: var(--accent); background: rgba(0,170,255,.16); }
+body[data-game="guesspionage"] .solonote { margin: 0; }
+
+/* ── bonus round ── */
+body[data-game="guesspionage"] .bon-grid { display: grid; grid-template-columns: 1fr; gap: 7px; width: 100%; }
+body[data-game="guesspionage"].host .bon-grid { grid-template-columns: repeat(auto-fill, minmax(12em, 1fr)); }
+body[data-game="guesspionage"] .bon-ans { position: relative; display: flex; align-items: center; min-height: 3em; padding: 8px 12px; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); color: var(--fg); font-weight: 700; cursor: pointer; font-size: .9em; }
+body[data-game="guesspionage"] .bon-ans.on { background: rgba(0,170,255,.2); border-color: var(--accent); box-shadow: inset .3em 0 0 var(--accent); }
+body[data-game="guesspionage"] .bon-ans:disabled { opacity: .65; cursor: default; }
+body[data-game="guesspionage"].player .bon-grid.pick { grid-template-columns: 1fr 1fr; gap: 6px; }
+body[data-game="guesspionage"].player .bon-grid.pick .bon-ans { font-size: .82em; min-height: 2.6em; padding: 6px 8px; }
+
+/* ── bonus reveal ── */
+body[data-game="guesspionage"] .brlist { display: flex; flex-direction: column; gap: 5px; width: 100%; }
+body[data-game="guesspionage"] .br { display: grid; grid-template-columns: minmax(0,1.6fr) minmax(0, 1fr) 3.4em; align-items: center; gap: .5em; padding: 5px 8px; background: var(--card); border: 1px solid transparent; border-radius: var(--radius); font-size: .85em; }
+body[data-game="guesspionage"] .br .brbar { height: .75em; background: rgba(0,0,0,.4); border-radius: 1px; overflow: hidden; }
+body[data-game="guesspionage"] .br .brbar i { display: block; height: 100%; background: var(--muted); }
+body[data-game="guesspionage"] .br .brtext { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body[data-game="guesspionage"] .br .brtext.gold { color: var(--accent2); }
+body[data-game="guesspionage"] .br .brpct { font-family: var(--font-display); text-align: right; font-size: .9em; }
+body[data-game="guesspionage"] .br.winner-row { border-color: var(--accent2); background: rgba(255,179,0,.1); }
+body[data-game="guesspionage"] .br.winner-row .brbar i { background: var(--accent2); }
+
+/* ── end ── */
+body[data-game="guesspionage"] .podium-box { width: 100%; text-align: center; background: linear-gradient(var(--paper), var(--paper2)); color: var(--ink); border-radius: 3px; padding: 14px; box-shadow: 0 .3em 0 rgba(0,0,0,.5); }
+body[data-game="guesspionage"] .podium-box .muted { color: #2a4a66; font-family: var(--font-display); text-transform: uppercase; letter-spacing: .1em; font-size: .8em; }
+body[data-game="guesspionage"] .winners { display: flex; flex-wrap: wrap; gap: 10px 18px; justify-content: center; margin: 6px 0; }
+body[data-game="guesspionage"] .winner .who { font-size: 1.3em; }
+body[data-game="guesspionage"] .winner .who b { color: var(--ink); }
+body[data-game="guesspionage"] .topscore { font-family: var(--font-display); font-size: 2.2em; color: var(--accent); }
+
+@keyframes gp-stamp { from { opacity: 0; transform: translateY(-10px) scale(.95); } to { opacity: 1; transform: none; } }
+@keyframes gp-rise  { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@keyframes gp-slide { from { left: 0%; opacity: 0; } 15% { opacity: 1; } to { left: var(--pos); opacity: 1; } }
+@keyframes gp-scan  { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+@keyframes gp-pulse { 50% { opacity: .8; } }
+@keyframes gp-blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+
+/* phone layout tweaks */
+body[data-game="guesspionage"].player .br { grid-template-columns: minmax(0,1fr) 3.4em; }
+body[data-game="guesspionage"].player .br .brbar { grid-column: 1 / -1; grid-row: 2; }

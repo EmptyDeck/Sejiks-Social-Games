@@ -1,0 +1,124 @@
+ACCEPTANCE RUN — server :58977, chrome :58978, leader PIN 4321
+
+[1] LAPTOP (big screen) — only a QR + code; no controls; no scrolling
+  ✅ R1   opening /host creates a room by itself (no game picker, no click needed)   ← room code on screen: KWUZ
+  ✅ R2   laptop lobby has ZERO buttons / controls   ← buttons in screen=0, control elements=0
+  ✅ R3   QR code is shown and encodes the join URL with the room code   ← https://node.tail9a29ae.ts.net:10000/?room=KWUZ | modules drawn: 2
+  ✅ R4   laptop never scrolls (empty lobby)   ← no overflow at 1280x720
+
+[2] PHONE — scan QR, 'Are you Cedric?', PIN, admin picks the game (all on the phone)
+  ✅ R5   phone opens the QR link and shows the LOBBY (not 'Loading…')   ← 🚀 | Your name | Tap for noise! | Pick your icon | 😀 | 😎 | 🤠 | 🥳 | 🤓 | 😈 | 👻 | 🤖 | 👽 | 
+  ✅ R6   'Are you Cedric?' is a SMALL chip in the top bar right next to the sound icon (not a banner in the page)   ← {'text': 'Are you Cedric?', 'h': 26, 'fs': '12px', 'sameRow': True, 'leftOfMute': True, 'gap': 8}
+  ✅ R7   PIN prompt is OUR OWN dialog (no browser pop-up)   ← #modal visible with PIN input; native dialogs so far: 0
+  ✅ R8   wrong PIN does NOT make you admin   ← game picker visible: False
+  ✅ R9   right PIN → this phone becomes ADMIN and sees the game list   ← 4 games listed on the phone | {"sent":["{\"t\":\"auth\",\"pin\":\"0000\"}","{\"t\":\"profile\",\"name\":\"Cedric\"}","{\"t\":\"auth\",\"pin\":\"4321\"}"],"ws":1,"leader":true,"launcher":4,"modalHidden":true,"errs":0}
+  ✅ R10  the laptop marks the admin   ← badge on laptop: ADMIN
+  ✅ R11  a normal friend's phone has NO game list and NO start button   ← controls on friend phone: 0
+  ✅ R12  admin picks Chameleon ON THE PHONE → laptop switches to its theme and title   ← laptop data-game=chameleon title=Chameleon
+  ✅ R12b admin switches games back and forth on the phone (gilded-takes → spy-poll → chameleon → chameleon): each one loads on laptop AND phone   ← gilded-takes→laptop:True phone:gilded-takes; spy-poll→laptop:True phone:spy-poll; chameleon→laptop:True phone:chameleon; chameleon→laptop:True phone:chameleon
+
+[2c] LOBBY CHAT — confirm name + icon, then type messages that appear on the laptop
+  ✅ R70  before confirming, a phone has NO chat box (name/icon first)   ← no #chat input on an unconfirmed phone
+  ✅ R71  tapping 'Done — I'm ready' unlocks the chat box on that phone   ← chat input shown
+  ✅ R72  the message shows up on the LAPTOP screen with the sender's name   ← laptop chat: Friend says 'hello from my phone 👋' | laptop chatlog text='ROOM CHAT\n❀︎\nFriend\nhello from my phone 👋'
+  ✅ R73  chat text is escaped (HTML typed in a message is shown as text, not run)   ← images injected on laptop: 0, native dialogs: 0
+  ✅ R74  confirmed players get a ✓ on the laptop   ← 1 ✓ marks on laptop
+  ✅ R75  laptop lobby with chat still never scrolls   ← ok
+  ✅ R76  'Edit name / icon' returns to editing   ← name field shown again
+  ✅ R13  admin starts the game from the phone → setup screen   ← screen=setup
+  ✅ R14  friend's phone cannot change options or deal (read-only setup)   ← toggle_vote/begin/chameleons visible: [False, False, False]
+
+[3] ADMIN OPTIONS (phone): vote on/off, number of chameleons (default 1), categories
+        (chameleon voting feature flag: OFF — voting is built and tested but hidden unless CHAMELEON_VOTING=1)
+  ✅ R15  defaults: 1 chameleon, all 14 categories offered, voting option HIDDEN (feature flag off)   ← chameleons=1 voting=hidden categories=14
+  ✅ R16  admin can switch categories off   ← 13 of 14 selected after un-ticking one
+
+[4] REAL-ROOM RULES: no timers, no rounds, same screen for everyone, secret only on hold
+  ✅ R17  word dealt; laptop shows the 20-word grid but NO secret and NO role
+  ✅ R17b laptop: 20 cells, no highlighted secret, no secret card   ← {'cells': 20, 'secretCells': 0, 'hasPeek': False}
+  ✅ R18  NO timers and NO rounds anywhere (no countdown element, no deadline field, no 'Round N' text)   ← timer elements: none; 'deadline'/'round' keys in views: none
+  ✅ R19  EVERY screen shows the SAME 20 words in the same order (laptop, admin phone, friend phone)   ← 36 identical cells on all three; first words: ["01\nSoftware Developer","02\nData Scientist","03\nPilot","
+  ✅ R20  SOCIAL TELL: before holding, the visible card text is identical for chameleon and insiders   ← admin='Hold to open your secret\nEveryone holds ' friend='Hold to open your secret\nEveryone holds ' roles={'admin': 'insider', 'friend': 'chameleon'}
+        while holding →  admin(insider): THE SECRET WORD IS Lawyer Describe it without making it too obvious.  [lit cells: 1]
+        while holding →  friend(chameleon): You are the CHAMELEON You do not know the word. Describe it vaguely and blend in.  [lit cells: 0]
+  ✅ R21  holding reveals the secret ONLY to the holder (insider: the word, chameleon: 'You are the CHAMELEON')   ← see lines above
+  ✅ R22  releasing hides it again   ← Hold to open your secret Everyone holds it, so nobody looks suspicious
+  ✅ R23  admin taps 'pick who goes first' → EVERYONE (friend phone + laptop) sees who starts   ← friend phone: 'Friend goes first' | laptop: 'Friend goes first'
+  ✅ R24  friend's phone cannot pick the first speaker / start voting   ← no admin buttons on friend phone
+  ✅ R25  laptop (big screen) still has ZERO buttons during the game   ← buttons=0
+  ✅ R26  laptop never scrolls (play screen)   ← ok
+  ✅ R27  voting hidden: admin's 'Reveal' goes straight to the result (no vote/guess screens)   ← result reached, tally=None
+  ✅ R30  result shows chameleon(s) and the secret word — no points, no round counter   ← result text: KWUZ | ⋯ | 🔇 | 한국어 | Chameleon | Chamaeleo ludens | HABITAT | Jobs | · | 01 | The truth | CHAMELEON(S) | ❀︎ | Friend
+  ✅ R31  laptop never scrolls (result screen)   ← ok
+  ✅ R31b end of a round: admin can start the NEXT ROUND, change settings, RESET the game, or go back to the lobby   ← next_word,options,reset,lobby
+  ✅ R31c 'Next round' deals a new word with the same settings   ← word #2
+  ✅ R32  admin sets 2 chameleons on the phone (voting hidden)   ← chameleons=2 voting=hidden
+  ✅ R33  voting OFF: no 'Start voting' button; admin just reveals   ← to_vote=False reveal=True
+  ✅ R34  2 chameleons were dealt and revealed   ← chameleons in result: ['p4', 'p1']
+
+[5] LANGUAGE — English base, Korean switchable any time
+  ✅ R35  tapping the language button switches the phone to Korean mid-game (no reload)   ← before: 'Chameleon HABITAT Apps · 03 Th' → after: '카멜레온 서식지 앱 · 03 진실은 카멜레온 ❃︎ Ben ✱︎ Cedri'
+
+[6] BACK OUT — admin closes the room from the phone; laptop opens a fresh room; friends return to the join screen
+  ✅ R36  admin sends everyone back to the lobby from the phone   ← game list visible again → can pick another game
+  ✅ R37  'Close room' asks with OUR dialog (no native confirm)   ← native dialogs total: 0
+  ✅ R38  room closed: laptop shows a NEW room code by itself; friend's phone is back at the join screen   ← old=KWUZ new=YZDN friend on join screen=True
+
+[7] NO MINIMUM / NO MAXIMUM — one player alone, and 30 players
+  ✅ R39  ONE player alone can start and play (no minimum)   ← solo player reached the play screen with 1 player(s)
+  ✅ R40  …and finishes the word alone   ← result reached
+  ✅ R41  30 players join one room (no maximum)   ← laptop sees 30 players
+  ✅ R42  laptop with 30 players: lobby does not scroll   ← no overflow; font shrunk to 12.8px
+  ✅ R43  laptop with 30 players: 20-word grid screen does not scroll   ← no overflow; font=22.3px
+  ✅ R44  laptop with 30 players: vote/guess/result screens do not scroll   ← screen=result ok
+  ✅ R45  …also at a different laptop size (1366x768)   ← ok
+
+[7b] SPY POLL — timers and laptop controls are allowed for THIS game only; 30 players; leader-only; solo with virtual agents
+  ✅ R51  spy-poll with 30 players: setup shows on the laptop with its own Begin/option buttons (owner waiver)   ← players=30 laptop buttons=True
+  ✅ R52  spy-poll 30 players: setup does not scroll on the laptop   ← ok
+  ✅ R53  spy-poll: a non-leader cannot Begin   ← still on setup after a non-leader Begin
+  ✅ R54  spy-poll: timers are on by default and the view carries an absolute deadline   ← timer={'deadline': 1791071260142, 'total': 45000}
+  ✅ R55  spy-poll 30 players: guess screen does not scroll   ← ok
+  ✅ R56  spy-poll 30 players: call screen (locked-in row) does not scroll   ← ok
+  ✅ R57  spy-poll 30 players: reveal screen (30 callers + standings) does not scroll   ← ok
+  ✅ R58  spy-poll: Next from a non-leader is ignored   ← still on reveal
+  ✅ R59  spy-poll: a double-tapped Next acts once (lands on the next guess screen, not skipped)   ← screen=guess
+  ✅ R60  spy-poll: End needs the in-page confirm first (end without end_ask is ignored)   ← still playing
+  ✅ R61  spy-poll 30 players: final ranking screen does not scroll   ← ranking rows=30
+  ✅ R62  spy-poll alone: three labelled virtual agents call in the reveal; only you are ranked   ← bots=['Agent Fennel', 'Agent Moth', 'Agent Quill'] ranking=1
+  ✅ R63  spy-poll alone: next turn a virtual agent guesses and YOU get the Higher/Lower call   ← agent guesser=Agent Fennel guess=70
+  ✅ R64  spy-poll client has no JS timers (countdowns come from the core's ctx.timer deadline)   ← no setTimeout/setInterval in client.js
+
+[8] CODE RULES (scanned in the source) and runtime pop-ups
+  ✅ R46  no browser alert()/confirm()/prompt() anywhere in core or any game client   ← 0 occurrences in core/*.js and games/*/client.js
+  ✅ R47  no native pop-up ever opened during this whole run   ← native dialogs: 0
+  ✅ R48  chameleon source contains no timer/deadline code   ← grep deadline|setTimeout|setInterval|countdown → nothing
+
+[8b] SAME PHONE OPENS THE LINK TWICE (camera app + Safari, two tabs)
+  ✅ R50  second tab takes over; the first is told (no endless reconnect fight, no 'Loading')   ← first tab: {"replaced":true,"text":"Are you Cedric?\n🔇\n한국어\nConnection lost — reconnecting…\n\nThis room is o"} | second tab shows lobby: True
+
+[9] PUBLIC LINK — the exact path your phone uses (Tailscale Funnel, https/wss)
+  ✅ R49  phone opens https://node.tail9a29ae.ts.net:10000/?room=… over the internet and shows the lobby (not 'Loading…')   ← 🦄
+Your name
+Tap for noise!
+Pick your icon
+😀
+😎
+🤠
+🥳
+🤓
+😈
+👻
+🤖
+👽
+🐵
+🐶
+🐱
+🦊
+🐼
+
+
+JAVASCRIPT ERRORS in all tabs during the run: none
+SERVER LOG: no tracebacks (18 lines)
+
+==== RESULT: ALL REQUIREMENTS PROVEN ====

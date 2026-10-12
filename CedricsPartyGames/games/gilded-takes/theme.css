@@ -1,0 +1,49 @@
+/* Theme: OLD MONEY — navy & gold, serif type, slow and dignified motion, no bouncing, soft chimes.
+ * Every rule is scoped to body[data-game="gilded-takes"] so themes never leak between games. */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,800;1,500&family=Cormorant+Garamond:wght@500;700&display=swap');
+
+body[data-game="gilded-takes"] {
+  --bg: #0b1424; --bg2: #1a2b4a;
+  --fg: #f4ecd6; --muted: rgba(244,236,214,.62);
+  --accent: #c9a24b; --accent-fg: #101a2c; --accent2: #8c2f3b;
+  --card: rgba(244,236,214,.07); --line: rgba(201,162,75,.35);
+  --radius: 4px;
+  --font-display: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+  --font-body: 'Cormorant Garamond', 'Noto Serif KR', Georgia, serif;
+  --ease: cubic-bezier(.22,.61,.36,1);          /* gentle, no overshoot */
+  --dur: .8s;
+  --anim-in: gilded-rise;
+  --letter: .02;
+  --pc0:#8c2f3b; --pc1:#a5651f; --pc2:#c9a24b; --pc3:#4f7a4a; --pc4:#2f6f6a; --pc5:#2f5d8c;
+  --pc6:#4a4a8c; --pc7:#6d3f7a; --pc8:#8c3f66; --pc9:#7a6248; --pc10:#6b7a8c; --pc11:#d8cfae;
+  font-size: 20px;
+}
+body[data-game="gilded-takes"]::before {         /* hairline gold frame */
+  content: ''; position: fixed; inset: 10px; border: 1px solid var(--line); pointer-events: none; z-index: 5;
+}
+body[data-game="gilded-takes"] .btn { text-transform: uppercase; letter-spacing: .12em; font-size: .95em; border: 1px solid #e8cf8a; }
+body[data-game="gilded-takes"] .btn.picked { background: var(--accent2); color: var(--fg); }
+body[data-game="gilded-takes"] .option { text-transform: none; letter-spacing: 0; font-style: italic; font-weight: 500; text-align: left; background: var(--card); color: var(--fg); border: 1px solid var(--line); }
+body[data-game="gilded-takes"] .option:disabled { opacity: .45; }
+body[data-game="gilded-takes"] .avatar { box-shadow: 0 0 0 2px var(--line); }
+body[data-game="gilded-takes"] .prompt { font-style: italic; font-weight: 500; }
+body[data-game="gilded-takes"] .roomcode { color: var(--accent); font-weight: 800; }
+body[data-game="gilded-takes"] .timer-num { font-weight: 500; }
+body[data-game="gilded-takes"] .timer-bar i { background: linear-gradient(90deg, #8a6a24, #e8cf8a); }
+body[data-game="gilded-takes"] .optgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; width: 100%; }
+body[data-game="gilded-takes"] .option.big { font-size: 1.15em; font-style: italic; padding: 22px; }
+body[data-game="gilded-takes"] .who-sub { display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: .45; transition: opacity var(--dur); }
+body[data-game="gilded-takes"] .who-sub.done { opacity: 1; }
+body[data-game="gilded-takes"] .who-sub.done .avatar { box-shadow: 0 0 0 3px var(--accent); }
+body[data-game="gilded-takes"] .result.hit { border-color: var(--accent); }
+body[data-game="gilded-takes"] .r-text { font-style: italic; font-size: 1.15em; margin-bottom: 8px; }
+body[data-game="gilded-takes"] .pts { color: var(--accent); }
+body[data-game="gilded-takes"] .rank { display: flex; align-items: center; gap: 12px; padding: 10px 16px; }
+body[data-game="gilded-takes"] .rank .pos { font-family: var(--font-display); color: var(--accent); width: 1.4em; }
+body[data-game="gilded-takes"] .bigboard .rank:first-child { border-color: var(--accent); background: rgba(201,162,75,.14); font-size: 1.25em; }
+body[data-game="gilded-takes"] .board { margin-top: 14px; }
+
+@keyframes gilded-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+body[data-game="gilded-takes"] .leadbar { display: flex; flex-wrap: wrap; gap: 10px; width: 100%; }
+body[data-game="gilded-takes"] .leadbar .btn { flex: 1 1 160px; width: auto; }

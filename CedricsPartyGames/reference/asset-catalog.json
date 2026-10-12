@@ -1,0 +1,223 @@
+{
+ "_note": "Machine-readable map of the owner's Jackbox install (from ../../JACKBOX_ASSET_MAP.md). Paths are on the owner's Mac only; none of these files are in the repo.",
+ "root": "/Users/owo/Library/Application Support/Steam/steamapps/common",
+ "products": {
+  "PP3": "The Jackbox Party Pack 3/The Jackbox Party Pack 3.app/Contents/Resources/macos",
+  "PP4": "The Jackbox Party Pack 4/The Jackbox Party Pack 4.app/Contents/Resources/macos",
+  "D2": "Drawful 2/Drawful 2.app/Contents/Resources/macos",
+  "SS": "The Jackbox Survey Scramble Demo/The Jackbox Survey Scramble.app/Contents/Resources/macos/games/BigSurvey",
+  "MP": "The Jackbox Megapicker/The Jackbox Megapicker.app/Contents/Resources"
+ },
+ "formats": {
+  ".jet": "plain JSON {content:[...]}",
+  ".ogg": "voice-over / sfx",
+  ".wav": "sfx/music",
+  ".bank": "FMOD bank",
+  ".swf": "flash art + embedded sound",
+  ".usm": "CRI video",
+  ".png/.jpg": "question images"
+ },
+ "content_counts": {
+  "Quiplash2": {
+   "prompts": 746,
+   "audience": 749,
+   "safetyQuips": 98
+  },
+  "TriviaMurderParty": {
+   "questions": 1156,
+   "final": 157
+  },
+  "FakinIt": {
+   "tasks": 453
+  },
+  "PollPosition": {
+   "questions": 528,
+   "bonus": 137
+  },
+  "AwShirt": {
+   "drawingSuggestions": 385,
+   "sloganSuggestions": 253
+  },
+  "Fibbage3": {
+   "shortie": 503,
+   "special": 104,
+   "final": 99,
+   "tmi": 151
+  },
+  "SurviveTheInternet": {
+   "prompts": 188,
+   "photo": 195,
+   "store": 58,
+   "job": 38,
+   "twist": 101
+  },
+  "Bracketeering": {
+   "prompts": 325
+  },
+  "MonsterMingle": {
+   "monsters": 15,
+   "secretWords": 99,
+   "audienceAnswers": 127
+  },
+  "CivicDoodle": {
+   "final": 207
+  },
+  "Drawful2": {
+   "en": 1461,
+   "fr": 1461,
+   "it": 1508,
+   "de": 1480,
+   "es": 1483,
+   "adult_en": 184
+  }
+ },
+ "avatar_rosters": {
+  "Quiplash2": [
+   "Blue",
+   "Coffin",
+   "Green",
+   "Kitten",
+   "Orange",
+   "Pink",
+   "Purple",
+   "Red",
+   "Star",
+   "Teal",
+   "Triclops",
+   "Yellow"
+  ],
+  "TriviaMurderParty": [
+   "Blue",
+   "Gray",
+   "Green",
+   "Orange",
+   "Pink",
+   "Purple",
+   "Red",
+   "Yellow",
+   "Ghost"
+  ],
+  "PollPosition": [
+   "vrman",
+   "scarflady",
+   "businessman",
+   "eyegadget",
+   "boblady",
+   "goateeman",
+   "vrwoman",
+   "dog",
+   "dolphin",
+   "hatguy",
+   "eagle2",
+   "informant",
+   "robot",
+   "headphonesgirl",
+   "facemaskguy",
+   "radiooperator"
+  ],
+  "AwShirt": [
+   "Baku",
+   "BlueDemon",
+   "Bun",
+   "Cat",
+   "Catfish",
+   "Crow",
+   "Dog",
+   "Fire",
+   "Fox",
+   "Hair",
+   "Kappa",
+   "Monkey",
+   "Raccoon",
+   "RedDemon",
+   "Snake",
+   "Umbrella"
+  ],
+  "MonsterMingle": [
+   "Blob/Glob",
+   "InvisibleMan",
+   "Leprechaun",
+   "MonsterHunter",
+   "Mother",
+   "Mummy",
+   "PodPerson",
+   "SerialKiller",
+   "TwoFacedCreep",
+   "Vampire",
+   "VengefulGhost",
+   "VentriloquistPuppet",
+   "Werewolf",
+   "Witch",
+   "Zombie",
+   "Robot(NPC)"
+  ],
+  "SurviveTheInternet": [
+   "Pink",
+   "Purple",
+   "Blue",
+   "Teal",
+   "Green",
+   "Yellow",
+   "Orange",
+   "Red",
+   "Gray",
+   "Gene(mascot)"
+  ],
+  "Fibbage3": [
+   "Avatar1..8"
+  ],
+  "Drawful2": "players draw their own"
+ },
+ "sfx_files": {
+  "menu": [
+   "BSFXLogoOn",
+   "BSFXStartOn",
+   "BSFXStartButtonOn",
+   "BSFXStartButtonPress"
+  ],
+  "picker": [
+   "BSFXBoxShuffle",
+   "BSFXSelectGame",
+   "BSFXHelpOff",
+   "SettingsHighlight",
+   "SettingsToggleOnOff",
+   "SettingsVolumeUpDown",
+   "SettingsWindowOnOff"
+  ],
+  "music": [
+   "BSFXBackgroundMainLoop"
+  ],
+  "local_copy": "CedricsPartyGames/sounds/_reference/jackbox/{pp3,pp4}/ (gitignored)",
+  "survey_scramble_event_keys": 177,
+  "fmod_buses": [
+   "HOST",
+   "MUSIC",
+   "DuckedByMusic",
+   "Reverb"
+  ]
+ },
+ "languages": {
+  "Drawful2": [
+   "en",
+   "fr",
+   "it",
+   "de",
+   "es"
+  ],
+  "SurveyScramble": [
+   "en",
+   "de",
+   "es",
+   "es-XL",
+   "fr",
+   "it",
+   "pt-BR"
+  ],
+  "korean": false
+ },
+ "mascots": [
+  "Gene (PP4 / Survive the Internet)",
+  "owl (Drawful 2)",
+  "sad-roomie (Megapicker)"
+ ]
+}

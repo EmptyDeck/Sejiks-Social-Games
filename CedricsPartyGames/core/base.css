@@ -1,0 +1,173 @@
+/* Cedric's Party Games — base styles.
+ * Games restyle EVERYTHING by overriding the variables below inside  body[data-game="<id>"] { ... }
+ * (see RULEBOOK.md §7). Never edit this file for one game's look.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;800&family=Nunito:wght@500;800&display=swap');
+
+:root {
+  --bg: #1b1030;  --bg2: #2d1b55;           /* page gradient */
+  --fg: #ffffff;  --muted: rgba(255,255,255,.62);
+  --accent: #ffd23f;  --accent-fg: #1b1030;  /* primary button / highlights */
+  --accent2: #ff5d8f;                        /* secondary highlight */
+  --card: rgba(255,255,255,.09);  --line: rgba(255,255,255,.18);
+  --good: #4be08a;  --bad: #ff5d6c;
+  --radius: 18px;
+  --font-display: 'Baloo 2', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
+  --font-body: 'Nunito', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
+  --ease: cubic-bezier(.34,1.56,.64,1);      /* motion personality */
+  --dur: .4s;
+  --anim-in: pop-in;                         /* keyframes used when a screen / card appears */
+  --letter: 0;                               /* display letter-spacing in em */
+  --pc0:#ff5d6c; --pc1:#ffa23f; --pc2:#ffd23f; --pc3:#7be04b; --pc4:#3fd6a5; --pc5:#3fb5ff;
+  --pc6:#6b7bff; --pc7:#b06bff; --pc8:#ff6bd6; --pc9:#c9a27b; --pc10:#9aa7b5; --pc11:#f4f1de;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  font-family: var(--font-body); color: var(--fg); font-size: 18px;
+  background: radial-gradient(120% 90% at 50% 0%, var(--bg2), var(--bg) 70%) fixed;
+  overscroll-behavior: none;
+}
+h1, h2, h3, .display { font-family: var(--font-display); letter-spacing: calc(var(--letter) * 1em); margin: .2em 0; line-height: 1.1; }
+button, input, textarea { font: inherit; color: inherit; }
+
+/* ── layout ── */
+#decor { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+#screen { min-height: 100dvh; }
+.screen { min-height: 100dvh; padding: 64px 20px 28px; display: flex; flex-direction: column; gap: 14px; max-width: 560px; margin: 0 auto; }
+.screen.center { align-items: center; justify-content: center; text-align: center; }
+/* The big screen NEVER scrolls: it is exactly the window, and app.js (fitHost) shrinks the font until the content fits. */
+html:has(body.host), body.host { height: 100%; overflow: hidden; }
+body.host #screen { height: 100dvh; min-height: 0; overflow: hidden; }
+body.host .screen { max-width: none; height: 100dvh; min-height: 0; overflow: hidden; padding: 64px 5vw 3vw; font-size: clamp(20px, 2.1vw, 36px); }
+body.measuring *, body.measuring *::before, body.measuring *::after { animation: none !important; transition: none !important; }
+.stack { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.grow { flex: 1; }
+.muted { color: var(--muted); }  .small { font-size: .8em; }
+.err { color: var(--bad); min-height: 1.3em; margin: 0; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; width: 100%; }
+
+/* ── controls ── */
+.btn {
+  background: var(--accent); color: var(--accent-fg); border: 0; border-radius: var(--radius);
+  padding: 16px 22px; font-family: var(--font-display); font-weight: 800; font-size: 1.15em;
+  width: 100%; cursor: pointer; transition: transform .12s var(--ease), opacity .2s;
+}
+.btn:active:not(:disabled) { transform: scale(.96); }
+.btn:disabled { opacity: .35; cursor: default; }
+.btn.secondary { background: var(--card); color: var(--fg); border: 1px solid var(--line); }
+.btn.sent { opacity: .5; }
+.input {
+  width: 100%; background: rgba(0,0,0,.28); border: 2px solid var(--line); border-radius: var(--radius);
+  padding: 14px 16px; font-size: 1.1em; outline: none; transition: border-color .2s;
+}
+.input:focus { border-color: var(--accent); }
+textarea.input { resize: none; min-height: 110px; }
+.code-input { font-family: var(--font-display); font-size: 2.4em; text-align: center; letter-spacing: .3em; text-transform: uppercase; }
+
+/* ── identity ── */
+.avatar { display: inline-flex; align-items: center; justify-content: center; width: 1.9em; height: 1.9em; border-radius: 50%; font-size: 1.1em; line-height: 1; background: var(--pc0); box-shadow: 0 2px 0 rgba(0,0,0,.25); flex: none; }
+.avatar.xl { width: 1.7em; height: 1.7em; font-size: 2.8em; }
+.avatar.honk { animation: honk .45s var(--ease); }
+.who { display: inline-flex; align-items: center; gap: .4em; }
+.who .avatar { width: 1.6em; height: 1.6em; font-size: .85em; }
+.pc0{background:var(--pc0)}.pc1{background:var(--pc1)}.pc2{background:var(--pc2)}.pc3{background:var(--pc3)}
+.pc4{background:var(--pc4)}.pc5{background:var(--pc5)}.pc6{background:var(--pc6)}.pc7{background:var(--pc7)}
+.pc8{background:var(--pc8)}.pc9{background:var(--pc9)}.pc10{background:var(--pc10)}.pc11{background:var(--pc11)}
+
+/* ── brand / launcher ── */
+.brand { font-size: 2.2em; }  .brand.big { font-size: 3.4em; }
+.gamegrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 360px)); justify-content: center; gap: 18px; width: 100%; max-width: 1200px; margin-top: 18px; }
+.gamecard { background: var(--cbg); color: #fff; border: 3px solid var(--cac); border-radius: 22px; padding: 22px; display: flex; flex-direction: column; gap: 8px; text-align: left; cursor: pointer; transition: transform .2s var(--ease); }
+.gamecard:hover { transform: translateY(-6px) rotate(-1deg); }
+.gamecard b { font-family: var(--font-display); font-size: 1.5em; color: var(--cac); }
+.gc-emoji { font-size: 2.6em; } .gc-tag { opacity: .85; font-size: .85em; } .gc-n { opacity: .6; font-size: .75em; }
+.gamecard.bad { border-color: var(--bad); background: #300; cursor: default; font-size: .8em; }
+
+/* ── lobby ── */
+.lobby-host { display: grid; grid-template-columns: minmax(300px, 42%) 1fr; gap: 4vw; align-items: start; }
+.lh-left { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.gtitle { font-size: 1.6em; margin-bottom: .3em; }
+.roomcode { font-family: var(--font-display); font-size: clamp(2.6em, 6vw, 5.2em); letter-spacing: .08em; line-height: 1; white-space: nowrap; color: var(--accent); }
+.url { font-family: var(--font-display); font-size: 1.15em; word-break: break-all; }
+.qrbox { background: #fff; padding: .55em; border-radius: 14px; margin-top: 10px; line-height: 0; }
+.qrbox #qr img, .qrbox #qr canvas { width: 9em !important; height: 9em !important; }   /* em-sized so the big screen's auto-fit shrinks the QR with everything else */
+.bubbles { display: flex; flex-wrap: wrap; gap: 22px; padding: 18px 0 26px; }
+.bubble { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; font-weight: 800; }
+.bubble.new { animation: var(--anim-in) var(--dur) var(--ease) both; }
+.bubble.off { opacity: .35; }
+.bubble .vip { position: absolute; top: -8px; right: -10px; background: var(--accent2); color: #fff; border-radius: 10px; font-size: .5em; padding: 2px 7px; }
+.lobby-player .me { text-align: center; }
+.avgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.av { background: var(--card); border: 2px solid transparent; border-radius: 12px; font-size: 1.5em; padding: 6px 0; cursor: pointer; }
+.av.sel { border-color: var(--accent); background: rgba(255,255,255,.18); }
+.av:disabled { opacity: .2; }
+.btn.honk-anim { animation: honk .35s var(--ease); }
+
+.backbtn, .leavebtn { width: auto; font-size: .8em; padding: 8px 14px; align-self: flex-start; margin-bottom: 8px; }
+.leavebtn { align-self: center; margin-top: 18px; opacity: .8; }
+
+/* ── game helpers (use these in every game) ── */
+.timer { width: 100%; display: flex; align-items: center; gap: 12px; }
+.timer-num { font-family: var(--font-display); font-weight: 800; font-size: 1.6em; min-width: 1.6em; text-align: center; }
+.timer-bar { flex: 1; height: 10px; background: var(--card); border-radius: 6px; overflow: hidden; }
+.timer-bar i { display: block; height: 100%; background: var(--accent); width: 100%; transition: width .25s linear; }
+/* entrance animations run only when #screen[data-fresh] (= a new screen), so live updates never flicker */
+#screen[data-fresh="1"] .enter { animation: var(--anim-in) var(--dur) var(--ease) both; }
+.pop-in { animation: pop-in var(--dur) var(--ease) both; }
+.shake { animation: shake .4s; }
+.bounce { animation: bounce 1s infinite; }
+.stagger > * { }
+#screen[data-fresh="1"] .stagger > * { animation: var(--anim-in) var(--dur) var(--ease) both; }
+.stagger > *:nth-child(2){animation-delay:.08s}.stagger > *:nth-child(3){animation-delay:.16s}.stagger > *:nth-child(4){animation-delay:.24s}
+.stagger > *:nth-child(5){animation-delay:.32s}.stagger > *:nth-child(6){animation-delay:.4s}.stagger > *:nth-child(n+7){animation-delay:.48s}
+.errbanner { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bad); color: #fff; padding: 8px 14px; font-size: 14px; z-index: 30; }
+
+@keyframes pop-in { from { opacity: 0; transform: scale(.7) translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes honk { 0% { transform: scale(1); } 30% { transform: scale(1.35) rotate(-8deg); } 100% { transform: scale(1); } }
+@keyframes shake { 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+@keyframes bounce { 50% { transform: translateY(-8px); } }
+
+/* full-screen helpers (reaction / state-colour screens). Put .fullbleed as a sibling BEFORE .screen, never inside an .enter element */
+.fullbleed { position: fixed; inset: 0; z-index: 1; }
+.tapzone { position: fixed; inset: 0; z-index: 3; width: 100%; height: 100%; border: 0; background: transparent; color: inherit; cursor: pointer; touch-action: manipulation; }
+#screen { position: relative; z-index: 2; }
+
+/* ── chrome ── */
+#chrome { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding: 10px 12px; z-index: 20; pointer-events: none; }
+#chrome > * { pointer-events: auto; }
+#chrome .areyou-chip { font-size: 12px; padding: 4px 10px; opacity: .85; }
+#chrome button { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 14px; backdrop-filter: blur(6px); }
+#chip { margin-right: auto; font-family: var(--font-display); font-weight: 800; letter-spacing: .2em; opacity: .7; }
+#offline { position: fixed; top: 48px; left: 50%; transform: translateX(-50%); background: var(--bad); color: #fff; padding: 6px 14px; border-radius: 999px; font-size: 14px; z-index: 40; }
+#toast { position: fixed; bottom: 28px; left: 50%; transform: translate(-50%, 30px); background: #000c; color: #fff; padding: 10px 18px; border-radius: 999px; opacity: 0; transition: .25s; z-index: 40; pointer-events: none; }
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+/* our own dialog (replaces browser confirm/alert — never use those) */
+#modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(0,0,0,.62); backdrop-filter: blur(4px); }
+.modal-card { width: min(92vw, 460px); background: var(--bg2); border: 2px solid var(--line); border-radius: var(--radius); padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,.6); animation: var(--anim-in) var(--dur) var(--ease) both; }
+.modal-card p { margin: 0 0 20px; font-size: 1.1em; line-height: 1.35; }
+.modal-card .input { margin-bottom: 18px; text-align: center; letter-spacing: .3em; font-size: 1.4em; }
+.gamepick { display: flex; flex-direction: column; gap: 8px; }
+.gp { display: flex; align-items: center; gap: 12px; text-align: left; width: 100%; background: var(--cbg); color: #fff; border: 2px solid transparent; border-radius: 16px; padding: 10px 14px; cursor: pointer; }
+.gp.sel { border-color: var(--cac); box-shadow: 0 0 18px var(--cac); }
+.gp .gp-e { font-size: 1.8em; } .gp .gp-t { display: flex; flex-direction: column; } .gp b { color: var(--cac); font-family: var(--font-display); } .gp small { opacity: .8; font-size: .75em; }
+.areyou { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--card); border: 1px dashed var(--line); border-radius: var(--radius); padding: 8px 8px 8px 16px; }
+.areyou .btn { width: auto; padding: 10px 18px; font-size: 1em; }
+.modal-btns { display: flex; gap: 12px; }
+.modal-btns .btn { flex: 1; width: auto; }
+body.host .modal-card { font-size: clamp(18px, 1.8vw, 30px); width: min(70vw, 760px); }
+[hidden] { display: none !important; }
+
+@media (max-width: 800px) { .lobby-host { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
+
+/* lobby chat */
+.chatrow { display: flex; gap: 10px; align-items: stretch; } .chatrow .btn { width: auto; flex: none; }
+.chatlog { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 12px; }
+.chatlog .chead { font-size: .75em; letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
+.cmsg { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 6px 12px; animation: pop-in .25s var(--ease) both; }
+.cmsg .cwho { display: inline-flex; align-items: center; gap: 6px; flex: none; } .cmsg .cwho .avatar { font-size: .8em; } .cmsg .ctext { word-break: break-word; }
+.chatlog.host .cmsg { font-size: 1.05em; padding: 8px 14px; }
+.rdy { color: var(--good); }

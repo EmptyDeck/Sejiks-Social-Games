@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+# custom audio stays on the owner's machine (see sounds/README.md)
+sounds/*.mp3
+sounds/*.ogg
+sounds/*.wav
+sounds/*.m4a
+games/*/sounds/*.mp3
+games/*/sounds/*.ogg
+games/*/sounds/*.wav
+games/*/sounds/*.m4a
+
+# local reference copies of commercial game audio (personal use only, never committed)
+sounds/_reference/
+config.local.json
+.public_url

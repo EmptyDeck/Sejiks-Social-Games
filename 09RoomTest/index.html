@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Room Test</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#111;color:#eee;margin:0;padding:24px;text-align:center}
+h1{font-size:18px;opacity:.7}
+.code{font-size:72px;letter-spacing:12px;font-weight:800;margin:12px 0}
+input,button{font-size:22px;padding:14px;border-radius:12px;border:0;margin:6px;width:80%;max-width:320px;box-sizing:border-box}
+button{background:#4f8cff;color:#fff;font-weight:700}
+#big{height:40vh;font-size:48px;max-width:none}
+li{font-size:24px;list-style:none;margin:8px}.off{opacity:.4}
+#qr{background:#fff;display:inline-block;padding:10px;border-radius:8px}
+#status{font-size:13px;opacity:.6;margin-top:16px}
+</style></head><body>
+<div id="app"></div><div id="status"></div>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+const isHost = location.pathname.endsWith('/host');
+const app = document.getElementById('app'), st = document.getElementById('status');
+let ws, joined = null;
+const wsUrl = new URL('ws', location.href); wsUrl.protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+function connect(onopen) {
+  ws = new WebSocket(wsUrl);
+  ws.onopen = () => { st.textContent = '연결됨'; onopen(); };
+  ws.onclose = () => { st.textContent = '연결 끊김 — 다시 연결 중…'; setTimeout(() => connect(onopen), 1000); };
+  ws.onmessage = e => onMsg(JSON.parse(e.data));
+}
+const send = o => ws.readyState === 1 && ws.send(JSON.stringify(o));
+
+if (isHost) {
+  app.innerHTML = '<h1>폰에서 접속해서 코드를 입력하세요</h1><div class="code" id="code">····</div><div id="qr"></div><div id="url"></div><ul id="list"></ul>';
+  connect(() => send({t: 'host'}));
+  var onMsg = async m => {
+    if (m.t === 'hosted') {
+      const base = await fetch('info').then(r => r.json()).then(j => j.url).catch(() => '');
+      const u = new URL('./?room=' + m.code, base || location.href).href;
+      document.getElementById('code').textContent = m.code;
+      document.getElementById('url').textContent = u;
+      document.getElementById('qr').innerHTML = '';
+      try { new QRCode(document.getElementById('qr'), {text: u, width: 180, height: 180}); } catch (e) {}
+    } else if (m.t === 'state') {
+      document.getElementById('list').innerHTML = m.players.map(p =>
+        `<li class="${p.online ? '' : 'off'}">${p.name.replace(/</g, '&lt;')} — ${p.count}</li>`).join('');
+    }
+  };
+} else {
+  const q = new URLSearchParams(location.search).get('room') || '';
+  const pid = localStorage.rt_pid || (localStorage.rt_pid = Math.random().toString(36).slice(2, 10));
+  const nm = localStorage.rt_name || '';
+  app.innerHTML = `<h1>Room Test</h1><div id="join"><input id="c" placeholder="방 코드" maxlength="4" value="${q}" autocapitalize="characters"><br><input id="n" placeholder="이름" maxlength="12" value="${nm}"><br><button id="go">입장</button></div><div id="play" hidden><div class="code" id="cnt">0</div><button id="big">누르기!</button></div><div id="err" style="color:#f66"></div>`;
+  const doJoin = () => { localStorage.rt_name = n.value; send({t: 'join', code: c.value, name: n.value, pid}); };
+  go.onclick = doJoin;
+  big.onclick = () => send({t: 'press'});
+  connect(() => { if (joined) send({t: 'join', code: joined, name: localStorage.rt_name, pid}); });
+  var onMsg = m => {
+    if (m.t === 'joined') { joined = m.code; join.hidden = true; play.hidden = false; cnt.textContent = m.count; err.textContent = ''; }
+    else if (m.t === 'count') cnt.textContent = m.count;
+    else if (m.t === 'error') err.textContent = m.msg;
+  };
+}
+</script></body></html>

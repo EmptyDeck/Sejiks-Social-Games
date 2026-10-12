@@ -1,0 +1,148 @@
+/* THEME BRIEF
+ * Theme name:   HACKERS (MOLE.EXE)      Vibe: 90s terminal, phosphor glow, intrusion alert, paranoid, deadpan
+ * Palette:      bg #020703, bg2 #0a1f10, fg #c8ffd8, accent #39ff6a (phosphor green), accent2 #ffb000 (amber/mole), alert #ff3b3b
+ *               players --pc0..11: neon green/amber/cyan/magenta set tuned to be distinct on black
+ * Fonts:        display VT323 (+ Noto Sans KR), body IBM Plex Mono (+ Noto Sans KR / Apple SD Gothic Neo)
+ * Shapes:       radius 0, 1px phosphor borders, glow shadows, scanline overlay + vignette via CSS gradients
+ * Motion:       --ease steps-ish linear, --dur .35s, --anim-in "boot-in" (flicker + slide), terminal typing (clip-path steps),
+ *               glitch shake on role / mole reveal, blinking cursor
+ * Sound voice:  digital (bit-crushed squares); lobby: tap pop aha buzz tick; screenSfx per screen in client.js
+ * Avatars:      💻 🖥️ ⌨️ 🖱️ 💾 📟 👾 🤖 🕶️ 🧑‍💻 🔒 🔑 📡 🛰️ 🧬 🔌 🔋 💣 🧠 👁️ 🕷️ 🐛 🦠 ☠️
+ * Copy tone:    "> ACCESS GRANTED. You know the password." / "INTRUDER DETECTED" / "접근 승인. 당신은 암호를 알고 있습니다."
+ * Every rule is scoped to body[data-game="mole-exe"].
+ */
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+KR:wght@400;700&display=swap');
+
+body[data-game="mole-exe"] {
+  --bg: #020703; --bg2: #0a1f10;
+  --fg: #c8ffd8; --muted: rgba(200,255,216,.62);
+  --accent: #39ff6a; --accent-fg: #021005; --accent2: #ffb000;
+  --card: rgba(57,255,106,.07); --line: rgba(57,255,106,.4);
+  --good: #39ff6a; --bad: #ff3b3b;
+  --radius: 0px;
+  --font-display: 'VT323', 'Noto Sans KR', 'Apple SD Gothic Neo', monospace;
+  --font-body: 'IBM Plex Mono', 'Noto Sans KR', 'Apple SD Gothic Neo', ui-monospace, Menlo, monospace;
+  --ease: steps(6, end);
+  --dur: .35s;
+  --anim-in: boot-in;
+  --letter: .04;
+  --pc0:#39ff6a; --pc1:#ffb000; --pc2:#2bd9ff; --pc3:#ff4fd8; --pc4:#ff5a4f; --pc5:#b8ff2b;
+  --pc6:#7a8bff; --pc7:#ffe14a; --pc8:#22c9a0; --pc9:#d98cff; --pc10:#ff8a3d; --pc11:#e6fff0;
+  font-size: 17px;
+  text-shadow: 0 0 6px rgba(57,255,106,.35);
+}
+body[data-game="mole-exe"] .avatar { color: #021005; text-shadow: none; border-radius: 0; box-shadow: 0 0 0 1px var(--line), 0 0 10px rgba(57,255,106,.25); }
+body[data-game="mole-exe"]::after {               /* scanlines + vignette */
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 50;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.14) 0 1px, transparent 1px 3px),
+              radial-gradient(120% 100% at 50% 50%, transparent 60%, rgba(0,0,0,.55));
+  animation: scan-flicker 6s steps(2) infinite;
+}
+body[data-game="mole-exe"] h1, body[data-game="mole-exe"] h2, body[data-game="mole-exe"] h3 { font-weight: 400; text-transform: uppercase; }
+body[data-game="mole-exe"] h1 { font-size: 3.2em; color: var(--accent); }
+body[data-game="mole-exe"] h2 { font-size: 2.2em; color: var(--accent); }
+body[data-game="mole-exe"] h3 { font-size: 1.6em; }
+body[data-game="mole-exe"] .roomcode { color: var(--accent2); }
+body[data-game="mole-exe"] .tag { letter-spacing: .08em; }
+body[data-game="mole-exe"] .lead { font-size: 1.05em; max-width: 30em; }
+body[data-game="mole-exe"] .warn { color: var(--bad); }
+body[data-game="mole-exe"] .prompt { font-family: var(--font-display); }
+
+/* buttons & inputs */
+body[data-game="mole-exe"] .btn { text-transform: uppercase; letter-spacing: .1em; font-weight: 600; border: 1px solid var(--accent); box-shadow: 0 0 12px rgba(57,255,106,.35); min-height: 52px; }
+body[data-game="mole-exe"] .btn:active:not(:disabled) { transform: none; background: var(--fg); }
+body[data-game="mole-exe"] .btn.secondary { background: transparent; color: var(--accent); }
+body[data-game="mole-exe"] .btn.picked { background: var(--accent2); color: #1a1000; border-color: var(--accent2); box-shadow: 0 0 14px rgba(255,176,0,.5); opacity: 1; }
+body[data-game="mole-exe"] .input { background: #000; border: 1px solid var(--accent); border-radius: 0; color: var(--accent); font-size: 1.15em; caret-color: var(--accent); }
+body[data-game="mole-exe"] .input::placeholder { color: rgba(57,255,106,.35); }
+
+/* terminal typing: clip-path reveal in --n steps, then a blinking cursor */
+body[data-game="mole-exe"] .type { clip-path: inset(0 100% 0 0); }
+body[data-game="mole-exe"] #screen[data-fresh="1"] .type { animation: typing 1.6s steps(var(--n)) .2s forwards; }
+body[data-game="mole-exe"] #screen:not([data-fresh="1"]) .type { clip-path: none; }
+body[data-game="mole-exe"] .cursor::after { content: '█'; margin-left: .15em; animation: blink 1s steps(1) infinite; color: var(--accent); }
+
+/* glitch text (uses data-t) */
+body[data-game="mole-exe"] .glitch { position: relative; display: inline-block; }
+body[data-game="mole-exe"] #screen[data-fresh="1"] .glitch { animation: glitch-shake .6s steps(2) 2 .2s; }
+body[data-game="mole-exe"] .glitch::before, body[data-game="mole-exe"] .glitch::after {
+  content: attr(data-t); position: absolute; inset: 0; overflow: hidden; opacity: .7; pointer-events: none;
+}
+body[data-game="mole-exe"] .glitch::before { color: #ff3b3b; transform: translate(-2px, 0); clip-path: inset(10% 0 55% 0); }
+body[data-game="mole-exe"] .glitch::after { color: #2bd9ff; transform: translate(2px, 0); clip-path: inset(60% 0 8% 0); }
+
+/* role / key-value cards */
+body[data-game="mole-exe"] .kv { display: flex; flex-direction: column; align-items: center; gap: 2px; border: 1px dashed var(--line); padding: 8px 16px; width: 100%; max-width: 30em; }
+body[data-game="mole-exe"] .kv .k { font-size: .75em; letter-spacing: .15em; color: var(--muted); }
+body[data-game="mole-exe"] .kv .v { font-family: var(--font-display); font-size: 1.9em; text-transform: uppercase; color: var(--accent); }
+body[data-game="mole-exe"] .kv.big .v { font-size: 2.6em; }
+body[data-game="mole-exe"] .kv .v.pw { color: var(--fg); text-shadow: 0 0 12px var(--accent); }
+body[data-game="mole-exe"] .kv .v.ok { color: var(--accent); }
+body[data-game="mole-exe"] .kv .v.bad { color: var(--bad); }
+body[data-game="mole-exe"] .rolecard { border: 1px solid var(--accent); padding: 10px; display: flex; flex-direction: column; gap: 8px; align-items: center; background: rgba(57,255,106,.06); }
+body[data-game="mole-exe"] .rolecard > b { font-family: var(--font-display); font-size: 1.3em; letter-spacing: .12em; color: var(--accent); }
+body[data-game="mole-exe"] .rolecard.mole { border-color: var(--accent2); background: rgba(255,176,0,.07); }
+body[data-game="mole-exe"] .rolecard.mole > b, body[data-game="mole-exe"] .is-mole h1, body[data-game="mole-exe"] .is-mole .kv .v { color: var(--accent2); }
+body[data-game="mole-exe"] .is-mole .kv { border-color: rgba(255,176,0,.5); }
+body[data-game="mole-exe"] .rolecard .kv { border: 0; padding: 0; }
+body[data-game="mole-exe"] .rolecard .kv .v { font-size: 1.6em; }
+
+/* vote rows */
+body[data-game="mole-exe"] .suspect { display: flex; align-items: center; gap: 12px; text-align: left; background: var(--card); color: var(--fg); box-shadow: none; text-transform: none; letter-spacing: 0; min-height: 56px; }
+body[data-game="mole-exe"] .suspect:disabled { opacity: .55; }
+body[data-game="mole-exe"] .suspect .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+body[data-game="mole-exe"] .suspect .cl { font-family: var(--font-display); font-size: 1.5em; color: var(--accent); text-transform: uppercase; max-width: 45%; overflow-wrap: anywhere; }
+body[data-game="mole-exe"] .suspect.picked .cl { color: #1a1000; }
+body[data-game="mole-exe"] .termrow { display: flex; align-items: center; gap: 12px; padding: 10px 14px; }
+body[data-game="mole-exe"] .termrow .clue { font-family: var(--font-display); font-size: 1.8em; color: var(--accent); text-transform: uppercase; }
+body[data-game="mole-exe"] .optgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; width: 100%; }
+body[data-game="mole-exe"] .row.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+body[data-game="mole-exe"] .bar { color: var(--accent); letter-spacing: 0; }
+body[data-game="mole-exe"] .is-mole-row { border-color: var(--accent2); }
+body[data-game="mole-exe"] .is-mole-row .bar { color: var(--accent2); }
+body[data-game="mole-exe"] .tally { width: 100%; max-width: 34em; }
+
+/* two columns on the big screen (reveal, result) so nothing falls below the fold */
+body[data-game="mole-exe"] .split, body[data-game="mole-exe"] .col { display: contents; }
+body.host[data-game="mole-exe"] .split { display: grid; grid-template-columns: 1fr 1fr; gap: 3vw; width: 100%; align-items: center; }
+body.host[data-game="mole-exe"] .col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+body.host[data-game="mole-exe"] .moleis .avatar { font-size: 1.1em; }
+body.host[data-game="mole-exe"] .bigname { font-size: 2.2em; }
+body.host[data-game="mole-exe"] .verdict { font-size: 1.6em; }
+body.host[data-game="mole-exe"] .rank, body.host[data-game="mole-exe"] .termrow { padding: 6px 12px; }
+/* reveal */
+body[data-game="mole-exe"] .moleis { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+body[data-game="mole-exe"] .bigname { color: var(--accent2); font-size: 3em; }
+body[data-game="mole-exe"] .moleis .avatar { box-shadow: 0 0 0 2px var(--accent2), 0 0 24px rgba(255,176,0,.6); }
+body[data-game="mole-exe"] #screen[data-fresh="1"] .moleis { animation: mole-pop 1.1s steps(1) both; }
+body[data-game="mole-exe"] .verdict { font-family: var(--font-display); font-size: 1.9em; margin: .3em 0; line-height: 1.15; word-break: keep-all; }
+body[data-game="mole-exe"] .moleis .avatar.xl { font-size: 1.1em; }
+body[data-game="mole-exe"] .verdict.ok { color: var(--accent); }
+body[data-game="mole-exe"] .verdict.bad { color: var(--bad); text-shadow: 0 0 10px rgba(255,59,59,.5); }
+body[data-game="mole-exe"] .tagmole { color: var(--accent2); font-family: var(--font-display); font-size: 1.4em; letter-spacing: .15em; }
+
+/* waiting grid on the big screen */
+body[data-game="mole-exe"] .who-sub { display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: .4; transition: opacity var(--dur); }
+body[data-game="mole-exe"] .who-sub.done { opacity: 1; }
+body[data-game="mole-exe"] .who-sub .st { color: var(--accent); font-size: .8em; }
+
+/* timer + scores */
+body[data-game="mole-exe"] .timer-num { font-family: var(--font-display); font-size: 1.6em; color: var(--accent2); }
+body[data-game="mole-exe"] .timer-bar { border: 1px solid var(--line); border-radius: 0; background: #000; }
+body[data-game="mole-exe"] .timer-bar i { background: repeating-linear-gradient(90deg, var(--accent) 0 8px, transparent 8px 10px); border-radius: 0; }
+body[data-game="mole-exe"] .board { margin-top: 10px; width: 100%; max-width: 34em; }
+body[data-game="mole-exe"] .rank { display: flex; align-items: center; gap: 12px; padding: 8px 14px; }
+body[data-game="mole-exe"] .rank .pos { font-family: var(--font-display); color: var(--accent2); width: 1.4em; font-size: 1.4em; }
+body[data-game="mole-exe"] .rank .score { font-family: var(--font-display); font-size: 1.5em; min-width: 2.5em; text-align: right; }
+body[data-game="mole-exe"] .rank .pts { color: var(--accent2); }
+body[data-game="mole-exe"] .bigboard .rank:first-child { border-color: var(--accent2); background: rgba(255,176,0,.1); font-size: 1.25em; }
+body[data-game="mole-exe"] .bigboard .rank:first-child::before { content: '> '; color: var(--accent2); }
+
+@keyframes boot-in { 0% { opacity: 0; transform: translateX(-14px); filter: brightness(2); } 30% { opacity: 1; } 45% { opacity: .3; } 60% { opacity: 1; } 100% { opacity: 1; transform: none; filter: none; } }
+@keyframes typing { to { clip-path: inset(0 0 0 0); } }
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes glitch-shake { 0% { transform: translate(0); } 25% { transform: translate(-4px, 1px) skewX(6deg); } 50% { transform: translate(3px, -1px); } 75% { transform: translate(-2px, 2px) skewX(-6deg); } 100% { transform: translate(0); } }
+@keyframes scan-flicker { 0% { opacity: 1; } 50% { opacity: .92; } 100% { opacity: 1; } }
+@keyframes mole-pop { 0% { opacity: 0; } 70% { opacity: 0; filter: blur(4px); } 72% { opacity: 1; transform: translateX(-6px); } 80% { transform: translateX(6px); } 90% { transform: translateX(-3px); } 100% { opacity: 1; transform: none; filter: none; } }
+@media (prefers-reduced-motion: reduce) { body[data-game="mole-exe"]::after { animation: none; } }
+body[data-game="mole-exe"] #screen[data-fresh="1"] .moleis ~ .verdict, body[data-game="mole-exe"] #screen[data-fresh="1"] .moleis ~ .muted { animation: boot-in .35s steps(6) 1.2s both; }

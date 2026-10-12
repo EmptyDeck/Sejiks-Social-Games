@@ -1,0 +1,322 @@
+/* THEME BRIEF — Field Guide (chameleon)
+ * Theme name:  Field Guide — a naturalist's printed field guide meets a modern magazine
+ * Vibe:        warm paper, forest-green ink, one orange rubber stamp; the big screen is an open book spread
+ * Palette:     paper #f3ead7 / #fbf6e8 / #e8dcc0, ink #12392b, soft ink #3f5d50, accent poison-dart orange #cf4a17 (deep #9c3410),
+ *              player pigments --pc0..11 are muted gouache colours
+ * Fonts:       Fraunces (display serif, Latin captions in italic) + Inter (UI); Korean: Noto Serif KR + Noto Sans KR
+ * Shapes:      3px radius, 1px ink hairlines, double rules under headers, paper-lift shadows; no glow, no glass
+ * Motion:      "paper settle" (fade + 6px rise), one stamp thud, eye roam + rare tongue flick, ferns breathing +-1.5deg
+ * Art:         inline-SVG engraved chameleon plate, fern line drawings, open-book decor, botanical ornament avatars, wax-seal envelope
+ * Sound:       cartoon voice (kept: boing / pop) · Copy: calm, deadpan naturalist ("The common bluffer")
+ */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
+body[data-game="chameleon"] {
+  --paper: #f3ead7; --paper-hi: #fbf6e8; --paper-lo: #e8dcc0; --paper-card: #fffaf0;
+  --ink: #12392b; --ink-soft: #3f5d50; --rule: rgba(18,57,43,.28); --rule-strong: rgba(18,57,43,.62);
+  --stamp: #cf4a17; --stamp-deep: #9c3410;
+  --bg: var(--paper); --bg2: var(--paper); --fg: var(--ink); --muted: var(--ink-soft);
+  --accent: var(--ink); --accent-fg: var(--paper); --accent2: var(--stamp);
+  --card: var(--paper-hi); --line: var(--rule); --good: #2f7a3f; --bad: #b3361a;
+  --radius: 3px;
+  --serif: 'Fraunces', 'Noto Serif KR', 'Iowan Old Style', Georgia, 'Apple SD Gothic Neo', serif;
+  --sans: 'Inter', 'Noto Sans KR', 'Apple SD Gothic Neo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: var(--serif); --font-body: var(--sans);
+  --ease: cubic-bezier(.2,.7,.2,1); --dur: .4s; --anim-in: paper-in; --letter: -.005;
+  --pc0:#c8553d; --pc1:#d98e3a; --pc2:#d9b94a; --pc3:#8fae55; --pc4:#4fa386; --pc5:#5b9bbb;
+  --pc6:#8391c4; --pc7:#a98ab6; --pc8:#cf8aa0; --pc9:#b7a07c; --pc10:#9aab9f; --pc11:#ece2c4;
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .07 0 0 0 0 .22 0 0 0 0 .17 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --lift: 0 1px 0 rgba(18,57,43,.25), 0 10px 18px -12px rgba(18,57,43,.45);
+  font-size: 16px; line-height: 1.4; -webkit-font-smoothing: antialiased; font-optical-sizing: auto;
+  background: var(--noise), radial-gradient(120% 80% at 50% 0%, #f8f0de, var(--paper) 70%) fixed;
+}
+body.host[data-game="chameleon"] { font-size: 16px; background: var(--noise), radial-gradient(90% 90% at 50% 40%, #1f5440, #123a2b 70%, #0d2a1f) fixed; }
+html[lang="ko"] body[data-game="chameleon"] { line-height: 1.5; }
+@keyframes paper-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ── type system ── */
+body[data-game="chameleon"] h1, body[data-game="chameleon"] h2, body[data-game="chameleon"] h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -.012em; line-height: 1.08; color: var(--ink); margin: 0; }
+body[data-game="chameleon"] h1 { font-size: 2.35em; font-weight: 700; }
+body[data-game="chameleon"] h2 { font-size: 1.65em; }
+body[data-game="chameleon"] h3 { font-size: 1.2em; font-weight: 500; }
+body[data-game="chameleon"] .sc { font-family: var(--sans); font-size: .72em; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; line-height: 1.2; }
+html[lang="ko"] body[data-game="chameleon"] .sc { letter-spacing: .04em; text-transform: none; font-size: .78em; }
+body[data-game="chameleon"] .num { font-variant-numeric: tabular-nums lining-nums; }
+body[data-game="chameleon"] .muted { color: var(--ink-soft); } body[data-game="chameleon"] .small { font-size: .875em; }
+body[data-game="chameleon"] b { font-weight: 600; }
+
+/* ── page furniture: decor ── */
+body[data-game="chameleon"] .decor-bg { position: absolute; inset: 0; }
+body[data-game="chameleon"] .decor-book { display: none; }
+body.host[data-game="chameleon"] .decor-book { display: block; position: absolute; top: 52px; left: 2.5vw; right: 2.5vw; bottom: 2.4vw; border-radius: 6px;
+  background: var(--noise), linear-gradient(90deg, #f1e7d0, #f6eddb 48%, #efe4cb 50%, #f6eddb 52%, #f1e7d0);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.35), 0 0 0 5px #e4d6b6, 0 0 0 6px rgba(0,0,0,.3), 0 40px 70px -10px rgba(0,0,0,.6); }
+body.host[data-game="chameleon"] .decor-book .spine { position: absolute; top: 0; bottom: 0; left: 50%; width: 7vw; transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgba(18,57,43,.07) 34%, rgba(18,57,43,.20) 49.4%, rgba(18,57,43,.30) 50%, rgba(18,57,43,.20) 50.6%, rgba(18,57,43,.07) 66%, transparent); }
+body[data-game="chameleon"] .frond { position: absolute; color: var(--ink); opacity: .1; transform-origin: 50% 100%; animation: breathe 9s ease-in-out infinite; }
+body[data-game="chameleon"] .f-a { width: 60vmin; left: -12vmin; bottom: -14vmin; transform: rotate(38deg); }
+body[data-game="chameleon"] .f-b { width: 52vmin; right: -10vmin; top: -10vmin; transform: rotate(205deg); animation-delay: -3s; }
+body[data-game="chameleon"] .f-c { width: 36vmin; right: -6vmin; bottom: -10vmin; transform: rotate(-40deg); animation-delay: -6s; }
+body.host[data-game="chameleon"] .frond { opacity: .13; }
+body.host[data-game="chameleon"] .f-a { left: 0; bottom: 0; } body.host[data-game="chameleon"] .f-b { right: 1vmin; top: 2vmin; } body.host[data-game="chameleon"] .f-c { right: 2vmin; bottom: 0; }
+@keyframes breathe { 0%,100% { rotate: -1.5deg; } 50% { rotate: 1.5deg; } }
+
+/* chrome buttons: paper tabs */
+body[data-game="chameleon"] #chrome button { background: var(--paper-hi); color: var(--ink); border: 1px solid var(--rule-strong); border-radius: 3px; font-family: var(--sans); font-size: 13px; font-weight: 500; backdrop-filter: none; box-shadow: var(--lift); }
+body[data-game="chameleon"] #chip { color: var(--ink); opacity: 1; font-family: var(--serif); font-weight: 600; letter-spacing: .16em; font-size: 14px; }
+body.host[data-game="chameleon"] #chip { color: #efe4c8; }
+body[data-game="chameleon"] #toast { background: var(--ink); border-radius: 3px; font-family: var(--sans); font-size: 14px; }
+
+/* ── masthead ── */
+body[data-game="chameleon"] .mast { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 2px 12px; padding-bottom: 7px; border-bottom: 3px double var(--rule-strong); margin-bottom: 2px; width: 100%; }
+body[data-game="chameleon"] .mast-brand { display: inline-flex; align-items: baseline; gap: 7px; color: var(--ink); }
+body[data-game="chameleon"] .mast-brand .sprig { width: 1.15em; height: 1.15em; align-self: center; color: var(--stamp); }
+body[data-game="chameleon"] .mast-brand b { font-family: var(--serif); font-weight: 700; font-size: 1.3em; letter-spacing: -.01em; }
+body[data-game="chameleon"] .mast-brand i { font-family: var(--serif); font-style: italic; font-size: .9em; color: var(--ink-soft); }
+body[data-game="chameleon"] .mast-meta { font-size: .78em; color: var(--ink-soft); display: inline-flex; gap: 5px; align-items: baseline; }
+body[data-game="chameleon"] .mast-meta .sc { font-size: .85em; } body[data-game="chameleon"] .mast-meta i { font-style: normal; opacity: .5; }
+body[data-game="chameleon"] .mast-meta .num { color: var(--stamp-deep); font-weight: 600; }
+body[data-game="chameleon"] .idx-label { display: flex; align-items: center; gap: 10px; color: var(--ink-soft); }
+body[data-game="chameleon"] .idx-label::after { content: ''; flex: 1; height: 1px; background: var(--rule-strong); }
+body[data-game="chameleon"] .idx-label .sc { color: var(--stamp-deep); }
+
+/* ── pages: stacked on phones, a two-page spread on the big screen ── */
+body[data-game="chameleon"] .pg { display: contents; }
+body.host[data-game="chameleon"] .screen { padding: calc(52px + 3.6vh) 8.4vw 2vh; }
+body.host[data-game="chameleon"] .hostplay { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 9vw; align-content: stretch; }
+body.host[data-game="chameleon"] .hostplay > .pg { display: flex; flex-direction: column; gap: .75em; min-height: 0; }
+body.host[data-game="chameleon"] .hostplay > .leadbar { grid-column: 1 / -1; }
+body.host[data-game="chameleon"] .pg-r { justify-content: flex-start; }
+body.host[data-game="chameleon"] .hostplay > .pg::after { content: ''; flex: none; height: 6.5vh; }
+
+/* ── buttons: ink on paper ── */
+body[data-game="chameleon"] .btn { font-family: var(--sans); font-weight: 600; font-size: .95em; letter-spacing: .01em; border-radius: 3px; border: 1px solid var(--ink); padding: 14px 18px; min-height: 48px;
+  background: var(--ink); color: var(--paper); box-shadow: 0 1px 0 #061a12, 0 8px 14px -8px rgba(18,57,43,.7); transition: transform .12s ease, background .2s; }
+body[data-game="chameleon"] .btn:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+body[data-game="chameleon"] .btn.secondary { background: transparent; color: var(--ink); border: 1px solid var(--rule-strong); box-shadow: none; }
+body[data-game="chameleon"] .btn.secondary:active:not(:disabled) { background: var(--paper-lo); }
+body[data-game="chameleon"] .btn:disabled { opacity: .4; }
+body[data-game="chameleon"] .btn.bigbtn { font-size: 1.05em; padding: 17px 22px; margin-top: .4em; }
+body[data-game="chameleon"] .btn.bigbtn::after { content: '\2192'; margin-left: .6em; font-weight: 400; }
+body[data-game="chameleon"] .btn.sent { opacity: .6; }
+body[data-game="chameleon"] .btn.honk { background: transparent; color: var(--ink); border: 1px solid var(--rule-strong); box-shadow: none; }
+body[data-game="chameleon"] .input { background: var(--paper-card); border: 1px solid var(--rule-strong); border-radius: 3px; font-family: var(--serif); font-size: 1.15em; color: var(--ink); }
+body[data-game="chameleon"] .input:focus { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(18,57,43,.15); }
+body[data-game="chameleon"] .code-input { font-family: var(--serif); }
+body[data-game="chameleon"] .err { color: var(--bad); }
+body[data-game="chameleon"] .errbanner { background: var(--bad); font-family: var(--sans); }
+body[data-game="chameleon"] .leavebtn { font-size: .85em; min-height: 0; padding: 9px 14px; }
+
+/* ── identity: specimen markers ── */
+body[data-game="chameleon"] .avatar { font-family: 'Apple Symbols', 'Zapf Dingbats', 'Noto Sans Symbols 2', 'Segoe UI Symbol', 'DejaVu Sans', serif; color: var(--ink); font-size: 1.05em; width: 1.95em; height: 1.95em;
+  box-shadow: 0 0 0 1.5px var(--ink), 0 0 0 3px var(--paper-hi), 0 0 0 4px var(--rule); }
+body[data-game="chameleon"] .avatar.xl { font-size: 2.1em; width: 1.9em; height: 1.9em; }
+body[data-game="chameleon"] .who { gap: .55em; } body[data-game="chameleon"] .who b { font-family: var(--serif); font-weight: 600; letter-spacing: -.005em; }
+body[data-game="chameleon"] .who .avatar { width: 1.75em; height: 1.75em; font-size: .85em; }
+body[data-game="chameleon"] .who.big { font-size: 1.15em; }
+
+/* ── lobby ── */
+body[data-game="chameleon"] .plate { margin: 0; border: 1px solid var(--rule-strong); outline: 1px solid var(--rule); outline-offset: 3px; background: var(--paper-card); padding: 8px 10px 9px; width: calc(100% - 8px); margin: 4px; display: flex; flex-direction: column; gap: 4px; box-shadow: var(--lift); }
+body[data-game="chameleon"] .plate-art { background: radial-gradient(70% 70% at 50% 60%, #f6efdb, #efe4c8); border: 1px solid var(--rule); padding: 4px 6px 0; }
+body[data-game="chameleon"] .plate-art .mascot { width: 100%; height: auto; max-height: 112px; }
+body[data-game="chameleon"] .plate figcaption { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; column-gap: 9px; text-align: center; font-size: .82em; color: var(--ink-soft); }
+body[data-game="chameleon"] .plate figcaption .sc { color: var(--stamp-deep); }
+body[data-game="chameleon"] .plate figcaption i { font-family: var(--serif); font-style: italic; font-size: 1.12em; color: var(--ink); }
+body[data-game="chameleon"] .lobby-player label { font-family: var(--sans); font-size: .72em; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); }
+body[data-game="chameleon"] .lobby-player { gap: 12px; }
+body[data-game="chameleon"] .lobby-player .me .avatar { box-shadow: 0 0 0 1.5px var(--ink), 0 0 0 4px var(--paper-hi), 0 0 0 5px var(--rule); }
+body[data-game="chameleon"] .areyou { background: var(--paper-hi); border: 1px dashed var(--rule-strong); border-radius: 3px; font-size: .9em; }
+body[data-game="chameleon"] .areyou .btn { min-height: 0; padding: 8px 16px; }
+body[data-game="chameleon"] .av { background: var(--paper-hi); border: 1px solid var(--rule); border-radius: 3px; color: var(--ink); font-family: 'Apple Symbols', 'Zapf Dingbats', 'Noto Sans Symbols 2', 'Segoe UI Symbol', serif; font-size: 1.35em; padding: 7px 0; }
+body[data-game="chameleon"] .av.sel { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+body[data-game="chameleon"] .av:disabled { opacity: .22; }
+body[data-game="chameleon"] .gp { background: var(--paper-hi); color: var(--ink); border: 1px solid var(--rule); border-radius: 3px; box-shadow: none; }
+body[data-game="chameleon"] .gp b { color: var(--ink); font-family: var(--serif); } body[data-game="chameleon"] .gp.sel { border-color: var(--ink); background: var(--paper-card); box-shadow: inset 0 0 0 1px var(--ink); }
+body[data-game="chameleon"] .gp .gp-e { filter: grayscale(.85) sepia(.35) contrast(.95); }
+body[data-game="chameleon"] .gp small { opacity: 1; color: var(--ink-soft); }
+body.host[data-game="chameleon"] .lobby-host { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 9vw; align-items: stretch; }
+body.host[data-game="chameleon"] .lh-left { display: grid; grid-template-columns: 1fr auto; column-gap: 1.2em; row-gap: .2em; align-content: start; align-items: start; }
+body.host[data-game="chameleon"] .lh-left > .plate { grid-column: 1 / -1; margin-bottom: .5em; }
+body.host[data-game="chameleon"] .lh-left > .plate .mascot { max-height: 7em; }
+body.host[data-game="chameleon"] .lh-left > .gtitle { grid-column: 1 / -1; }
+body.host[data-game="chameleon"] .lh-left > div:nth-of-type(1) { grid-column: 1; grid-row: 3; } body.host[data-game="chameleon"] .lh-left > div:nth-of-type(2) { grid-column: 1; grid-row: 4; }
+body.host[data-game="chameleon"] .lh-left > div:nth-of-type(3) { grid-column: 1; grid-row: 5; margin-top: .6em; } body.host[data-game="chameleon"] .lh-left > div:nth-of-type(4) { grid-column: 1; grid-row: 6; }
+body.host[data-game="chameleon"] .lh-left > .qrbox { grid-column: 2; grid-row: 3 / span 4; margin: 0; align-self: start; }
+body[data-game="chameleon"] .gtitle { font-size: 1.7em; margin: 0 0 .1em; color: var(--ink); }
+body[data-game="chameleon"] .lh-left .muted, body[data-game="chameleon"] .lh-right > .muted:first-child { font-family: var(--sans); font-size: .72em; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+html[lang="ko"] body[data-game="chameleon"] .lh-left .muted, html[lang="ko"] body[data-game="chameleon"] .lh-right > .muted:first-child { letter-spacing: .04em; text-transform: none; font-size: .8em; }
+body[data-game="chameleon"] .url { font-family: var(--sans); font-weight: 600; font-size: 1.1em; color: var(--ink); letter-spacing: 0; font-variant-numeric: tabular-nums; }
+body[data-game="chameleon"] .roomcode { font-family: var(--serif); font-weight: 700; font-variant-numeric: tabular-nums lining-nums; color: var(--ink); background: var(--paper-card); font-size: clamp(2em, 4vw, 3.8em);
+  letter-spacing: .14em; padding: .06em .2em .06em .34em; border: 2px solid var(--ink); outline: 1px solid var(--rule-strong); outline-offset: 3px; border-radius: 2px; box-shadow: var(--lift); position: relative; margin: 4px 0 4px 3px; align-self: start; }
+body[data-game="chameleon"] .qrbox { background: #fffdf6; border: 1px solid var(--rule-strong); border-radius: 2px; padding: .5em; box-shadow: var(--lift); }
+body[data-game="chameleon"] .lh-right > .muted:first-child { padding-bottom: .5em; border-bottom: 3px double var(--rule-strong); color: var(--ink-soft); }
+body[data-game="chameleon"] .bubbles { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.6em, 1fr)); gap: 1.1em .8em; padding: 1em 0; }
+body[data-game="chameleon"] .bubble { gap: .5em; font-weight: 600; text-align: center; }
+body[data-game="chameleon"] .bubble b { font-family: var(--serif); font-weight: 600; font-size: 1em; letter-spacing: -.005em; line-height: 1.15; word-break: break-word; }
+body[data-game="chameleon"] .bubble .vip { background: var(--stamp); color: #fff8ec; border-radius: 2px; font-family: var(--sans); font-size: .5em; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 2px 6px; top: -6px; right: -4px; }
+body[data-game="chameleon"] .bubble.new { animation: paper-in .5s var(--ease) both; }
+body[data-game="chameleon"] .bubble.off { opacity: .4; }
+
+/* ── setup ── */
+body[data-game="chameleon"] .screen > h1, body[data-game="chameleon"] .pg > h1 { margin-top: .35em; }
+body[data-game="chameleon"] .opts { display: flex; flex-direction: column; width: 100%; max-width: 640px; border-top: 1px solid var(--rule-strong); border-bottom: 1px solid var(--rule-strong); margin-top: .2em; }
+body[data-game="chameleon"] .opt { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-radius: 0; background: none; border: 0; border-top: 1px solid var(--rule); box-shadow: none; text-align: left; backdrop-filter: none; }
+body[data-game="chameleon"] .opt:first-child { border-top: 0; }
+body[data-game="chameleon"] .opt b { font-family: var(--sans); font-weight: 600; font-size: 1em; }
+body[data-game="chameleon"] .opt .muted { margin-top: 2px; line-height: 1.3; }
+body[data-game="chameleon"] .optval { font-family: var(--serif); font-weight: 600; font-size: 1.2em; }
+body[data-game="chameleon"] .tog { width: auto; min-width: 4.6em; border-radius: 999px; padding: 8px 16px; min-height: 0; font-size: .85em; letter-spacing: .08em; text-transform: uppercase; }
+body[data-game="chameleon"] .tog.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+body[data-game="chameleon"] .stepper { display: flex; align-items: center; gap: 12px; }
+body[data-game="chameleon"] .stepper .btn { width: 2.5em; height: 2.5em; min-height: 0; padding: 0; border-radius: 50%; font-size: 1.1em; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight: 500; }
+body[data-game="chameleon"] .knum { font-family: var(--serif); font-size: 1.9em; font-weight: 600; min-width: 1.1em; text-align: center; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1; }
+body[data-game="chameleon"] .between { justify-content: space-between; width: 100%; }
+body[data-game="chameleon"] .catbar { padding-bottom: .4em; border-bottom: 1px solid var(--rule-strong); }
+body[data-game="chameleon"] .catbar .sc { color: var(--stamp-deep); }
+body[data-game="chameleon"] .tiny { width: auto; min-height: 0; padding: 6px 12px; font-size: .8em; }
+body[data-game="chameleon"] .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; }
+body[data-game="chameleon"] .chip.on { }
+body[data-game="chameleon"] .chip { font-family: var(--sans); font-size: .9em; font-weight: 500; background: var(--paper-hi); color: var(--ink); border: 1px solid var(--rule-strong); border-radius: 3px 3px 0 0; padding: 9px 14px 8px; cursor: pointer; border-bottom: 3px solid var(--rule-strong); transition: background .2s; }
+body[data-game="chameleon"] .chip.on { background: var(--paper-card); color: var(--ink); font-weight: 600; border-color: var(--ink); border-bottom: 3px solid var(--stamp); }
+body[data-game="chameleon"] .chip:not(.on) { color: var(--ink-soft); background: transparent; border-style: dashed; border-bottom-style: dashed; }
+body[data-game="chameleon"] .chip:disabled { cursor: default; }
+body.host[data-game="chameleon"] .chips { gap: .5em; } body.host[data-game="chameleon"] .chip { font-size: .85em; }
+
+/* ── first-speaker ribbon (the focal point of the play screen) ── */
+body[data-game="chameleon"] .firstbanner { display: flex; flex-direction: column; gap: 2px; padding: 11px 16px 12px; background: var(--paper-card); border: 1px solid var(--rule-strong); border-left: 5px solid var(--stamp); border-radius: 2px; box-shadow: var(--lift); animation: paper-in .45s var(--ease) both; }
+body[data-game="chameleon"] .fb-no { color: var(--stamp-deep); }
+body[data-game="chameleon"] .fb-text { font-family: var(--serif); font-size: 1.4em; font-weight: 500; line-height: 1.15; letter-spacing: -.01em; }
+body[data-game="chameleon"] .fb-text em { font-style: italic; font-weight: 700; color: var(--stamp-deep); }
+body.host[data-game="chameleon"] .firstbanner { padding: .9em 1.2em 1em; margin-top: .6em; }
+body.host[data-game="chameleon"] .fb-text { font-size: 2.1em; line-height: 1.12; }
+body[data-game="chameleon"] .firstask { font-size: 1em; line-height: 1.4; }
+body.host[data-game="chameleon"] .firstask { font-family: var(--serif); font-size: 1.5em; color: var(--ink); line-height: 1.2; }
+body[data-game="chameleon"] .leadbar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+body[data-game="chameleon"] .leadbar .btn { flex: 1 1 140px; width: auto; }
+body[data-game="chameleon"] .leadrow .btn { width: auto; }
+body[data-game="chameleon"] .pickrow { display: flex; flex-wrap: wrap; gap: 8px; }
+body[data-game="chameleon"] .pill { background: var(--paper-hi); border: 1px solid var(--rule-strong); border-radius: 3px; padding: 4px 10px 4px 5px; cursor: pointer; color: var(--ink); font-size: .9em; }
+body[data-game="chameleon"] .pill:active { background: var(--paper-lo); }
+body[data-game="chameleon"] .seenrow { font-family: var(--sans); font-size: .9em; letter-spacing: 0; }
+body.host[data-game="chameleon"] .seenrow { font-family: var(--serif); font-size: 1.3em; color: var(--ink); margin-top: .3em; }
+
+/* ── the word index ── */
+body[data-game="chameleon"] .wordgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; width: 100%; }
+body.host[data-game="chameleon"] .wordgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .55em; }
+body[data-game="chameleon"] .cell { display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; gap: 2px; min-height: 3.6em; padding: 6px 8px 8px; background: var(--paper-hi); border: 1px solid var(--rule); border-radius: 2px;
+  color: var(--ink); text-align: left; position: relative; box-shadow: 0 1px 0 var(--rule); transition: opacity .2s; font-family: var(--serif); }
+body[data-game="chameleon"] .cn { font-family: var(--sans); font-size: .62em; font-weight: 500; letter-spacing: .1em; color: var(--ink-soft); font-variant-numeric: tabular-nums; line-height: 1; opacity: .85; }
+body[data-game="chameleon"] .cw { font-family: var(--serif); font-size: .98em; font-weight: 500; letter-spacing: -.005em; line-height: 1.12; word-break: keep-all; overflow-wrap: break-word; hyphens: manual; }
+body.host[data-game="chameleon"] .cell { min-height: 2.7em; padding: .3em .45em .4em; min-width: 0; } body.host[data-game="chameleon"] .cw { font-size: .96em; overflow-wrap: anywhere; } body.host[data-game="chameleon"] .cn { font-size: .52em; }
+body.host[data-game="chameleon"] .pagefoot { margin-top: auto; padding-top: .6em; } body[data-game="chameleon"] .pagefoot { display: none; } body.host[data-game="chameleon"] .pagefoot { display: block; }
+body.host[data-game="chameleon"] .pagefoot .plate { width: 62%; margin-left: 0; } body.host[data-game="chameleon"] .pagefoot .plate .mascot { max-height: 6.2em; }
+body[data-game="chameleon"] .wordgrid.pickable .cell { cursor: pointer; transition: background .15s, transform .1s; }
+body[data-game="chameleon"] .wordgrid.pickable .cell:active { transform: translateY(1px); background: var(--paper-lo); }
+body[data-game="chameleon"] .cell.chosen, body[data-game="chameleon"] .cell.marked { border-color: var(--stamp); box-shadow: inset 0 -3px 0 var(--stamp), 0 1px 0 var(--rule); }
+body[data-game="chameleon"] .cell.marked .cn::after { content: ' \2022'; color: var(--stamp); }
+/* the secret is circled in red pencil, only while the envelope is held (or on the result page) */
+body[data-game="chameleon"] .holdwrap:has(.peek:active) .cell:not(.secret) { opacity: .33; }
+body[data-game="chameleon"] .holdwrap:has(.peek:active) .cell.secret, body[data-game="chameleon"] .pg-r > .wordgrid .cell.secret, body[data-game="chameleon"] .screen > .wordgrid .cell.secret { background: var(--paper-card); border: 2px solid var(--stamp); border-radius: 12px / 14px; box-shadow: 0 0 0 1px var(--paper-card), 0 4px 10px -4px rgba(156,52,16,.5); }
+body[data-game="chameleon"] .pg-r > .wordgrid .cell.secret { background: var(--ink); color: var(--paper); border-color: var(--ink); border-radius: 2px; box-shadow: 0 0 0 2px var(--stamp); }
+body[data-game="chameleon"] .pg-r > .wordgrid .cell.secret .cn { color: #f1c9a9; }
+html[lang="ko"] body[data-game="chameleon"] .cw { letter-spacing: 0; }
+
+/* ── the secret: a sealed envelope you hold open ── */
+body[data-game="chameleon"] .holdwrap { width: 100%; }
+body[data-game="chameleon"] .peek { position: relative; width: 100%; overflow: hidden; cursor: pointer; text-align: center; padding: 5.4em 16px 14px; min-height: 9.6em; margin-bottom: 10px;
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation;
+  background: #e9dcb8; border: 1px solid var(--rule-strong); border-radius: 3px; color: var(--ink); box-shadow: var(--lift); transition: background .2s, min-height .2s; }
+body[data-game="chameleon"] .env { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+body[data-game="chameleon"] .env-flap { fill: #dfcf9f; stroke: var(--rule-strong); stroke-width: 1; vector-effect: non-scaling-stroke; transform-origin: 50% 0; transition: transform .28s var(--ease); }
+body[data-game="chameleon"] .env-fold { fill: none; stroke: var(--rule); stroke-width: 1; vector-effect: non-scaling-stroke; }
+body[data-game="chameleon"] .seal { position: absolute; left: 50%; top: calc(38% - 1.25em); width: 2.5em; height: 2.5em; margin-left: -1.25em; display: flex; align-items: center; justify-content: center; color: #fbe9d4;
+  background: radial-gradient(circle at 35% 30%, #e0602a, var(--stamp) 60%, var(--stamp-deep)); border-radius: 48% 52% 50% 50% / 52% 48% 52% 48%; box-shadow: 0 2px 0 #6f2409, 0 6px 10px -3px rgba(0,0,0,.4); transition: opacity .15s; }
+body[data-game="chameleon"] .seal .sprig { width: 58%; height: 58%; }
+body[data-game="chameleon"] .peek-body { display: none; flex-direction: column; gap: 6px; position: relative; }
+body[data-game="chameleon"] .peek-hint { display: block; position: relative; }
+body[data-game="chameleon"] .peek-hint b { font-family: var(--serif); font-weight: 600; font-size: 1.15em; letter-spacing: -.005em; display: block; }
+body[data-game="chameleon"] .peek-hint small { display: block; font-family: var(--sans); font-size: .8em; color: var(--ink-soft); margin-top: 3px; line-height: 1.3; }
+body[data-game="chameleon"] .peek:active { background: var(--paper-card); border-color: var(--ink); padding-top: 18px; }
+body[data-game="chameleon"] .peek:active .env-flap { transform: scaleY(-1); } body[data-game="chameleon"] .peek:active .env-fold, body[data-game="chameleon"] .peek:active .seal { opacity: 0; }
+body[data-game="chameleon"] .peek:active .peek-body { display: flex; } body[data-game="chameleon"] .peek:active .peek-hint { display: none; }
+body[data-game="chameleon"] .peek-big { font-family: var(--serif); font-weight: 700; font-size: 2.35em; line-height: 1.04; letter-spacing: -.02em; word-break: keep-all; color: var(--ink); }
+body[data-game="chameleon"] .peek-small { font-family: var(--sans); font-size: .72em; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--stamp-deep); }
+html[lang="ko"] body[data-game="chameleon"] .peek-small { letter-spacing: .04em; text-transform: none; }
+body[data-game="chameleon"] .peek-help { font-family: var(--sans); font-size: .85em; color: var(--ink-soft); line-height: 1.35; }
+/* NO SOCIAL TELL: the chameleon's envelope looks and moves exactly like everyone else's */
+body:not(.host)[data-game="chameleon"] .holdwrap { display: flex; flex-direction: column-reverse; gap: 10px; }
+body:not(.host)[data-game="chameleon"] .peek { position: sticky; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 6; margin-bottom: 0; box-shadow: 0 -10px 18px -6px var(--paper), var(--lift); }
+body:not(.host)[data-game="chameleon"] .peek:active { min-height: 10.5em; display: flex; align-items: center; justify-content: center; }
+body:not(.host)[data-game="chameleon"] .peek:active .peek-body { align-items: center; text-align: center; }
+body:not(.host)[data-game="chameleon"] .peek-big { font-size: clamp(2rem, 9.5vw, 2.7rem); }
+
+/* ── vote ── */
+body[data-game="chameleon"] .suspect { display: flex; align-items: center; gap: 14px; text-align: left; min-height: 62px; padding: 8px 16px 8px 12px; font-family: var(--serif); font-weight: 600; font-size: 1.15em; letter-spacing: -.005em;
+  background: var(--paper-hi); color: var(--ink); border: 1px solid var(--rule-strong); box-shadow: 0 1px 0 var(--rule); }
+body[data-game="chameleon"] .suspect .sname { flex: 1; }
+body[data-game="chameleon"] .suspect::after { content: '\203A'; margin-left: auto; font-family: var(--sans); font-weight: 400; font-size: 1.7em; line-height: 1; color: var(--stamp-deep); }
+body[data-game="chameleon"] .suspect.picked { background: var(--ink); color: var(--paper); border-color: var(--ink); box-shadow: inset 4px 0 0 var(--stamp), 0 1px 0 #061a12; }
+body[data-game="chameleon"] .suspect.picked::after { content: '\2713'; color: #f1c9a9; font-size: 1.2em; }
+body[data-game="chameleon"] .suspect.picked .avatar { box-shadow: 0 0 0 1.5px var(--paper), 0 0 0 3px var(--ink), 0 0 0 4px var(--rule); }
+body[data-game="chameleon"] .stack.many { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+body[data-game="chameleon"] .stack.many .suspect { min-height: 54px; padding: 6px 10px; font-size: 1em; gap: 8px; }
+body[data-game="chameleon"] .stack.many .suspect .avatar { font-size: .95em; }
+body[data-game="chameleon"] .stack.many .suspect .sname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body[data-game="chameleon"] .stack.many .suspect::after { display: none; }
+body.host[data-game="chameleon"] .pg-l h2 { font-size: 2.1em; margin-top: .2em; }
+body.host[data-game="chameleon"] .pg-l .seenrow { font-size: 1.5em; }
+
+/* ── guess / result ── */
+body[data-game="chameleon"] .stamp-mini { display: inline-block; font-family: var(--serif); font-weight: 700; font-size: .8em; letter-spacing: .08em; text-transform: uppercase; color: var(--stamp-deep); border: 2px solid currentColor; padding: .02em .35em; border-radius: 3px; transform: rotate(-4deg); margin-right: .3em; }
+body[data-game="chameleon"] h2 .who { vertical-align: middle; font-size: .62em; }
+body[data-game="chameleon"] .resulthead { display: flex; align-items: center; gap: 12px; }
+body[data-game="chameleon"] .resulthead .mascot { display: none; }
+body.host[data-game="chameleon"] .resulthead .mascot { display: block; width: 7.5em; flex: none; }
+body[data-game="chameleon"] .resulthead h2 { font-size: 1.9em; }
+body[data-game="chameleon"] .stamp { align-self: flex-start; margin: .2em 0 .1em .2em; font-family: var(--serif); font-weight: 700; font-size: 2.7em; letter-spacing: .1em; text-transform: uppercase; line-height: 1; padding: .12em .3em .1em .38em; color: var(--stamp);
+  border: .07em solid currentColor; border-radius: .12em; outline: .02em solid currentColor; outline-offset: .06em; transform: rotate(-5deg); animation: stamp-thud .45s .35s cubic-bezier(.3,1.3,.5,1) both; mix-blend-mode: multiply; opacity: .94;
+  -webkit-mask-image: radial-gradient(circle at 20% 30%, #000 40%, rgba(0,0,0,.85) 100%), var(--noise); }
+body[data-game="chameleon"] .stamp.escaped { color: var(--ink); }
+body[data-game="chameleon"] .stamp span { display: block; }
+@keyframes stamp-thud { 0% { opacity: 0; transform: scale(1.6) rotate(-9deg); } 60% { opacity: 1; transform: scale(.97) rotate(-5deg); } 100% { opacity: .94; transform: scale(1) rotate(-5deg); } }
+html[lang="ko"] body[data-game="chameleon"] .stamp { letter-spacing: .04em; }
+body.host[data-game="chameleon"] .stamp { font-size: 3.6em; }
+body[data-game="chameleon"] .resultleft { display: flex; flex-direction: column; width: 100%; }
+body[data-game="chameleon"] .resultleft > * { animation: paper-in .5s var(--ease) both; }
+body[data-game="chameleon"] .resultleft > *:nth-child(2) { animation-delay: .35s; } body[data-game="chameleon"] .resultleft > *:nth-child(3) { animation-delay: .55s; } body[data-game="chameleon"] .resultleft > *:nth-child(4) { animation-delay: .7s; }
+body[data-game="chameleon"] .kv { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+body[data-game="chameleon"] .kv .sc { color: var(--ink-soft); }
+body[data-game="chameleon"] .theword { font-family: var(--serif); font-weight: 700; font-size: 2em; letter-spacing: -.02em; color: var(--stamp-deep); line-height: 1; }
+body[data-game="chameleon"] .gain, body[data-game="chameleon"] .bad { font-family: var(--sans); font-weight: 600; font-size: .8em; letter-spacing: .1em; text-transform: uppercase; }
+body[data-game="chameleon"] .gain { color: var(--good); } body[data-game="chameleon"] .bad { color: var(--bad); }
+body[data-game="chameleon"] .tallygrid { display: grid; grid-template-columns: 1fr; gap: 0; width: 100%; margin-top: .4em; }
+body.host[data-game="chameleon"] .tallygrid { grid-template-columns: 1fr 1fr; column-gap: 2em; }
+body[data-game="chameleon"] .tally { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px dotted var(--rule-strong); font-size: .95em; }
+body[data-game="chameleon"] .tally .who { margin-right: auto; }
+body[data-game="chameleon"] .tally b { font-family: var(--serif); font-weight: 700; font-size: 1.3em; font-variant-numeric: tabular-nums; min-width: 1.2em; text-align: right; }
+body[data-game="chameleon"] .tally.cham b { color: var(--stamp-deep); }
+body[data-game="chameleon"] .cham-mark { color: var(--stamp-deep); border: 1px solid currentColor; padding: 1px 5px; border-radius: 2px; font-size: .62em; }
+body[data-game="chameleon"] .rank { background: var(--paper-hi); border: 1px solid var(--rule); border-radius: 3px; box-shadow: none; display: flex; align-items: center; gap: 12px; padding: 10px 16px; }
+body[data-game="chameleon"] .rank .pos { font-family: var(--serif); color: var(--stamp-deep); width: 1.4em; }
+body.host[data-game="chameleon"] .kv { font-size: 1em; } body.host[data-game="chameleon"] .tally { font-size: .9em; } body.host[data-game="chameleon"] .cham-mark { display: none; }
+body.host[data-game="chameleon"] .hostplay > .pg-r > .wordgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* ── overlays ── */
+body[data-game="chameleon"] .modal-card { background: var(--paper-hi); color: var(--ink); border: 1px solid var(--ink); border-radius: 3px; outline: 1px solid var(--rule-strong); outline-offset: 4px; box-shadow: 0 30px 60px -10px rgba(0,0,0,.55); font-family: var(--sans); }
+body[data-game="chameleon"] .modal-card p { font-family: var(--serif); font-size: 1.2em; }
+body[data-game="chameleon"] #modal { background: rgba(10,36,26,.6); backdrop-filter: none; }
+body[data-game="chameleon"] .screen { animation: none; }
+body[data-game="chameleon"] .stagger > * { }
+@media (max-width: 520px) { body:not(.host)[data-game="chameleon"] .mast-brand i { display: none; } }
+
+/* crowds: the vote tally becomes a dense multi-column index so 30 players still fit one page */
+body[data-game="chameleon"] .tallygrid.many { grid-template-columns: repeat(auto-fill, minmax(9.5em, 1fr)); column-gap: 1em; }
+body[data-game="chameleon"] .tallygrid.many .tally { padding: 2px 0; font-size: .85em; gap: 5px; }
+body[data-game="chameleon"] .tallygrid.many .tally .avatar { font-size: .8em; }
+body.host[data-game="chameleon"] .tallygrid.many { grid-template-columns: repeat(auto-fill, minmax(8.5em, 1fr)); }
+
+/* lobby chat (field-guide style: marginal notes) */
+body[data-game="chameleon"] .chatlog .chead { font-family: var(--sans); font-weight: 600; letter-spacing: .14em; color: var(--stamp-deep); border-bottom: 1px solid var(--rule); padding-bottom: 4px; }
+body[data-game="chameleon"] .cmsg { background: var(--paper-card); border: 1px solid var(--rule); border-left: 3px solid var(--stamp); border-radius: 2px; box-shadow: none; }
+body[data-game="chameleon"] .cmsg .cwho b { font-family: var(--serif); } body[data-game="chameleon"] .cmsg .ctext { font-style: italic; }
+body[data-game="chameleon"] .rdy { color: #2f7a3f; }

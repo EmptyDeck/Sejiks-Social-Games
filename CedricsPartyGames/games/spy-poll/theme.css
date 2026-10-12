@@ -1,0 +1,233 @@
+/* THEME BRIEF
+ * Theme name:   FIELD DOSSIER (cold-war polling bureau)
+ * Vibe:         typewritten case files, rubber stamps, redacted bars, night-shift intelligence desk
+ * Palette:      bg #0b171c / bg2 #1b3139 (night-desk slate), fg #f3ecd8 (cream), accent #f2c14e (manila-amber),
+ *               accent2 #e4572e (CLASSIFIED red); paper #efe4c6 for case-file cards;
+ *               players --pc0..--pc11: saturated "pin on a map" colours that read on dark slate
+ * Fonts:        display 'Special Elite' (typewriter) + body 'Barlow' (clean sans); Korean: 'Noto Sans KR' / Apple SD Gothic Neo
+ * Shapes:       --radius 4px, dashed hairline frame, paper cards with a folder tab, stamp boxes rotated -5deg,
+ *               background = faint survey-grid lines + vignette (CSS gradients only)
+ * Motion:       --ease snappy decelerate (no bounce), --dur .35s, --anim-in = spy-stamp (a rubber stamp pressed onto the page:
+ *               drops in from above and settles (shrink-in, never grows past the screen edge)). On reveal the REAL marker slides along the scale, then rows rise in
+ *               one by one (--d delays); the scale "scans" while the guess is pending.
+ * Sound voice:  digital (clipped beeps); lobbySounds tick/pop/aha/ding/whoosh;
+ *               screenSfx setup pop, guess whoosh, call tick, reveal drumroll, final whoosh, finalreveal drumroll, end fanfare
+ * Avatars:      24 emoji: detective, shades, hat, trench coat, magnifier, key, antenna, telescope, compass, fax, headset, briefcase,
+ *               satellite, clock, flask, owl, black cat, fox, snake, web, mask, tape, map, torch
+ * Copy tone:    dry agency memo. EN "Your turn, agent." / "Begin the operation" / "Mission complete".
+ *               KO "당신 차례예요, 요원." / "작전 개시" / "작전 종료".
+ */
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Barlow:wght@500;700&family=Noto+Sans+KR:wght@400;700&display=swap');
+
+body[data-game="spy-poll"] {
+  --bg: #0b171c; --bg2: #1b3139;
+  --fg: #f3ecd8; --muted: rgba(243,236,216,.84);
+  --accent: #f2c14e; --accent-fg: #1a1810; --accent2: #e4572e;
+  --card: rgba(243,236,216,.07); --line: rgba(242,193,78,.32);
+  --good: #7ddc9a; --bad: #ff8a73;
+  --paper: #efe4c6; --paper2: #e0d1a8; --ink: #1b1a14; --stampred: #a82e16;
+  --radius: 4px;
+  --font-display: 'Special Elite', 'Noto Sans KR', 'Apple SD Gothic Neo', 'Courier New', monospace;
+  --font-body: 'Barlow', 'Noto Sans KR', 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --ease: cubic-bezier(.2,.8,.25,1);
+  --dur: .35s;
+  --anim-in: spy-stamp;
+  --letter: .01;
+  --pc0:#ff5d5d; --pc1:#ff9f43; --pc2:#ffd93d; --pc3:#8be04b; --pc4:#2fd6a0; --pc5:#3fb8ff;
+  --pc6:#7a86ff; --pc7:#b87aff; --pc8:#ff77c8; --pc9:#d2b48c; --pc10:#9db0bd; --pc11:#f4efde;
+  background:
+    repeating-linear-gradient(0deg, rgba(243,236,216,.035) 0 1px, transparent 1px 44px),
+    repeating-linear-gradient(90deg, rgba(243,236,216,.035) 0 1px, transparent 1px 44px),
+    radial-gradient(120% 90% at 50% 0%, var(--bg2), var(--bg) 72%) fixed;
+}
+body[data-game="spy-poll"]::before { content: ''; position: fixed; inset: 8px; border: 1px dashed var(--line); pointer-events: none; z-index: 5; }
+
+/* ── generic bits ── */
+body[data-game="spy-poll"] h1, body[data-game="spy-poll"] h2 { text-transform: uppercase; letter-spacing: .06em; }
+body[data-game="spy-poll"] h1 { font-size: 1.7em; color: var(--accent); }
+body[data-game="spy-poll"] .btn { text-transform: uppercase; letter-spacing: .08em; font-size: 1em; border: 1px solid #ffe08a; box-shadow: 0 .18em 0 rgba(0,0,0,.4); }
+body[data-game="spy-poll"] .btn:active:not(:disabled) { transform: translateY(.12em); box-shadow: 0 .06em 0 rgba(0,0,0,.4); }
+body[data-game="spy-poll"] .btn.secondary { border-color: var(--line); }
+body[data-game="spy-poll"] .btn.ghost { background: transparent; box-shadow: none; opacity: .85; }
+body[data-game="spy-poll"] .btn.big { font-size: 1.25em; padding: 18px 22px; }
+body[data-game="spy-poll"] .btn.tiny { width: auto; font-size: .75em; padding: 8px 12px; }
+body[data-game="spy-poll"] .btn.danger { background: var(--accent2); color: #fff; border-color: #ff9a7d; }
+body[data-game="spy-poll"] .row.between { justify-content: space-between; width: 100%; }
+body[data-game="spy-poll"] .good { color: var(--good); }
+body[data-game="spy-poll"] .bad { color: var(--bad); }
+body[data-game="spy-poll"] .avatar { box-shadow: 0 0 0 2px rgba(0,0,0,.35); }
+body[data-game="spy-poll"] .avatar.bot { background: #405862; }
+body[data-game="spy-poll"] .roomcode { color: var(--accent); }
+body[data-game="spy-poll"] .timer-bar i { background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+body[data-game="spy-poll"] .timer-num { font-family: var(--font-display); }
+body[data-game="spy-poll"] .leadbar { display: flex; flex-wrap: wrap; gap: 10px; width: 100%; }
+body[data-game="spy-poll"] .leadbar .btn { flex: 1 1 10em; width: auto; }
+body[data-game="spy-poll"] .status { margin: 0; text-align: center; color: var(--fg); font-weight: 700; font-size: 1.05em; }
+body[data-game="spy-poll"] .leadbar .btn.skipbtn { flex-basis: 100%; margin-top: 14px; font-size: .85em; }
+body[data-game="spy-poll"] .stickyact { position: sticky; bottom: 0; z-index: 6; width: 100%; padding: 10px 0 6px; background: linear-gradient(transparent, var(--bg) 28%); }
+body[data-game="spy-poll"] .spy-leaderonly { text-align: center; margin: 0; }
+body[data-game="spy-poll"] .pulse { animation: spy-pulse 1.4s ease-in-out infinite; }
+body[data-game="spy-poll"] .who.big { font-size: 1.15em; }
+body[data-game="spy-poll"] .who small { margin-left: .2em; }
+
+body[data-game="spy-poll"] .spy-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+body[data-game="spy-poll"] .spy-tag { font-family: var(--font-display); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+body[data-game="spy-poll"] .spy-timer { flex: 1 1 8em; max-width: 22em; }
+body[data-game="spy-poll"] .spy-confirm { background: rgba(228,87,46,.16); border: 1px solid var(--accent2); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 10px; text-align: center; width: 100%; }
+
+/* ── case file card ── */
+body[data-game="spy-poll"] .dossier { position: relative; background: linear-gradient(var(--paper), var(--paper2)); color: var(--ink); border-radius: 3px; padding: 1.3em 1.1em 1em; margin-top: .5em; box-shadow: 0 .3em 0 rgba(0,0,0,.4); width: 100%; }
+body[data-game="spy-poll"] .dossier::before { content: ''; position: absolute; top: -.55em; left: 1em; width: 5em; height: .6em; background: var(--paper2); border-radius: 3px 3px 0 0; }
+body[data-game="spy-poll"] .stamp { position: absolute; top: -.7em; right: .8em; font-family: var(--font-display); font-size: .72em; letter-spacing: .14em; color: var(--stampred); border: 2px solid var(--stampred); padding: .1em .55em; transform: rotate(-4deg); background: var(--paper); text-transform: uppercase; }
+body[data-game="spy-poll"] .qtext { font-family: var(--font-display); font-size: 1.3em; line-height: 1.3; margin: .1em 0 0; font-weight: 400; }
+body[data-game="spy-poll"].host .qtext { font-size: 1.55em; }
+body[data-game="spy-poll"] .dossier.compact { padding-top: 1em; }
+body[data-game="spy-poll"] .dossier.compact .qtext { font-size: 1.05em; }
+body[data-game="spy-poll"] .yourturn { color: var(--accent); margin: 0; text-align: center; }
+
+/* ── 0-100 scale ── */
+body[data-game="spy-poll"] .scale { position: relative; height: 6em; margin: .4em 2em 0; width: auto; align-self: stretch; }
+body[data-game="spy-poll"] .scale:not(.has-real) { height: 4.2em; }
+body[data-game="spy-poll"] .scale .track { position: absolute; left: 0; right: 0; top: 2.1em; height: 1.4em; border-radius: 2px; border: 1px solid var(--line);
+  background: linear-gradient(90deg, #1f5c4a 0%, #7a8a2f 50%, #b8472b 100%); overflow: visible; }
+body[data-game="spy-poll"] .scale .tk { position: absolute; top: 50%; transform: translate(-50%, -50%); font-size: .6em; color: #fff; text-shadow: 0 0 3px #000, 0 0 3px #000; font-family: var(--font-display); }
+body[data-game="spy-poll"] .scale .tk:first-of-type { transform: translate(.5em, -50%); }
+body[data-game="spy-poll"] .scale .tk:last-of-type { transform: translate(calc(-100% - .5em), -50%); }
+body[data-game="spy-poll"] .scale .scan { position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0 40%, rgba(255,255,255,.5) 50%, transparent 60% 100%) 0 0 / 250% 100%; animation: spy-scan 1.8s linear infinite; mix-blend-mode: overlay; }
+body[data-game="spy-poll"] .mk { position: absolute; left: var(--pos); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
+body[data-game="spy-poll"] .mk b { font-family: var(--font-display); font-size: 1.15em; padding: .05em .45em; border-radius: 2px; white-space: nowrap; }
+body[data-game="spy-poll"] .mk i { width: 0; height: 0; border-left: .45em solid transparent; border-right: .45em solid transparent; }
+body[data-game="spy-poll"] .mk-guess { top: 0; }
+body[data-game="spy-poll"] .mk-guess b { background: var(--accent); color: var(--accent-fg); }
+body[data-game="spy-poll"] .mk-guess.shrug b { background: #b7b19c; }
+body[data-game="spy-poll"] .mk-guess i { border-top: .6em solid var(--accent); }
+body[data-game="spy-poll"] .mk-guess.shrug i { border-top-color: #b7b19c; }
+body[data-game="spy-poll"] .mk-real { top: 3.4em; }
+body[data-game="spy-poll"] .mk-real b { background: var(--accent2); color: #fff; }
+body[data-game="spy-poll"] .mk-real i { border-bottom: .6em solid var(--accent2); }
+body[data-game="spy-poll"] #screen[data-fresh="1"] .mk-real { animation: spy-slide 1.4s cubic-bezier(.15,.8,.2,1) .8s both; }
+
+/* ── guess screen ── */
+body[data-game="spy-poll"] .guesser { text-align: center; font-size: 1.2em; }
+body[data-game="spy-poll"] .sliderbox { width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 6px 8px; }
+body[data-game="spy-poll"] .gval { font-family: var(--font-display); font-size: 3.6em; text-align: center; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+body[data-game="spy-poll"] .sliderrow { display: flex; align-items: center; gap: 6px; }
+body[data-game="spy-poll"] .nudge { flex: none; width: 40px; height: 52px; font-size: 1.6em; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); cursor: pointer; }
+body[data-game="spy-poll"] .slider { flex: 1; height: 56px; -webkit-appearance: none; appearance: none; background: transparent; touch-action: pan-y; }
+body[data-game="spy-poll"] .slider::-webkit-slider-runnable-track { height: 14px; border-radius: 2px; background: linear-gradient(90deg, #1f5c4a, #7a8a2f 50%, #b8472b); border: 1px solid var(--line); }
+body[data-game="spy-poll"] .slider::-moz-range-track { height: 14px; border-radius: 2px; background: linear-gradient(90deg, #1f5c4a, #7a8a2f 50%, #b8472b); border: 1px solid var(--line); }
+body[data-game="spy-poll"] .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 34px; height: 46px; margin-top: -17px; border-radius: 4px; background: var(--accent); border: 2px solid #fff3c4; box-shadow: 0 3px 0 rgba(0,0,0,.45); }
+body[data-game="spy-poll"] .slider::-moz-range-thumb { width: 30px; height: 42px; border-radius: 4px; background: var(--accent); border: 2px solid #fff3c4; }
+body[data-game="spy-poll"] .sliderends { display: flex; justify-content: space-between; color: var(--muted); font-size: .8em; padding: 0 50px; font-family: var(--font-display); }
+
+/* ── call screen ── */
+body[data-game="spy-poll"] .says { display: flex; align-items: center; justify-content: center; gap: .5em; flex-wrap: wrap; text-align: center; }
+body[data-game="spy-poll"] .says .big { font-family: var(--font-display); font-size: 1.6em; color: var(--accent); }
+body[data-game="spy-poll"] .callgrid { display: grid; gap: 10px; width: 100%; grid-template-columns: 1fr 1fr; }
+body[data-game="spy-poll"] .callgrid .btn.call { display: flex; flex-direction: column; align-items: center; gap: .1em; padding: 18px 8px; min-height: 5.2em; font-size: 1.1em; }
+body[data-game="spy-poll"] .callgrid .btn.call .ar { font-size: 1.3em; }
+body[data-game="spy-poll"] .callgrid .btn.up { background: #2d7a5b; color: #fff; border-color: #6fd6a8; }
+body[data-game="spy-poll"] .callgrid .btn.down { background: #a8452c; color: #fff; border-color: #ff9a7d; }
+body[data-game="spy-poll"] .lockedcall { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px; border: 2px solid var(--accent); border-radius: var(--radius); background: rgba(242,193,78,.1); text-align: center; }
+body[data-game="spy-poll"] .lockrow { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+body[data-game="spy-poll"] .lks { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+body[data-game="spy-poll"] .lk { display: inline-flex; flex-direction: column; align-items: center; opacity: .35; transition: opacity .3s; font-size: .85em; }
+body[data-game="spy-poll"] .lk.done { opacity: 1; }
+body[data-game="spy-poll"] .lk.done .avatar { box-shadow: 0 0 0 3px var(--good); }
+body[data-game="spy-poll"] .lk small { font-size: .7em; }
+
+/* ── reveal ── */
+body[data-game="spy-poll"] .revealgrid { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+body[data-game="spy-poll"].host .revealgrid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 3vw; align-items: start; }
+body[data-game="spy-poll"] .rv-left { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+body[data-game="spy-poll"] .verdict { display: flex; flex-direction: column; align-items: center; gap: .1em; text-align: center; font-family: var(--font-display); font-size: 1.1em; }
+body[data-game="spy-poll"] .verdict .vl { display: flex; align-items: center; justify-content: center; gap: .6em; flex-wrap: wrap; }
+body[data-game="spy-poll"] .verdict .gpts { font-size: 1.7em; line-height: 1.1; }
+body[data-game="spy-poll"] .mine { text-align: center; font-family: var(--font-display); font-size: 1.15em; border: 2px dashed currentColor; border-radius: var(--radius); padding: 8px; }
+body[data-game="spy-poll"] .mine b { font-size: 1.4em; }
+body[data-game="spy-poll"] .callcols { display: grid; grid-template-columns: 1fr; gap: 10px; }
+body[data-game="spy-poll"].host .callcols { grid-template-columns: 1fr 1fr; gap: 12px; }
+body[data-game="spy-poll"] .callcols:has(.cg-list > .cl:nth-child(9)) { grid-template-columns: 1fr; }
+body[data-game="spy-poll"] .rk-more { text-align: center; }
+body[data-game="spy-poll"] .cg { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+body[data-game="spy-poll"] .cg-title { font-family: var(--font-display); text-transform: uppercase; font-size: .85em; letter-spacing: .08em; }
+body[data-game="spy-poll"] .cg-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(11em, 1fr)); gap: 3px 12px; }
+body[data-game="spy-poll"] .cl { display: flex; align-items: center; justify-content: space-between; gap: .5em; font-size: .85em; }
+body[data-game="spy-poll"] .cl .dir { color: var(--muted); font-size: .75em; margin-left: auto; }
+body[data-game="spy-poll"] .cl .who { min-width: 0; overflow: hidden; }
+body[data-game="spy-poll"] .cl .who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body[data-game="spy-poll"] .cl.right b { color: var(--good); }
+body[data-game="spy-poll"] .cl.wrong b { color: var(--bad); }
+body[data-game="spy-poll"] .ranking { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 12px; width: 100%; }
+body[data-game="spy-poll"] .rk-title { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .1em; color: var(--accent); font-size: .85em; margin-bottom: 4px; }
+body[data-game="spy-poll"] .rk-list { display: flex; flex-direction: column; gap: 3px; }
+body[data-game="spy-poll"] .ranking.cols .rk-list { display: block; column-width: 12em; column-gap: 1em; }
+body[data-game="spy-poll"] .ranking.cols .rk { break-inside: avoid; margin-bottom: 3px; }
+body[data-game="spy-poll"] .rk { display: flex; align-items: center; gap: .5em; font-size: .9em; padding: 2px 4px; border-radius: 3px; }
+body[data-game="spy-poll"] .rk .pos { font-family: var(--font-display); width: 2.3em; white-space: nowrap; color: var(--accent); text-align: right; }
+body[data-game="spy-poll"] .rk .who { flex: 1; min-width: 0; overflow: hidden; }
+body[data-game="spy-poll"] .rk .who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body[data-game="spy-poll"] .rk .sc { font-family: var(--font-display); min-width: 4.2em; text-align: right; }
+body[data-game="spy-poll"] .rk .dl { font-style: normal; color: var(--good); font-size: .85em; min-width: 4.2em; text-align: right; }
+body[data-game="spy-poll"] .rk.me { background: rgba(242,193,78,.14); }
+body[data-game="spy-poll"] .rk.top .pos::after { content: ' ★'; }
+
+/* reveal staging: only plays on a NEW screen (the core sets #screen[data-fresh="1"]) */
+body[data-game="spy-poll"] #screen[data-fresh="1"] .r-step { animation: spy-rise .5s var(--ease) calc(var(--d, 0) * 1s) both; }
+
+/* ── setup ── */
+body[data-game="spy-poll"] .opts { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+body[data-game="spy-poll"] .opt { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; text-align: left; }
+body[data-game="spy-poll"] .opt .tog { width: auto; min-width: 5.5em; padding: 10px 16px; }
+body[data-game="spy-poll"] .opt .tog.on, body[data-game="spy-poll"] .togview.on { background: var(--accent); color: var(--accent-fg); }
+body[data-game="spy-poll"] .togview { padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--line); font-family: var(--font-display); }
+body[data-game="spy-poll"] .firstbox { width: 100%; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+body[data-game="spy-poll"] .firstbanner { font-family: var(--font-display); color: var(--accent); font-size: 1.1em; }
+body[data-game="spy-poll"] .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+body[data-game="spy-poll"] .pill { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px 4px 6px; cursor: pointer; font-size: .85em; }
+body[data-game="spy-poll"] .pill.sel { border-color: var(--accent); background: rgba(242,193,78,.2); }
+body[data-game="spy-poll"] .solonote { margin: 0; }
+
+/* ── final round ── */
+body[data-game="spy-poll"] .ans-grid { display: grid; grid-template-columns: 1fr; gap: 8px; width: 100%; }
+body[data-game="spy-poll"].host .ans-grid { grid-template-columns: repeat(3, 1fr); }
+body[data-game="spy-poll"] .ans { position: relative; display: flex; align-items: center; min-height: 3em; padding: 8px 12px 8px 14px; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); color: var(--fg); font-weight: 700; cursor: pointer; }
+body[data-game="spy-poll"] .ans.on { background: rgba(242,193,78,.22); border-color: var(--accent); box-shadow: inset .35em 0 0 var(--accent); }
+body[data-game="spy-poll"] .ans:disabled { opacity: .7; cursor: default; }
+body[data-game="spy-poll"] .ans .n { flex: none; width: 1.7em; height: 1.7em; margin-right: .6em; border-radius: 50%; background: var(--accent); color: var(--accent-fg); display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-display); }
+body[data-game="spy-poll"] .frlist { display: flex; flex-direction: column; gap: 5px; width: 100%; }
+body[data-game="spy-poll"] .fr { display: grid; grid-template-columns: 2.6em minmax(0, 1.3fr) minmax(0, 1fr) 3em 3.6em auto; align-items: center; gap: .5em; padding: 4px 8px; background: var(--card); border: 1px solid transparent; border-radius: var(--radius); font-size: .85em; }
+body[data-game="spy-poll"] .fr .rankno { font-family: var(--font-display); color: var(--muted); }
+body[data-game="spy-poll"] .fr .frtext { font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
+body[data-game="spy-poll"] .fr .frbar { height: .8em; background: rgba(0,0,0,.35); border-radius: 2px; overflow: hidden; }
+body[data-game="spy-poll"] .fr .frbar i { display: block; height: 100%; background: var(--muted); }
+body[data-game="spy-poll"] .fr .frpct { font-family: var(--font-display); text-align: right; }
+body[data-game="spy-poll"] .fr .frpay { font-style: normal; color: var(--good); font-size: .85em; text-align: right; }
+body[data-game="spy-poll"] .fr.hp { grid-template-columns: 2.6em minmax(0, 1.3fr) minmax(0, 1fr) 3em 3.6em minmax(0, 11em); }
+body[data-game="spy-poll"] .fr .pickers { display: flex; flex-wrap: wrap; font-size: .55em; gap: 2px; }
+body[data-game="spy-poll"] .fr.podium { border-color: var(--accent); background: rgba(242,193,78,.14); }
+body[data-game="spy-poll"] .fr.podium .frbar i { background: var(--accent); }
+body[data-game="spy-poll"] .fr.p1 .rankno { color: var(--accent); }
+body[data-game="spy-poll"] .fr.mineon { box-shadow: inset .3em 0 0 var(--accent2); }
+
+/* ── end ── */
+body[data-game="spy-poll"] .podium-box { width: 100%; text-align: center; background: linear-gradient(var(--paper), var(--paper2)); color: var(--ink); border-radius: 3px; padding: 14px; box-shadow: 0 .3em 0 rgba(0,0,0,.4); }
+body[data-game="spy-poll"] .podium-box .muted { color: #5b563f; font-family: var(--font-display); text-transform: uppercase; letter-spacing: .1em; }
+body[data-game="spy-poll"] .winners { display: flex; flex-wrap: wrap; gap: 10px 18px; justify-content: center; margin: 6px 0; }
+body[data-game="spy-poll"] .winner .who { font-size: 1.3em; }
+body[data-game="spy-poll"] .winner .who b { color: var(--ink); }
+body[data-game="spy-poll"] .topscore { font-family: var(--font-display); font-size: 2.2em; color: var(--stampred); }
+
+@keyframes spy-stamp { from { opacity: 0; transform: translateY(-12px) scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes spy-rise { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+@keyframes spy-slide { from { left: 0%; opacity: 0; } 15% { opacity: 1; } to { left: var(--pos); opacity: 1; } }
+@keyframes spy-scan { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+@keyframes spy-pulse { 50% { opacity: .78; } }
+
+/* phones: answer text gets the width, the percentage bar sits on a second line */
+body[data-game="spy-poll"].player .fr { grid-template-columns: 2.6em minmax(0, 1fr) 3em 3.6em; row-gap: .25em; }
+body[data-game="spy-poll"].player .fr .frbar { grid-column: 2 / -1; grid-row: 2; }
+
+body[data-game="spy-poll"].player .ans-grid.pick { grid-template-columns: 1fr 1fr; gap: 6px; }
+body[data-game="spy-poll"].player .ans-grid.pick .ans { font-size: .85em; min-height: 2.6em; padding: 6px 8px 6px 10px; line-height: 1.2; }
+body[data-game="spy-poll"].player .ans .n { width: 1.5em; height: 1.5em; margin-right: .4em; }
